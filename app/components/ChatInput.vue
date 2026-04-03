@@ -1,47 +1,42 @@
 <template>
-  <div class="border-t border-neutral-800 bg-neutral-950">
-    <div class="max-w-3xl mx-auto px-4 py-4">
-      <div class="glass-input rounded-2xl border border-neutral-700 focus-within:border-primary-500/50 transition-colors">
+  <div class="bg-transparent pb-4">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="relative glass-input border-2 rounded-2xl border-zinc-700 bg-zinc-800/80 focus-within:border-primary-500/50 transition-colors shadow-lg flex items-end">
         <textarea
           ref="textareaRef"
           v-model="message"
           :placeholder="isStreaming ? 'Waiting for response...' : 'Message...'"
           :disabled="isStreaming"
           rows="1"
-          class="w-full bg-transparent text-neutral-200 placeholder-neutral-500 px-4 pt-4 pb-2 resize-none outline-none text-sm leading-relaxed max-h-48 overflow-y-auto"
+          class="w-full bg-transparent text-zinc-100 placeholder-zinc-500 px-4 pt-4 pb-4 pr-16 resize-none outline-none text-sm leading-relaxed max-h-48 overflow-y-auto"
           @keydown="handleKeydown"
           @input="autoResize"
         />
-        <div class="flex items-center justify-between px-3 pb-3">
-          <div class="flex items-center gap-2">
-            <!-- Could add attachment buttons here -->
-          </div>
-          <div class="flex items-center gap-2">
+        <div class="absolute bottom-2 right-2 flex items-center gap-2">
             <button
               v-if="isStreaming"
               class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-600/20 text-red-400 hover:bg-red-600/30 transition-colors text-sm"
               @click="$emit('stop')"
             >
               <Icon name="lucide:square" class="w-3.5 h-3.5" />
-              <span>Stop</span>
+              <span class="sr-only">Stop</span>
             </button>
             <button
               v-else
               :disabled="!message.trim()"
               :class="[
-                'p-2 rounded-xl transition-all duration-200',
+                'p-2 rounded-xl transition-all duration-200 shadow-md',
                 message.trim()
-                  ? 'bg-primary-600 text-white hover:bg-primary-500 shadow-lg shadow-primary-600/20'
-                  : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
+                  ? 'bg-primary-600 text-white hover:bg-primary-500 shadow-primary-600/20'
+                  : 'bg-zinc-700/50 text-zinc-500 cursor-not-allowed border border-zinc-700/50 shadow-none'
               ]"
               @click="sendMessage"
             >
-              <Icon name="lucide:arrow-up" class="w-4 h-4" />
+              <Icon name="mdi:paw" class="w-5 h-5 text-white" />
             </button>
-          </div>
         </div>
       </div>
-      <p class="text-center text-xs text-neutral-600 mt-2">
+      <p class="text-center text-xs text-zinc-400 mt-2">
         AI can make mistakes. Verify important information.
       </p>
     </div>

@@ -1,6 +1,6 @@
 <template>
-  <div ref="container" class="flex-1 overflow-y-auto" @scroll="handleScroll">
-    <div class="max-w-3xl mx-auto px-4 py-6 space-y-6">
+  <div ref="container" class="flex-1 overflow-y-auto w-full" @scroll="handleScroll">
+    <div class="max-w-4xl w-full mx-auto px-4 py-6 space-y-6">
       <div v-if="messages.length === 0" class="flex items-center justify-center h-full min-h-[200px]">
         <p class="text-neutral-500 text-sm">Send a message to start the conversation</p>
       </div>
@@ -21,12 +21,15 @@
         <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
           <Icon name="lucide:sparkles" class="w-4 h-4 text-white" />
         </div>
-        <div class="flex items-center gap-1.5 pt-2">
-          <span class="typing-dot w-2 h-2 rounded-full bg-neutral-400"></span>
-          <span class="typing-dot w-2 h-2 rounded-full bg-neutral-400"></span>
-          <span class="typing-dot w-2 h-2 rounded-full bg-neutral-400"></span>
+        <div class="flex items-center gap-1.5 pt-2 px-2">
+          <span class="w-2 h-2 rounded-full bg-zinc-500 animate-bounce" style="animation-delay: 0ms"></span>
+          <span class="w-2 h-2 rounded-full bg-zinc-500 animate-bounce" style="animation-delay: 150ms"></span>
+          <span class="w-2 h-2 rounded-full bg-zinc-500 animate-bounce" style="animation-delay: 300ms"></span>
         </div>
       </div>
+
+      <!-- Bottom Spacer Buffer -->
+      <div class="h-24 shrink-0 w-full" aria-hidden="true"></div>
     </div>
 
     <!-- Scroll to bottom button -->

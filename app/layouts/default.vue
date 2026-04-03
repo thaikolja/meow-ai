@@ -14,7 +14,7 @@
       <aside
         v-show="sidebarOpen"
         :class="[
-          'flex flex-col w-[280px] bg-zinc-900 shrink-0 z-50',
+          'flex flex-col w-[280px] bg-[#141416] shrink-0 z-50',
           isMobile ? 'fixed inset-y-0 left-0 shadow-2xl' : 'relative'
         ]"
       >
@@ -99,7 +99,10 @@
 
         <div class="flex-1" />
 
-        <span class="text-xs text-neutral-500 font-medium hidden sm:block">Einstein (einstein.yanawa.io)</span>
+        <span class="text-xs text-zinc-500 font-medium hidden sm:flex items-center gap-2">
+          <Icon name="lucide:brain-circuit" class="w-4 h-4 text-blue-500" />
+          Einstein (einstein.yanawa.io)
+        </span>
       </header>
 
       <!-- Page Content -->

@@ -1,51 +1,62 @@
 <template>
-  <div :class="['flex gap-4 message-enter', message.role === 'user' ? '' : '']">
-    <!-- Avatar -->
-    <div
-      :class="[
-        'w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5',
-        message.role === 'user'
-          ? 'bg-gradient-to-br from-blue-500 to-indigo-600'
-          : 'bg-gradient-to-br from-emerald-500 to-teal-600'
-      ]"
-    >
-      <Icon
-        :name="message.role === 'user' ? 'lucide:user' : 'lucide:sparkles'"
-        class="w-4 h-4 text-white"
-      />
-    </div>
-
-    <!-- Content -->
-    <div class="flex-1 min-w-0 space-y-2">
-      <!-- Role label -->
-      <div class="flex items-center gap-2">
-        <span class="text-sm font-semibold text-neutral-200">
-          {{ message.role === 'user' ? 'You' : 'Assistant' }}
-        </span>
-        <span v-if="message.model" class="text-xs text-neutral-500">
-          {{ message.model }}
+  <div :class="[
+    'flex w-full py-2 px-4 sm:px-6 transition-colors',
+    message.role === 'assistant' ? 'justify-end' : 'justify-start'
+  ]">
+    <div :class="[
+      'w-[90%] md:w-[85%] rounded-3xl px-6 py-5 relative group shadow-sm flex flex-col',
+      message.role === 'assistant' 
+        ? 'bg-zinc-800 text-zinc-300' 
+        : 'bg-purple-900/30 text-purple-200/90'
+    ]">
+      
+      <!-- Header -->
+      <div class="flex items-center gap-2 mb-2">
+        <Icon :name="message.role === 'assistant' ? 'lucide:bot' : 'lucide:user'" :class="[
+          'w-4 h-4',
+          message.role === 'assistant' ? 'text-zinc-400' : 'text-purple-400'
+        ]" />
+        <span class="text-xs font-semibold opacity-70 uppercase tracking-wider">
+          {{ message.role === 'assistant' ? 'Einstein' : 'You' }}
         </span>
       </div>
 
-      <!-- Message body -->
-      <div class="text-neutral-300 leading-relaxed">
-        <div v-if="displayContent" class="chat-prose">
-          <MarkdownRenderer :content="displayContent" />
-        </div>
-        <div v-else-if="isStreaming" class="flex items-center gap-1.5">
-          <span class="typing-dot w-2 h-2 rounded-full bg-neutral-400"></span>
-          <span class="typing-dot w-2 h-2 rounded-full bg-neutral-400"></span>
-          <span class="typing-dot w-2 h-2 rounded-full bg-neutral-400"></span>
+      <!-- Content -->
+      <div class="flex-1 min-w-0">
+        <div class="chat-prose prose-p:leading-relaxed prose-pre:my-0">
+          <ClientOnly>
+            <!-- Check if there is actual content, otherwise default slots handle streaming indicator -->
+            <MarkdownRenderer v-if="displayContent" :content="displayContent" :class="message.role === 'user' ? 'text-purple-100!' : ''" />
+            <div v-else-if="!isStreaming" class="text-zinc-500 italic text-sm">Empty message</div>
+            <slot />
+          </ClientOnly>
         </div>
       </div>
 
-      <!-- Actions -->
-      <div v-if="!isStreaming && displayContent" class="flex flex-wrap items-center gap-1.5 pt-2 opacity-0 hover:opacity-100 transition-opacity">
-        <!-- Tutor Actions -->
+      <!-- Actions & Metadata -->
+      <div v-if="!isStreaming && displayContent" class="flex flex-nowrap overflow-x-auto no-scrollbar items-center justify-between gap-4 pt-3 mt-3 transition-opacity w-full border-t border-zinc-700/30">
+        <!-- Metadata on Left -->
+        <div :class="[
+          'flex items-center gap-3 text-[10.5px] font-medium tracking-wide opacity-50',
+          message.role === 'assistant' ? 'text-zinc-400' : 'text-purple-300'
+        ]">
+          <div class="flex items-center gap-1.5" title="Model Used">
+            <Icon name="lucide:cpu" class="w-3.5 h-3.5" />
+            {{ message.role === 'assistant' ? (message.model || 'Einstein') : 'Client Input' }}
+          </div>
+          <div class="flex items-center gap-1.5" title="Estimated Tokens">
+            <Icon name="lucide:calculator" class="w-3.5 h-3.5" />
+            {{ tokenEstimate }} tokens
+          </div>
+        </div>
+
+        <!-- Buttons on Right -->
+        <div class="flex items-center gap-1.5 flex-nowrap shrink-0 justify-end">
+          <!-- Tutor Actions -->
         <template v-if="message.role === 'assistant'">
           <button
-            class="flex items-center gap-1.5 px-2 py-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-medium border border-zinc-700/50"
-            @click="speakGerman"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-medium"
+            @click="speakDetect"
             title="Read out loud in German"
           >
             <Icon name="lucide:volume-2" class="w-3.5 h-3.5" />
@@ -53,7 +64,7 @@
           </button>
           
           <button
-            class="flex items-center gap-1.5 px-2 py-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-medium border border-zinc-700/50"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-medium"
             @click="$emit('quick-prompt', 'Please translate the main vocabulary from the text above into Thai.')"
             title="Translate Vocabulary to Thai"
           >
@@ -62,7 +73,7 @@
           </button>
           
           <button
-            class="flex items-center gap-1.5 px-2 py-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-medium border border-zinc-700/50"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-medium"
             @click="$emit('quick-prompt', 'Can you explain the German grammar in the text above? Break it down clearly and use English/Thai references for a Thai native speaker.')"
             title="Explain Grammar"
           >
@@ -71,7 +82,7 @@
           </button>
           
           <button
-            class="flex items-center gap-1.5 px-2 py-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-medium border border-zinc-700/50"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-medium"
             @click="$emit('quick-prompt', 'Give me 3 more simple example sentences using the main vocabulary or grammar structure shown here.')"
             title="Give 3 examples"
           >
@@ -80,10 +91,13 @@
           </button>
         </template>
 
-        <div class="h-4 w-px bg-zinc-700 mx-1"></div>
+        <div v-if="message.role === 'assistant'" class="h-4 w-px bg-zinc-700 mx-1"></div>
 
         <button
-          class="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+          :class="[
+            'p-1.5 rounded-xl transition-colors',
+            message.role === 'assistant' ? 'hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200' : 'hover:bg-purple-800/50 text-purple-300 hover:text-purple-100'
+          ]"
           title="Copy message"
           @click="copyContent"
         >
@@ -91,12 +105,13 @@
         </button>
         <button
           v-if="isLast && message.role === 'assistant'"
-          class="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+          class="p-1.5 rounded-xl hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200 transition-colors"
           title="Regenerate response"
           @click="$emit('regenerate')"
         >
           <Icon name="lucide:refresh-cw" class="w-4 h-4" />
         </button>
+        </div>
       </div>
     </div>
   </div>
@@ -119,12 +134,31 @@ const emit = defineEmits<{
 
 const copied = ref(false)
 
-function speakGerman() {
+function speakDetect() {
   if (import.meta.client) {
-    // Only speak the text content, ignore Markdown markers if possible. For simplicity, we fallback to displayContent
-    const utterance = new SpeechSynthesisUtterance(displayContent.value)
-    utterance.lang = 'de-DE'
+    const text = displayContent.value
+    let lang = 'de-DE' // Fallback to german
+    
+    // Quick heuristic auto-detection
+    if (/[\u0E00-\u0E7F]/.test(text)) {
+      lang = 'th-TH'
+    } else {
+      const deTerms = /\b(und|der|die|das|ich|du|er|sie|es|wir|ihr|ist|sind|nicht|ja|nein)\b/gi
+      const enTerms = /\b(the|and|is|are|you|they|it|we|not|yes|no)\b/gi
+      const deCount = (text.match(deTerms) || []).length
+      const enCount = (text.match(enTerms) || []).length
+      if (enCount > deCount) lang = 'en-US'
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.lang = lang
     utterance.rate = 0.9 // slightly slower for learners
+
+    // Explicitly request the correct voice object matching the language
+    const voices = window.speechSynthesis.getVoices()
+    const matchingVoice = voices.find(v => v.lang.startsWith(lang.substring(0, 2)))
+    if (matchingVoice) utterance.voice = matchingVoice
+
     window.speechSynthesis.speak(utterance)
   }
 }
@@ -145,4 +179,10 @@ async function copyContent() {
     // Fallback
   }
 }
+
+const tokenEstimate = computed(() => {
+  const text = displayContent.value
+  if (!text) return 0
+  return Math.ceil(text.length / 4)
+})
 </script>
