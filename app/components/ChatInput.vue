@@ -1,11 +1,11 @@
 <template>
-  <div class="bg-transparent pb-4">
+  <div class="bg-transparent pb-4 pt-8">
     <div class="max-w-6xl mx-auto px-4">
       <div class="relative glass-input border-2 rounded-2xl border-zinc-700 bg-zinc-800/80 focus-within:border-primary-500/50 transition-colors shadow-lg flex items-end">
         <textarea
           ref="textareaRef"
           v-model="message"
-          :placeholder="isStreaming ? 'Waiting for response...' : 'Message...'"
+          :placeholder="isStreaming ? 'Einstein is sharpening claws... 🐾' : 'Meow at Einstein... 🐾'"
           :disabled="isStreaming"
           rows="1"
           class="w-full bg-transparent text-zinc-100 placeholder-zinc-500 px-4 pt-4 pb-4 pr-16 resize-none outline-none text-sm leading-relaxed max-h-48 overflow-y-auto"
@@ -36,8 +36,8 @@
             </button>
         </div>
       </div>
-      <p class="text-center text-xs text-zinc-400 mt-2">
-        AI can make mistakes. Verify important information.
+      <p class="text-center text-[10px] uppercase tracking-[0.2em] font-medium text-zinc-600 mt-2">
+        Einstein can make meow-stakes. Please verify with a human cat. 🐾
       </p>
     </div>
   </div>

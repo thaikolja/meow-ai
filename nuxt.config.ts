@@ -7,6 +7,10 @@ export default defineNuxtConfig({
     '@nuxt/icon'
   ],
 
+  runtimeConfig: {
+    appPassword: '' // populated by process.env.NUXT_APP_PASSWORD
+  },
+
   css: [
     '~/assets/css/main.css',
     '~/assets/css/markdown.css'

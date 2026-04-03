@@ -39,7 +39,7 @@ export function useChats() {
     const now = Date.now()
     const chat: Chat = {
       id: generateId(),
-      title: 'New Chat',
+      title: 'New Meow 🐾',
       messages: [],
       createdAt: now,
       updatedAt: now,
@@ -62,8 +62,8 @@ export function useChats() {
 
   function renameChat(id: string, title: string) {
     const index = chats.value.findIndex(c => c.id === id)
-    if (index !== -1) {
-      const updated = { ...chats.value[index], title }
+    if (index !== -1 && chats.value[index]) {
+      const updated = { ...chats.value[index] as Chat, title }
       chats.value = [...chats.value.slice(0, index), updated, ...chats.value.slice(index + 1)]
       saveChats(chats.value)
     }
@@ -80,6 +80,7 @@ export function useChats() {
     }
 
     const chat = chats.value[chatIndex]
+    if (!chat) throw new Error(`Chat ${chatId} not found at index ${chatIndex}`)
     const updatedChat = {
       ...chat,
       messages: [...chat.messages, msg],
@@ -87,7 +88,7 @@ export function useChats() {
     }
 
     // Auto-title from first user message
-    if (updatedChat.title === 'New Chat' && message.role === 'user') {
+    if (updatedChat && updatedChat.title === 'New Meow 🐾' && message.role === 'user') {
       updatedChat.title = message.content.substring(0, 50) + (message.content.length > 50 ? '...' : '')
     }
 
@@ -95,28 +96,33 @@ export function useChats() {
       ...chats.value.slice(0, chatIndex),
       updatedChat,
       ...chats.value.slice(chatIndex + 1)
-    ]
+    ] as Chat[]
     saveChats(chats.value)
     return msg
   }
 
-  function updateMessage(chatId: string, messageId: string, content: string) {
+  function updateMessage(chatId: string, messageId: string, content: string, isError?: boolean) {
     const chatIndex = chats.value.findIndex(c => c.id === chatId)
     if (chatIndex === -1) return
 
     const chat = chats.value[chatIndex]
+    if (!chat) return
     const msgIndex = chat.messages.findIndex(m => m.id === messageId)
     if (msgIndex === -1) return
 
     const updatedMessages = [...chat.messages]
-    updatedMessages[msgIndex] = { ...updatedMessages[msgIndex], content }
+    updatedMessages[msgIndex] = { 
+      ...updatedMessages[msgIndex] as ChatMessage, 
+      content,
+      isError: isError !== undefined ? isError : updatedMessages[msgIndex]?.isError
+    }
 
     const updatedChat: Chat = { ...chat, messages: updatedMessages, updatedAt: Date.now() } as Chat
     chats.value = [
       ...chats.value.slice(0, chatIndex),
       updatedChat,
       ...chats.value.slice(chatIndex + 1)
-    ]
+    ] as Chat[] as Chat[]
     saveChats(chats.value)
   }
 
@@ -143,13 +149,13 @@ export function useChats() {
 
   function updateChatModel(chatId: string, providerId: string, model: string) {
     const chatIndex = chats.value.findIndex(c => c.id === chatId)
-    if (chatIndex !== -1) {
-      const updatedChat: Chat = { ...chats.value[chatIndex], providerId, model } as Chat
+    if (chatIndex !== -1 && chats.value[chatIndex]) {
+      const updatedChat: Chat = { ...chats.value[chatIndex] as Chat, providerId, model } as Chat
       chats.value = [
         ...chats.value.slice(0, chatIndex),
         updatedChat,
         ...chats.value.slice(chatIndex + 1)
-      ]
+      ] as Chat[]
       saveChats(chats.value)
     }
   }

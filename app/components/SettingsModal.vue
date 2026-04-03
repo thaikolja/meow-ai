@@ -2,8 +2,8 @@
   <UModal v-model:open="open" :ui="{ content: 'sm:max-w-2xl' }">
     <template #header>
       <div class="flex items-center gap-3">
-        <Icon name="lucide:settings" class="w-5 h-5 text-primary-400" />
-        <h2 class="text-lg font-semibold text-neutral-100">Settings</h2>
+        <Icon name="mdi:paw" class="w-5 h-5 text-primary-400" />
+        <h2 class="text-lg font-semibold text-neutral-100 italic">Paw-ferences 🐾</h2>
       </div>
     </template>
 
@@ -11,7 +11,7 @@
       <div class="space-y-8 p-1">
         <!-- General Section -->
         <div>
-          <h3 class="text-sm font-semibold text-neutral-300 uppercase tracking-wider mb-4">General Settings</h3>
+          <h3 class="text-sm font-semibold text-neutral-300 uppercase tracking-wider mb-4 italic">Cat-figurations 🐾</h3>
           <div class="space-y-3">
             <div>
               <label class="block text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1.5">Global System Prompt</label>
@@ -28,7 +28,7 @@
 
         <!-- Token Management Section -->
         <div>
-          <h3 class="text-sm font-semibold text-neutral-300 uppercase tracking-wider mb-4">Token Management</h3>
+          <h3 class="text-sm font-semibold text-neutral-300 uppercase tracking-wider mb-4 italic">Paw-token Handling 🐾</h3>
           <div class="space-y-3">
             <div>
               <label class="block text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1.5">Max Context Messages</label>
@@ -46,7 +46,7 @@
         <!-- Providers Section -->
         <div>
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-semibold text-neutral-300 uppercase tracking-wider">LLM Providers</h3>
+            <h3 class="text-sm font-semibold text-neutral-300 uppercase tracking-wider italic">Meow-del Feeders 🐾</h3>
             <button
               class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-600/20 text-primary-400 hover:bg-primary-600/30 transition-colors text-sm"
               @click="showAddForm = true"
@@ -70,13 +70,13 @@
 
         <!-- Danger Zone -->
         <div class="border-t border-neutral-800 pt-4">
-          <h3 class="text-sm font-semibold text-red-400 uppercase tracking-wider mb-3">Danger Zone</h3>
+          <h3 class="text-sm font-semibold text-red-400 uppercase tracking-wider mb-3 italic">Danger Zone 🐾</h3>
           <button
             class="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-800/50 text-red-400 hover:bg-red-900/20 transition-colors text-sm"
             @click="handleClearChats"
           >
-            <Icon name="lucide:trash-2" class="w-4 h-4" />
-            <span>Clear All Chats</span>
+            <Icon name="mdi:trash-can" class="w-4 h-4" />
+            <span>Empty Litter Box 🐾</span>
           </button>
         </div>
       </div>
@@ -101,7 +101,7 @@ async function handleAddProvider(data: { name: string; baseUrl: string; apiKey: 
 }
 
 function handleClearChats() {
-  if (confirm('Are you sure you want to delete all chats? This cannot be undone.')) {
+  if (confirm('Are you sure you want to empty the litter box? All meows will be gone forever! 🐾')) {
     clearAllChats()
     navigateTo('/')
   }

@@ -11,6 +11,22 @@ const DEFAULT_PROVIDERS: LLMProvider[] = [
     models: ['deepseek-chat', 'deepseek-reasoner'],
     isActive: true,
     createdAt: Date.now()
+  },
+  {
+    id: 'groq-default',
+    name: 'Groq',
+    baseUrl: 'https://api.groq.com/openai',
+    apiKey: 'REDACTED',
+    models: [
+      'llama-3.3-70b-versatile',
+      'llama-3.1-8b-instant',
+      'mixtral-8x7b-32768',
+      'gemma2-9b-it',
+      'deepseek-r1-distill-llama-70b',
+      'deepseek-r1-distill-qwen-32b'
+    ],
+    isActive: true,
+    createdAt: Date.now()
   }
 ]
 
@@ -43,7 +59,12 @@ export function useProviders() {
 
   // Load from localStorage on client
   if (import.meta.client && !isLoaded.value) {
-    providers.value = loadProviders()
+    const loaded = loadProviders()
+    // Ensure Groq default is present for existing users
+    if (!loaded.find(p => p.id === 'groq-default')) {
+      loaded.push(DEFAULT_PROVIDERS[1]!)
+    }
+    providers.value = loaded
     isLoaded.value = true
   }
 
@@ -64,8 +85,8 @@ export function useProviders() {
 
   function updateProvider(id: string, data: Partial<LLMProvider>) {
     const index = providers.value.findIndex(p => p.id === id)
-    if (index !== -1) {
-      providers.value[index] = { ...providers.value[index], ...data }
+    if (index !== -1 && providers.value[index]) {
+      providers.value[index] = { ...providers.value[index] as LLMProvider, ...data }
       saveProviders(providers.value)
     }
   }
@@ -88,7 +109,11 @@ export function useProviders() {
         }
       })
       const models = response.models || []
-      updateProvider(providerId, { models })
+      const index = providers.value.findIndex(p => p.id === providerId)
+      if (index !== -1) {
+        providers.value[index] = { ...providers.value[index]!, models }
+        saveProviders(providers.value)
+      }
       return models
     } catch (error) {
       console.error('Failed to fetch models:', error)

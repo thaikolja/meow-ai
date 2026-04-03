@@ -17,6 +17,7 @@ export interface ChatMessage {
   timestamp: number
   model?: string
   providerId?: string
+  isError?: boolean
 }
 
 export interface Chat {

@@ -76,7 +76,8 @@ export function useChatStream() {
       if (error.name === 'AbortError') {
         onDone(streamingContent.value)
       } else {
-        onError(error.message || 'Stream failed')
+        const catError = `Hiss! 😿 Something went wrong with the meow-del: ${error.message || 'The cats are tangled in the yarn'}. Please try again later! 🐾`
+        onError(catError)
       }
     }
   }

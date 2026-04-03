@@ -132,9 +132,8 @@ async function triggerCompletion() {
       updateMessage(currentChatId, assistantMsg.id, fullContent)
       persist()
     },
-    // onError
     (error: string) => {
-      updateMessage(currentChatId, assistantMsg.id, `⚠️ Error: ${error}`)
+      updateMessage(currentChatId, assistantMsg.id, error, true)
       persist()
     }
   )

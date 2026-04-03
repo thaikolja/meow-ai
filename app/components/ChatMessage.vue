@@ -4,20 +4,28 @@
     message.role === 'assistant' ? 'justify-end' : 'justify-start'
   ]">
     <div :class="[
-      'w-[90%] md:w-[85%] rounded-3xl px-6 py-5 relative group shadow-sm flex flex-col',
-      message.role === 'assistant' 
-        ? 'bg-zinc-800 text-zinc-300' 
-        : 'bg-purple-900/30 text-purple-200/90'
+      'w-[90%] md:w-[85%] rounded-[2rem] px-6 pt-6 pb-5 relative group shadow-sm flex flex-col overflow-hidden transition-all duration-300',
+      message.isError
+        ? 'bg-red-950/20 text-red-200 border-2 border-red-500/50 rounded-tr-xl'
+        : message.role === 'assistant' 
+          ? 'bg-zinc-800 text-zinc-300 rounded-tr-xl' 
+          : 'bg-purple-900/30 text-purple-200/90 rounded-tl-xl'
     ]">
       
+      <!-- Cute Background Watermark -->
+      <Icon :name="message.isError ? 'mdi:alert-box' : 'mdi:paw'" :class="[
+        'absolute -bottom-6 w-32 h-32 opacity-[0.03] pointer-events-none transition-transform',
+        message.isError ? 'text-red-500 opacity-[0.08]' : (message.role === 'assistant' ? '-left-6 -rotate-12' : '-right-6 rotate-12')
+      ]" />
+
       <!-- Header -->
-      <div class="flex items-center gap-2 mb-2">
-        <Icon :name="message.role === 'assistant' ? 'lucide:bot' : 'lucide:user'" :class="[
+      <div class="flex items-center gap-2 mb-2 relative z-10">
+        <Icon :name="message.isError ? 'mdi:alert-decagram' : (message.role === 'assistant' ? 'mdi:cat' : 'lucide:user')" :class="[
           'w-4 h-4',
-          message.role === 'assistant' ? 'text-zinc-400' : 'text-purple-400'
+          message.isError ? 'text-red-400' : (message.role === 'assistant' ? 'text-primary-400' : 'text-purple-400')
         ]" />
         <span class="text-xs font-semibold opacity-70 uppercase tracking-wider">
-          {{ message.role === 'assistant' ? 'Einstein' : 'You' }}
+          {{ message.isError ? 'Hiss! 😿' : (message.role === 'assistant' ? 'Einstein 🐾' : (usernameCookie || 'You')) }}
         </span>
       </div>
 
@@ -27,90 +35,81 @@
           <ClientOnly>
             <!-- Check if there is actual content, otherwise default slots handle streaming indicator -->
             <MarkdownRenderer v-if="displayContent" :content="displayContent" :class="message.role === 'user' ? 'text-purple-100!' : ''" />
-            <div v-else-if="!isStreaming" class="text-zinc-500 italic text-sm">Empty message</div>
+            <div v-else-if="!isStreaming" class="text-zinc-500 italic text-sm">No purrs in this bubble yet... 🐾</div>
             <slot />
           </ClientOnly>
         </div>
       </div>
 
-      <!-- Actions & Metadata -->
-      <div v-if="!isStreaming && displayContent" class="flex flex-nowrap overflow-x-auto no-scrollbar items-center justify-between gap-4 pt-3 mt-3 transition-opacity w-full border-t border-zinc-700/30">
+      <!-- Actions & Metadata Box -->
+      <div v-if="!isStreaming && displayContent" class="flex flex-nowrap overflow-x-auto no-scrollbar items-center justify-between gap-4 pt-3 mt-1.5 transition-opacity w-full">
         <!-- Metadata on Left -->
         <div :class="[
-          'flex items-center gap-3 text-[10.5px] font-medium tracking-wide opacity-50',
-          message.role === 'assistant' ? 'text-zinc-400' : 'text-purple-300'
+          'flex items-center gap-3 text-[10px] font-medium tracking-wide opacity-40',
+          message.role === 'assistant' ? 'text-zinc-500' : 'text-purple-300'
         ]">
           <div class="flex items-center gap-1.5" title="Model Used">
-            <Icon name="lucide:cpu" class="w-3.5 h-3.5" />
-            {{ message.role === 'assistant' ? (message.model || 'Einstein') : 'Client Input' }}
+            <Icon name="mdi:cat" class="w-3 h-3" />
+            {{ message.role === 'assistant' ? (message.model || 'Einstein 🐾') : (usernameCookie || 'Client Input') }}
           </div>
           <div class="flex items-center gap-1.5" title="Estimated Tokens">
-            <Icon name="lucide:calculator" class="w-3.5 h-3.5" />
-            {{ tokenEstimate }} tokens
+            <Icon name="mdi:calculator" class="w-3 h-3" />
+            {{ tokenEstimate }} paw-tokens
           </div>
         </div>
 
         <!-- Buttons on Right -->
         <div class="flex items-center gap-1.5 flex-nowrap shrink-0 justify-end">
           <!-- Tutor Actions -->
-        <template v-if="message.role === 'assistant'">
-          <button
-            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-medium"
-            @click="speakDetect"
-            title="Read out loud in German"
-          >
-            <Icon name="lucide:volume-2" class="w-3.5 h-3.5" />
-            <span>Listen</span>
-          </button>
-          
-          <button
-            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-medium"
-            @click="$emit('quick-prompt', 'Please translate the main vocabulary from the text above into Thai.')"
-            title="Translate Vocabulary to Thai"
-          >
-            <Icon name="lucide:languages" class="w-3.5 h-3.5" />
-            <span>Vocab Thai</span>
-          </button>
-          
-          <button
-            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-medium"
-            @click="$emit('quick-prompt', 'Can you explain the German grammar in the text above? Break it down clearly and use English/Thai references for a Thai native speaker.')"
-            title="Explain Grammar"
-          >
-            <Icon name="lucide:book-open" class="w-3.5 h-3.5" />
-            <span>Grammar</span>
-          </button>
-          
-          <button
-            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-medium"
-            @click="$emit('quick-prompt', 'Give me 3 more simple example sentences using the main vocabulary or grammar structure shown here.')"
-            title="Give 3 examples"
-          >
-            <Icon name="lucide:list" class="w-3.5 h-3.5" />
-            <span>Examples</span>
-          </button>
-        </template>
+          <template v-if="message.role === 'assistant'">
+            <button
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-medium shrink-0"
+              @click="$emit('quick-prompt', 'Please translate the main vocabulary from the text above into Thai.')"
+              title="Translate Vocabulary to Thai"
+            >
+              <Icon name="lucide:languages" class="w-3.5 h-3.5" />
+              <span>Vocab Thai</span>
+            </button>
+            
+            <button
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-medium shrink-0"
+              @click="$emit('quick-prompt', 'Can you explain the German grammar in the text above? Break it down clearly and use English/Thai references for a Thai native speaker.')"
+              title="Explain Grammar"
+            >
+              <Icon name="lucide:book-open" class="w-3.5 h-3.5" />
+              <span>Grammar</span>
+            </button>
+            
+            <button
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-medium shrink-0"
+              @click="$emit('quick-prompt', 'Give me 3 more simple example sentences using the main vocabulary or grammar structure shown here.')"
+              title="Give 3 examples"
+            >
+              <Icon name="lucide:list" class="w-3.5 h-3.5" />
+              <span>Examples</span>
+            </button>
+          </template>
 
-        <div v-if="message.role === 'assistant'" class="h-4 w-px bg-zinc-700 mx-1"></div>
+          <div v-if="message.role === 'assistant'" class="h-4 w-px bg-zinc-700 mx-1"></div>
 
-        <button
-          :class="[
-            'p-1.5 rounded-xl transition-colors',
-            message.role === 'assistant' ? 'hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200' : 'hover:bg-purple-800/50 text-purple-300 hover:text-purple-100'
-          ]"
-          title="Copy message"
-          @click="copyContent"
-        >
-          <Icon :name="copied ? 'lucide:check' : 'lucide:copy'" class="w-4 h-4" />
-        </button>
-        <button
-          v-if="isLast && message.role === 'assistant'"
-          class="p-1.5 rounded-xl hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200 transition-colors"
-          title="Regenerate response"
-          @click="$emit('regenerate')"
-        >
-          <Icon name="lucide:refresh-cw" class="w-4 h-4" />
-        </button>
+          <button
+            :class="[
+              'p-1.5 rounded-xl transition-colors',
+              message.role === 'assistant' ? 'hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200' : 'hover:bg-purple-800/50 text-purple-300 hover:text-purple-100'
+            ]"
+            title="Copy message"
+            @click="copyContent"
+          >
+            <Icon :name="copied ? 'lucide:check' : 'lucide:copy'" class="w-4 h-4" />
+          </button>
+          <button
+            v-if="isLast && message.role === 'assistant'"
+            class="p-1.5 rounded-xl hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200 transition-colors"
+            title="Regenerate response"
+            @click="$emit('regenerate')"
+          >
+            <Icon name="lucide:refresh-cw" class="w-4 h-4" />
+          </button>
         </div>
       </div>
     </div>
@@ -133,6 +132,7 @@ const emit = defineEmits<{
 }>()
 
 const copied = ref(false)
+const usernameCookie = useCookie('chat_username')
 
 function speakDetect() {
   if (import.meta.client) {
