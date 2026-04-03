@@ -53,6 +53,26 @@ function saveProviders(providers: LLMProvider[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(providers))
 }
 
+export function formatModelName(modelId: string): string {
+  if (!modelId) return ''
+  const customNames: Record<string, string> = {
+    'deepseek-chat': 'DeepSeek Chat',
+    'deepseek-reasoner': 'DeepSeek Reasoner',
+    'llama-3.3-70b-versatile': 'Llama 3.3 70B',
+    'llama-3.1-8b-instant': 'Llama 3.1 8B',
+    'mixtral-8x7b-32768': 'Mixtral 8x7B',
+    'gemma2-9b-it': 'Gemma 2 9B',
+    'deepseek-r1-distill-llama-70b': 'DeepSeek R1 Llama 70B',
+    'deepseek-r1-distill-qwen-32b': 'DeepSeek R1 Qwen 32B'
+  }
+  if (customNames[modelId]) return customNames[modelId]!
+  return modelId
+    .split('-')
+    .filter(word => !['versatile', 'distill', 'distilled', 'it', 'instant'].includes(word.toLowerCase()))
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+}
+
 export function useProviders() {
   const providers = useState<LLMProvider[]>('providers', () => [])
   const isLoaded = useState('providers-loaded', () => false)
@@ -149,6 +169,7 @@ export function useProviders() {
     updateProvider,
     removeProvider,
     fetchModels,
-    getProvider
+    getProvider,
+    formatModelName
   }
 }

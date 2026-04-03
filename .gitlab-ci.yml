@@ -1,0 +1,43 @@
+# Mew-line CI: The Furry Pipeline for GitLab
+image: oven/bun:latest
+
+stages:
+  - lint
+  - build
+  - deploy
+
+# Paws-ing for a lint
+lint_code:
+  stage: lint
+  script:
+    - bun install
+    - bun run typecheck || echo "Keep it purring, type-checking is paws-itive but optional for now"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'main'
+
+# The Big Scratch: Building the App
+build_app:
+  stage: build
+  script:
+    - bun install
+    - bun run build
+  artifacts:
+    paths:
+      - .output/
+    expire_in: 1 week
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'main'
+
+# Purr-duction: Deploy (to be customized by the USER)
+deploy_production:
+  stage: deploy
+  script:
+    - echo "Deploying to the cat-cave..."
+    # Add your deployment logic here, e.g., rsync, docker push, etc.
+  environment:
+    name: production
+    url: https://chat.yanawa.io
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'main'
+      when: manual

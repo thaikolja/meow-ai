@@ -52,7 +52,7 @@
               :name="isSelected(providerGroup.providerId, model) ? 'lucide:check-circle-2' : 'lucide:circle'"
               class="w-4 h-4 shrink-0"
             />
-            <span class="truncate">{{ model }}</span>
+            <span class="truncate">{{ formatModelName(model) }}</span>
           </button>
         </div>
       </div>
@@ -63,11 +63,11 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, computed } from 'vue'
 
-const { allModels } = useProviders()
+const { allModels, formatModelName } = useProviders()
 const dropdownContainer = ref<HTMLElement | null>(null)
 
-const selectedModel = useState<string>('selected-model', () => 'deepseek-chat')
-const selectedProvider = useState<string>('selected-provider', () => 'deepseek-default')
+const selectedModel = useState<string>('selected-model', () => 'llama-3.3-70b-versatile')
+const selectedProvider = useState<string>('selected-provider', () => 'groq-default')
 const settingsOpen = useState('settings-open', () => false)
 
 const isOpen = ref(false)
@@ -89,7 +89,7 @@ onUnmounted(() => {
 
 const displayLabel = computed(() => {
   if (!selectedModel.value) return 'Pick a Meow-del 🐾'
-  return selectedModel.value
+  return formatModelName(selectedModel.value)
 })
 
 const filteredModels = computed(() => {

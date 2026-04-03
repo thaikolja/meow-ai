@@ -19,13 +19,13 @@
         ]"
       >
         <!-- Sidebar Branding -->
-        <div class="px-6 py-8 flex flex-col items-center justify-center opacity-30 select-none pointer-events-none">
-          <div class="flex gap-2">
+        <NuxtLink to="/" class="px-6 py-8 flex flex-col items-center justify-center opacity-30 hover:opacity-100 transition-opacity cursor-pointer group">
+          <div class="flex gap-2 group-hover:scale-110 transition-transform duration-500">
             <Icon name="mdi:cat" class="w-10 h-10" />
             <Icon name="mdi:paw" class="w-6 h-6 mt-4 -ml-2 rotate-12" />
           </div>
           <p class="text-[10px] uppercase tracking-[0.2em] font-bold mt-2">Einstein 🐾</p>
-        </div>
+        </NuxtLink>
 
         <!-- Sidebar Header -->
         <div class="flex flex-col gap-2 p-3 border-b border-zinc-800/80">

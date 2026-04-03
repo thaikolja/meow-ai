@@ -1,0 +1,17 @@
+# 🐾 Things to ignore (No fur-balls in the container)
+node_modules/
+.nuxt/
+.output/
+.git/
+.env
+.DS_Store
+yarn.lock
+bun.lock
+bun-lockb
+dist/
+build/
+README.md
+CHANGELOG.md
+.gitlab-ci.yml
+Dockerfile
+.dockerignore

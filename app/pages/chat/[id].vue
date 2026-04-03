@@ -34,8 +34,8 @@ const { getProvider } = useProviders()
 const { systemPrompt, maxContextMessages } = useSettings()
 const { isStreaming, streamingContent, streamMessage, stopStreaming } = useChatStream()
 
-const selectedModel = useState<string>('selected-model', () => 'deepseek-chat')
-const selectedProvider = useState<string>('selected-provider', () => 'deepseek-default')
+const selectedModel = useState<string>('selected-model', () => 'llama-3.3-70b-versatile')
+const selectedProvider = useState<string>('selected-provider', () => 'groq-default')
 
 const chatId = computed(() => route.params.id as string)
 
@@ -133,10 +133,57 @@ async function triggerCompletion() {
       persist()
     },
     (error: string) => {
-      updateMessage(currentChatId, assistantMsg.id, error, true)
+      const friendly = getFriendlyError(error)
+      updateMessage(currentChatId, assistantMsg.id, friendly, true)
       persist()
     }
   )
+}
+
+function getFriendlyError(raw: string): string {
+  let msg = raw
+
+  // Try to parse JSON and extract message if it's a raw API response
+  try {
+    const parsed = JSON.parse(raw)
+    if (parsed.message) msg = parsed.message
+    else if (parsed.error?.message) msg = parsed.error.message
+    else if (typeof parsed.data === 'string') msg = parsed.data
+  } catch {
+    // Not JSON, use as is
+  }
+
+  const lowMsg = msg.toLowerCase()
+
+  // Human-friendly translations
+  if (lowMsg.includes('401') || lowMsg.includes('unauthorized') || lowMsg.includes('api key') || lowMsg.includes('apikey')) {
+    return "Einstein's keys are missing! 🗝️ Please check your API meow-key in Paw-ferences."
+  }
+  if (lowMsg.includes('429') || lowMsg.includes('rate limit')) {
+    return "Einstein is out of breath! 😿 Too many meows at once. Please wait a moment."
+  }
+  if (lowMsg.includes('404') || lowMsg.includes('model_not_found') || lowMsg.includes('not found')) {
+    return "Einstein can't find that meow-del! 🐾 It might have wandered off or isn't available for your key."
+  }
+  if (lowMsg.includes('500') || lowMsg.includes('502') || lowMsg.includes('503') || lowMsg.includes('server error') || lowMsg.includes('overloaded')) {
+    return "Einstein's brain is temporarily scrambled! 😿 The LLM server is having a nap."
+  }
+  if (lowMsg.includes('timeout') || lowMsg.includes('fetch') || lowMsg.includes('failed') || lowMsg.includes('network') || lowMsg.includes('abort')) {
+    return "Einstein's connection was interrupted by a naughty mouse! 🐭 Please check your internet or try again."
+  }
+
+  // Final check: if it still contains braces or looks like raw code, hide it
+  if (msg.includes('{') || msg.includes('[') || msg.length > 200) {
+    return "Hiss! 😿 Something went wrong with the meow-del. The cats are tangled in the yarn! Please try again later! 🐾"
+  }
+
+  // If we extracted a somewhat readable message but it didn't match patterns
+  if (msg && msg.length < 150) {
+    // If it's a short technical message, wrap it nicely
+    return `Einstein says: "${msg}" 🐾`
+  }
+
+  return "Hiss! 😿 Something went wrong with the meow-del. The cats are tangled in the yarn! Please try again later! 🐾"
 }
 
 async function handleRegenerate() {

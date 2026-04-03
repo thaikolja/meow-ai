@@ -1,31 +1,60 @@
 <template>
   <div :class="[
-    'flex w-full py-2 px-4 sm:px-6 transition-colors',
-    message.role === 'assistant' ? 'justify-end' : 'justify-start'
+    'flex w-full py-2 px-4 sm:px-6 transition-all duration-500',
+    message.isError ? 'justify-center py-8' : (message.role === 'assistant' ? 'justify-end' : 'justify-start')
   ]">
-    <div :class="[
+    <!-- Error Centered Card -->
+    <div v-if="message.isError" class="max-w-lg w-full bg-red-950/10 border-2 border-dashed border-red-500/20 rounded-3xl p-8 text-center relative overflow-hidden backdrop-blur-md shadow-2xl group animate-in fade-in zoom-in duration-300">
+      <div class="absolute -top-10 -right-10 w-32 h-32 bg-red-500/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+      
+      <div class="relative z-10 space-y-4">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 mb-2">
+          <Icon name="mdi:alert-decagram" class="w-8 h-8 text-red-400 animate-pulse" />
+        </div>
+        
+        <h3 class="text-lg font-bold text-red-200 tracking-tight">Meow-function! 😿</h3>
+        
+        <p class="text-sm text-red-100/70 leading-relaxed font-medium">
+          {{ displayContent }}
+        </p>
+        
+        <div class="pt-2">
+          <button 
+            @click="$emit('regenerate')"
+            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-300 text-xs font-bold uppercase tracking-widest transition-all hover:scale-105 active:scale-95"
+          >
+            <Icon name="lucide:refresh-cw" class="w-4 h-4" />
+            <span>Repair Meow 🐾</span>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Subtle Paw Background -->
+      <Icon name="mdi:paw" class="absolute -bottom-8 -left-8 w-40 h-40 text-red-500 opacity-[0.03] rotate-12" />
+    </div>
+
+    <!-- Normal Speech Bubble -->
+    <div v-else :class="[
       'w-[90%] md:w-[85%] rounded-[2rem] px-6 pt-6 pb-5 relative group shadow-sm flex flex-col overflow-hidden transition-all duration-300',
-      message.isError
-        ? 'bg-red-950/20 text-red-200 border-2 border-red-500/50 rounded-tr-xl'
-        : message.role === 'assistant' 
-          ? 'bg-zinc-800 text-zinc-300 rounded-tr-xl' 
-          : 'bg-purple-900/30 text-purple-200/90 rounded-tl-xl'
+      message.role === 'assistant' 
+        ? 'bg-zinc-800 text-zinc-300 rounded-tr-xl' 
+        : 'bg-purple-900/30 text-purple-200/90 rounded-tl-xl'
     ]">
       
       <!-- Cute Background Watermark -->
-      <Icon :name="message.isError ? 'mdi:alert-box' : 'mdi:paw'" :class="[
+      <Icon name="mdi:paw" :class="[
         'absolute -bottom-6 w-32 h-32 opacity-[0.03] pointer-events-none transition-transform',
-        message.isError ? 'text-red-500 opacity-[0.08]' : (message.role === 'assistant' ? '-left-6 -rotate-12' : '-right-6 rotate-12')
+        message.role === 'assistant' ? '-left-6 -rotate-12' : '-right-6 rotate-12'
       ]" />
 
       <!-- Header -->
       <div class="flex items-center gap-2 mb-2 relative z-10">
-        <Icon :name="message.isError ? 'mdi:alert-decagram' : (message.role === 'assistant' ? 'mdi:cat' : 'lucide:user')" :class="[
+        <Icon :name="message.role === 'assistant' ? 'mdi:cat' : 'lucide:user'" :class="[
           'w-4 h-4',
-          message.isError ? 'text-red-400' : (message.role === 'assistant' ? 'text-primary-400' : 'text-purple-400')
+          message.role === 'assistant' ? 'text-primary-400' : 'text-purple-400'
         ]" />
         <span class="text-xs font-semibold opacity-70 uppercase tracking-wider">
-          {{ message.isError ? 'Hiss! 😿' : (message.role === 'assistant' ? 'Einstein 🐾' : (usernameCookie || 'You')) }}
+          {{ message.role === 'assistant' ? 'Einstein 🐾' : (usernameCookie || 'You') }}
         </span>
       </div>
 
@@ -35,7 +64,10 @@
           <ClientOnly>
             <!-- Check if there is actual content, otherwise default slots handle streaming indicator -->
             <MarkdownRenderer v-if="displayContent" :content="displayContent" :class="message.role === 'user' ? 'text-purple-100!' : ''" />
-            <div v-else-if="!isStreaming" class="text-zinc-500 italic text-sm">No purrs in this bubble yet... 🐾</div>
+            <div v-else-if="isStreaming" class="py-1">
+              <ThinkingCat />
+            </div>
+            <div v-else class="text-zinc-500 italic text-sm">No purrs recorded yet... 🐾</div>
             <slot />
           </ClientOnly>
         </div>
@@ -50,7 +82,7 @@
         ]">
           <div class="flex items-center gap-1.5" title="Model Used">
             <Icon name="mdi:cat" class="w-3 h-3" />
-            {{ message.role === 'assistant' ? (message.model || 'Einstein 🐾') : (usernameCookie || 'Client Input') }}
+            {{ message.role === 'assistant' ? (formatModelName(message.model || '')) : (usernameCookie || 'Client Input') }}
           </div>
           <div class="flex items-center gap-1.5" title="Estimated Tokens">
             <Icon name="mdi:calculator" class="w-3 h-3" />
@@ -119,6 +151,7 @@
 <script setup lang="ts">
 import type { ChatMessage } from '~/types'
 
+const { formatModelName } = useProviders()
 const props = defineProps<{
   message: ChatMessage
   isLast: boolean

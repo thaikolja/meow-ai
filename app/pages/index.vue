@@ -103,8 +103,8 @@
 <script setup lang="ts">
 const router = useRouter()
 const { createChat, addMessage } = useChats()
-const selectedProvider = useState<string>('selected-provider', () => 'deepseek-default')
-const selectedModel = useState<string>('selected-model', () => 'deepseek-chat')
+const selectedProvider = useState<string>('selected-provider', () => 'groq-default')
+const selectedModel = useState<string>('selected-model', () => 'llama-3.3-70b-versatile')
 
 const username = useCookie('chat_username')
 const displayName = computed(() => username.value || 'User')
