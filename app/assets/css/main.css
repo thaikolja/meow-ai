@@ -1,0 +1,186 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+/* ============================================
+   chat.yanawa.io — Custom Styles
+   ============================================ */
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-zinc-600);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-zinc-500);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Chat message animations */
+@keyframes message-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-enter {
+  animation: message-in 0.3s ease-out;
+}
+
+/* Typing indicator */
+@keyframes typing-dot {
+  0%, 60%, 100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+}
+
+.typing-dot {
+  animation: typing-dot 1.4s ease-in-out infinite;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Sidebar transition */
+.sidebar-enter-active,
+.sidebar-leave-active {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+
+.sidebar-enter-from,
+.sidebar-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+/* Pulse animation for streaming indicator */
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+/* Code block styling in messages */
+.chat-prose pre {
+  border-radius: 0.75rem;
+  margin: 1rem 0;
+  position: relative;
+}
+
+.chat-prose pre code {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.chat-prose code:not(pre code) {
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.9em;
+  background: var(--color-zinc-800);
+  color: var(--color-primary-400);
+}
+
+.chat-prose p {
+  margin: 0.75rem 0;
+  line-height: 1.8;
+  font-size: 1.125rem; /* Large text for readability */
+}
+
+.chat-prose ul,
+.chat-prose ol {
+  margin: 0.75rem 0;
+  padding-left: 1.75rem;
+  font-size: 1.125rem;
+}
+
+.chat-prose li {
+  margin: 0.25rem 0;
+}
+
+.chat-prose h1,
+.chat-prose h2,
+.chat-prose h3,
+.chat-prose h4 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.chat-prose h1 { font-size: 1.875rem; }
+.chat-prose h2 { font-size: 1.5rem; }
+.chat-prose h3 { font-size: 1.25rem; }
+
+.chat-prose a {
+  color: var(--color-primary-400);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.chat-prose blockquote {
+  border-left: 4px solid var(--color-primary-500);
+  padding-left: 1.25rem;
+  margin: 1rem 0;
+  color: var(--color-zinc-400);
+  font-size: 1.125rem;
+  font-style: italic;
+}
+
+.chat-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 1.125rem;
+}
+
+.chat-prose th,
+.chat-prose td {
+  border: 1px solid var(--color-zinc-700);
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+.chat-prose th {
+  background: var(--color-zinc-800);
+  font-weight: 600;
+}
+
+/* Glassmorphic input container */
+.glass-input {
+  background: color-mix(in srgb, var(--color-zinc-900) 80%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
