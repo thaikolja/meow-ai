@@ -19,9 +19,12 @@
  * Server-side endpoint to query available models from an OpenAI-compatible provider.
  * This endpoint is consumed by the ProviderList component for model list discovery and synchronization.
  */
-import { buildModelsRequest, extractModelIds, resolveProviderApiKey } from '../utils/providerApi'
+import { requireAuthenticatedSession }                                                       from '../utils/authSession'
+import { assertProviderBaseUrl, buildModelsRequest, extractModelIds, resolveProviderApiKey } from '../utils/providerApi'
 
 export default defineEventHandler(async (event) => {
+  requireAuthenticatedSession(event)
+
   // Extract provider connection details from the request body
   const body                            = await readBody(event)
   const { baseUrl, apiKey, providerId } = body
@@ -35,9 +38,14 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Missing required field: baseUrl' })
   }
 
+  const validatedBaseUrl = assertProviderBaseUrl(baseUrl, {
+    allowPrivate:           runtimeConfig.allowPrivateProviderUrls,
+    allowInsecureLocalhost: import.meta.dev
+  })
+
   const resolvedApiKey = resolveProviderApiKey({
     providerId,
-    baseUrl,
+    baseUrl: validatedBaseUrl,
     clientApiKey: apiKey,
     secrets:      {
       deepseekApiKey: runtimeConfig.deepseekApiKey,
@@ -50,7 +58,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Missing API key for provider' })
   }
 
-  const { kind, apiUrl, headers } = buildModelsRequest(baseUrl, resolvedApiKey)
+  const { kind, apiUrl, headers } = buildModelsRequest(validatedBaseUrl, resolvedApiKey)
 
   let response: Response
   try {
@@ -61,13 +69,19 @@ export default defineEventHandler(async (event) => {
      */
     response = await fetch(apiUrl, {
       method: 'GET',
-      headers
+      headers,
+      signal: AbortSignal.timeout(20_000)
     })
   } catch (error: any) {
     /**
      * Wrap generic network fetch failures as 500 Internal Server Error.
      */
-    throw createError({ statusCode: 500, message: error.message || 'System-level failure fetching provider models' })
+    throw createError({
+      statusCode: 502,
+      message:    error?.name==='TimeoutError'
+                      ? 'Timed out while fetching models from the provider'
+                      : (error.message || 'System-level failure fetching provider models')
+    })
   }
 
   // Handle provider rejection or connectivity issues

@@ -16,22 +16,22 @@
   -->
 
 <template>
-  <div ref="dropdownContainer" class="relative z-50">
+  <div ref="dropdownContainer" class="relative z-50 min-w-0 max-w-full">
     <!-- Trigger Button -->
     <button
-        class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-zinc-800 transition-colors text-sm text-zinc-300 relative z-50" type="button" @click.stop="isOpen = !isOpen">
+        class="relative z-50 flex min-w-0 max-w-full items-center gap-2 rounded-lg px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:bg-zinc-800" type="button" @click.stop="isOpen = !isOpen">
       <Icon class="w-4 h-4 text-primary-400" name="mdi:cat" />
-      <span class="max-w-50 truncate">{{ displayLabel || 'Pick a Meow-del' }}</span>
+      <span class="max-w-[11rem] truncate sm:max-w-50">{{ displayLabel || 'Pick a Meow-del' }}</span>
       <Icon :class="['w-3.5 h-3.5 transition-transform', isOpen && 'rotate-180']" name="lucide:chevron-down" />
     </button>
 
     <!-- Dropdown Menu -->
     <div
-        v-if="isOpen" class="absolute top-full left-0 mt-2 w-72 bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl z-60 overflow-hidden">
+        v-if="isOpen" class="absolute top-full left-0 mt-2 w-[min(20rem,calc(100vw-1.5rem))] max-w-[calc(100vw-1.5rem)] bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl z-60 overflow-hidden">
       <!-- Model Search Snipping -->
       <div class="p-2 border-b border-zinc-800">
         <input
-            v-model="search" class="w-full bg-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-200 placeholder-zinc-500 outline-none ring-1 ring-zinc-700 focus:ring-primary-500 transition-colors" placeholder="Sniff for meow-dels... 🐾" @click.stop />
+            v-model="search" class="w-full bg-zinc-800 rounded-lg px-3 py-2 text-base sm:text-sm text-zinc-200 placeholder-zinc-500 outline-none ring-1 ring-zinc-700 focus:ring-primary-500 transition-colors" placeholder="Sniff for meow-dels... 🐾" @click.stop />
       </div>
 
       <!-- Scrollable List of Models grouped by Provider -->

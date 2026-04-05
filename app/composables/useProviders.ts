@@ -32,17 +32,17 @@ const DEFAULT_PROVIDERS: LLMProvider[] = [
     id:       'deepseek-default',
     name:     'DeepSeek',
     baseUrl:  'https://api.deepseek.com',
-    apiKey: '',
+    apiKey:   '',
     models:   [ 'deepseek-chat', 'deepseek-reasoner' ],
     isActive: true,
     createdAt: Date.now()
   },
   {
-    id:       'groq-default',
-    name:     'Groq',
-    baseUrl:  'https://api.groq.com/openai',
+    id:      'groq-default',
+    name:    'Groq',
+    baseUrl: 'https://api.groq.com/openai',
     apiKey:    '',
-    models:   [
+    models:  [
       'llama-3.3-70b-versatile',
       'llama-3.1-8b-instant',
       'mixtral-8x7b-32768',
@@ -54,11 +54,11 @@ const DEFAULT_PROVIDERS: LLMProvider[] = [
     createdAt: Date.now()
   },
   {
-    id:     'gemini-default',
-    name:   'Gemini',
-    baseUrl: 'https://generativelanguage.googleapis.com',
-    apiKey:  '',
-    models: [ 'models/gemini-3.1-flash-lite-preview', 'models/gemma-4-26b-a4b-it' ],
+    id:       'gemini-default',
+    name:     'Gemini',
+    baseUrl:  'https://generativelanguage.googleapis.com',
+    apiKey:   '',
+    models:   [ 'models/gemini-3.1-flash-lite-preview', 'models/gemma-4-26b-a4b-it' ],
     isActive: true,
     createdAt: Date.now()
   }
@@ -88,7 +88,7 @@ function loadProviders(): LLMProvider[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
-      const parsed = JSON.parse(raw)
+      const parsed    = JSON.parse(raw)
       const sanitized = Array.isArray(parsed)
           ? parsed.map((provider: LLMProvider) => {
             if (provider.id==='google-default') {
@@ -101,7 +101,7 @@ function loadProviders(): LLMProvider[] {
             }
 
             return DEFAULT_PROVIDER_IDS.has(provider.id)
-              ? { ...provider, apiKey: '' }
+                ? { ...provider, apiKey: '' }
                 : provider
           })
           : []
@@ -125,7 +125,7 @@ function saveProviders(providers: LLMProvider[]) {
  */
 export function formatModelName(modelId: string): string {
   if (!modelId) return ''
-  const normalizedId = modelId.replace(/^models\//, '').replace(/\s*\(preview\)\s*/gi, '').trim()
+  const normalizedId                        = modelId.replace(/^models\//, '').replace(/\s*\(preview\)\s*/gi, '').trim()
   const customNames: Record<string, string> = {
     'deepseek-chat':                'DeepSeek Chat',
     'deepseek-reasoner':            'DeepSeek Reasoner',
@@ -133,7 +133,7 @@ export function formatModelName(modelId: string): string {
     'llama-3.1-8b-instant':         'Llama 3.1 8B',
     'mixtral-8x7b-32768':           'Mixtral 8x7B',
     'gemma2-9b-it':                 'Gemma 2 9B',
-    'gemma-4-26b-a4b-it': 'Gemma 4 26B A4B',
+    'gemma-4-26b-a4b-it':           'Gemma 4 26B A4B',
     'deepseek-r1-distill-llama-70b': 'DeepSeek R1 Llama 70B',
     'deepseek-r1-distill-qwen-32b': 'DeepSeek R1 Qwen 32B'
   }

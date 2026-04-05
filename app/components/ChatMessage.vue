@@ -17,8 +17,7 @@
 
 <template>
   <div
-      :class="[
-        'flex w-full py-2 px-4 sm:px-6 transition-all duration-500',
+      :class="['flex w-full max-w-full py-2 px-0 sm:px-2 transition-all duration-500',
         message.isError ? 'justify-center py-8' : (message.role === 'assistant' ? 'justify-end' : 'justify-start')
       ]">
     <div v-if="message.isError" class="max-w-lg w-full bg-red-950/10 border-2 border-dashed border-red-500/20 rounded-3xl p-8 text-center relative overflow-hidden backdrop-blur-md shadow-2xl group animate-in fade-in zoom-in duration-300">
@@ -49,7 +48,7 @@
 
     <div
         v-else :class="[
-          'w-[90%] md:w-[85%] rounded-4xl px-6 pt-6 pb-5 relative group shadow-sm flex flex-col overflow-hidden transition-all duration-300',
+          'w-full max-w-[42rem] sm:max-w-[85%] min-w-0 rounded-3xl px-4 sm:px-6 pt-5 sm:pt-6 pb-4 sm:pb-5 relative group shadow-sm flex flex-col overflow-hidden transition-all duration-300',
           message.role === 'assistant' ? 'bg-zinc-800 text-zinc-300 rounded-tr-xl' : 'bg-purple-900/30 text-purple-200/90 rounded-tl-xl'
         ]">
       <Icon
@@ -85,10 +84,10 @@
         </div>
       </div>
 
-      <div v-if="!isStreaming && displayContent" class="flex flex-nowrap overflow-x-auto no-scrollbar items-center justify-between gap-4 pt-3 mt-1.5 transition-opacity w-full">
+      <div v-if="!isStreaming && displayContent" class="flex flex-col gap-3 sm:flex-row sm:flex-nowrap overflow-x-auto no-scrollbar sm:items-center sm:justify-between pt-3 mt-1.5 transition-opacity w-full min-w-0">
         <div
             :class="[
-              'flex items-center gap-3 text-[10px] font-medium tracking-wide opacity-40',
+              'flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-medium tracking-wide opacity-40 min-w-0',
               message.role === 'assistant' ? 'text-zinc-500' : 'text-purple-300'
             ]">
           <div class="flex items-center gap-1.5" title="Model Used">
@@ -103,7 +102,7 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-1.5 flex-nowrap shrink-0 justify-end">
+        <div class="flex items-center gap-1.5 flex-wrap shrink-0 justify-end">
           <template v-if="message.role === 'assistant'">
             <button
                 class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-medium shrink-0" title="Translate Vocabulary to Thai" @click="$emit('quick-prompt', 'Please translate the main vocabulary from the text above into Thai.')">

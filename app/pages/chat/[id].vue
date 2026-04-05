@@ -20,11 +20,11 @@
     <ClientOnly>
       <!-- Messages Area: Scrollable feed of previous and current interactions -->
       <ChatMessages
-          :is-thinking="isThinking" :is-streaming="isStreaming" :messages="currentMessages" :streaming-content="streamingContent" @regenerate="handleRegenerate" @quick-prompt="handleSend" />
+          :is-streaming="isStreaming" :is-thinking="isThinking" :messages="currentMessages" :streaming-content="streamingContent" @regenerate="handleRegenerate" @quick-prompt="handleSend" />
 
       <!-- Input Area: Sticky footer for user text entry and stream control -->
       <ChatInput
-          :is-streaming="isStreaming" @send="handleSend" @stop="stopStreaming" />
+          :is-streaming="isStreaming" sticky @send="handleSend" @stop="stopStreaming" />
 
       <!-- Loading skeleton while Nuxt hydrates client-side state -->
       <template #fallback>
@@ -48,12 +48,34 @@
   const router = useRouter()
 
   // Composable integrations for chat logic and global configurations
-  const { getChat, addMessage, updateMessage, persist, removeLastMessage } = useChats()
-  const { getProvider }                                                 = useProviders()
-  const { systemPrompt, maxContextMessages }                            = useSettings()
-  const { isStreaming, streamingContent, streamMessage, stopStreaming } = useChatStream()
-  const defaultProvider                                                 = useDefaultProvider()
-  const defaultModel                                                    = useDefaultModel()
+  const { getChat, addMessage, updateMessage, persist, removeLastMessage }             = useChats()
+  const { getProvider }                                                                = useProviders()
+  const { effectiveSystemPrompt, maxContextMessages, ensureDefaultSystemPromptLoaded } = useSettings()
+  const { isStreaming, streamingContent, streamMessage, stopStreaming }                = useChatStream()
+  const defaultProvider                                                                = useDefaultProvider()
+  const defaultModel                                                                   = useDefaultModel()
+  let streamingUpdateFrame: number | null                                              = null
+
+  function scheduleStreamingUpdate(chatId: string, messageId: string) {
+    if (streamingUpdateFrame!==null || import.meta.server) {
+      return
+    }
+
+    streamingUpdateFrame = window.requestAnimationFrame(() => {
+      updateMessage(chatId, messageId, streamingContent.value)
+      streamingUpdateFrame = null
+    })
+  }
+
+  function flushStreamingUpdate(chatId: string, messageId: string, content: string, isError?: boolean) {
+    if (import.meta.client && streamingUpdateFrame!==null) {
+      window.cancelAnimationFrame(streamingUpdateFrame)
+      streamingUpdateFrame = null
+    }
+
+    updateMessage(chatId, messageId, content, isError)
+  }
+
 
   // Global model selection state (shared with ModelSelector component)
   const selectedModel    = useState<string>('selected-model', () => defaultModel.value)
@@ -79,6 +101,8 @@
    * Redirects invalid chat IDs and handles intra-page stream handoffs.
    */
   onMounted(() => {
+    void ensureDefaultSystemPromptLoaded()
+
     if (chatId.value && !getChat(chatId.value)) {
       router.push('/')
       return
@@ -88,6 +112,13 @@
     if (sessionStorage.getItem('pending-stream')===chatId.value) {
       sessionStorage.removeItem('pending-stream')
       triggerCompletion()
+    }
+  })
+
+  onUnmounted(() => {
+    if (import.meta.client && streamingUpdateFrame!==null) {
+      window.cancelAnimationFrame(streamingUpdateFrame)
+      streamingUpdateFrame = null
     }
   })
 
@@ -122,6 +153,7 @@
    */
   async function triggerCompletion() {
     const currentChatId = chatId.value
+    await ensureDefaultSystemPromptLoaded()
 
     // Ensure a valid provider is currently selected
     const provider = getProvider(selectedProvider.value)
@@ -145,8 +177,9 @@
     }
 
     // Inject the character/identity instruction at the start of the context
-    if (systemPrompt.value) {
-      apiMessages.unshift({ role: 'system', content: systemPrompt.value })
+    const systemPrompt = effectiveSystemPrompt.value.trim()
+    if (systemPrompt) {
+      apiMessages.unshift({ role: 'system', content: systemPrompt })
     }
 
     // Create an empty shell for the upcoming AI response
@@ -168,17 +201,17 @@
         },
         // Progress callback (runs per chunk)
         (_chunk: string) => {
-          updateMessage(currentChatId, assistantMsg.id, streamingContent.value)
+          scheduleStreamingUpdate(currentChatId, assistantMsg.id)
         },
         // Finalization callback (runs when stream finishes successfully)
         (fullContent: string) => {
-          updateMessage(currentChatId, assistantMsg.id, fullContent)
+          flushStreamingUpdate(currentChatId, assistantMsg.id, fullContent)
           persist()
         },
         // Error callback (runs on network/API failure)
         (error: string) => {
           const friendly = getFriendlyError(error)
-          updateMessage(currentChatId, assistantMsg.id, friendly, true)
+          flushStreamingUpdate(currentChatId, assistantMsg.id, friendly, true)
           persist()
         }
     )

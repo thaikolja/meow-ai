@@ -15,29 +15,62 @@
  * @website   https://meow.yanawa.io
  */
 
+import type { RuntimeConfig }                                                                      from 'nuxt/schema'
 /**
  * Server-side proxy for executing AI chat completions.
  * Receives the conversation history and provider credentials, then forwards
  * the request to the external LLM endpoint using Server-Sent Events (SSE).
  */
-import { buildChatRequest, extractGoogleStreamText, resolveProviderApiKey } from '../utils/providerApi'
+import { requireAuthenticatedSession }                                                             from '../utils/authSession'
+import { assertProviderBaseUrl, buildChatRequest, extractGoogleStreamText, resolveProviderApiKey } from '../utils/providerApi'
 
 export default defineEventHandler(async (event) => {
+  requireAuthenticatedSession(event)
+
   // Extract configuration and dialogue history from the incoming request body
   const body                                             = await readBody(event)
   const { messages, baseUrl, apiKey, model, providerId } = body
-  const runtimeConfig                                    = useRuntimeConfig(event)
+  const runtimeConfig: RuntimeConfig = useRuntimeConfig(event)
 
   /**
    * Strict Validation Guard: Prevent invalid requests to the downstream provider.
    */
-  if (!baseUrl || !model || !messages) {
+  if (!baseUrl || !model || !Array.isArray(messages)) {
     throw createError({ statusCode: 400, message: 'Missing required fields: baseUrl, model, messages' })
   }
 
+  if (typeof model!=='string' || !model.trim()) {
+    throw createError({ statusCode: 400, message: 'Invalid model value' })
+  }
+
+  const sanitizedMessages = messages
+  .filter((message): message is { role: string; content: string } => (
+      Boolean(message)
+      && typeof message.role==='string'
+      && typeof message.content==='string'
+  ))
+  .map((message) => ({
+    role:    message.role,
+    content: message.content.trim()
+  }))
+  .filter((message) => message.content.length > 0)
+
+  if (sanitizedMessages.length===0) {
+    throw createError({ statusCode: 400, message: 'At least one valid message is required' })
+  }
+
+  if (sanitizedMessages.length > 100) {
+    throw createError({ statusCode: 400, message: 'Too many messages supplied in a single request' })
+  }
+
+  const validatedBaseUrl = assertProviderBaseUrl(baseUrl, {
+    allowPrivate:           runtimeConfig.allowPrivateProviderUrls,
+    allowInsecureLocalhost: import.meta.dev
+  })
+
   const resolvedApiKey = resolveProviderApiKey({
     providerId,
-    baseUrl,
+    baseUrl: validatedBaseUrl,
     clientApiKey: apiKey,
     secrets:      {
       deepseekApiKey: runtimeConfig.deepseekApiKey,
@@ -50,17 +83,29 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Missing API key for provider' })
   }
 
-  const request = buildChatRequest(baseUrl, resolvedApiKey, model, messages)
+  const request = buildChatRequest(validatedBaseUrl, resolvedApiKey, model.trim(), sanitizedMessages)
 
   /**
    * Relay the request to the third-party LLM provider.
    * Explicitly request 'stream: true' for low-latency chunks.
    */
-  const response = await fetch(request.apiUrl, {
-    method:  'POST',
-    headers: request.headers,
-    body:    JSON.stringify(request.body)
-  })
+  let response: Response
+
+  try {
+    response = await fetch(request.apiUrl, {
+      method:  'POST',
+      headers: request.headers,
+      body:    JSON.stringify(request.body),
+      signal:  AbortSignal.timeout(45_000)
+    })
+  } catch (error: any) {
+    throw createError({
+      statusCode: 502,
+      message:    error?.name==='TimeoutError'
+                      ? 'Timed out while connecting to the upstream model provider'
+                      : 'Unable to reach the upstream model provider'
+    })
+  }
 
   // Propagate downstream failures back to the client
   if (!response.ok) {
@@ -73,9 +118,10 @@ export default defineEventHandler(async (event) => {
    * Disables caching and forces 'keep-alive'.
    */
   setResponseHeaders(event, {
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    'Connection':   'keep-alive'
+    'Content-Type':      'text/event-stream',
+    'Cache-Control':     'no-store, no-transform',
+    'Connection':        'keep-alive',
+    'X-Accel-Buffering': 'no'
   })
 
   // Open a reader from the downstream body stream

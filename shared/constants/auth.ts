@@ -15,3 +15,12 @@
  * @website   https://meow.yanawa.io
  */
 
+/*
+ * Shared authentication constants.
+ */
+
+export const DEFAULT_APP_PASSWORD: string      = 'sine'
+export const AUTH_SESSION_COOKIE_NAME: string  = 'chat_session'
+export const AUTH_USERNAME_COOKIE_NAME: string = 'chat_username'
+export const AUTH_SESSION_MAX_AGE: number      = 60 * 60 * 24 * 7
+

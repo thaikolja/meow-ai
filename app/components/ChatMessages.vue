@@ -16,8 +16,8 @@
   -->
 
 <template>
-  <div ref="container" class="flex-1 overflow-y-auto w-full" @scroll="handleScroll">
-    <div class="max-w-4xl w-full mx-auto px-4 py-6 space-y-6">
+  <div ref="container" class="flex-1 w-full overflow-y-auto overflow-x-hidden" @scroll="handleScroll">
+    <div class="mx-auto w-full max-w-4xl min-w-0 px-3 py-4 sm:px-4 sm:py-6 space-y-5 sm:space-y-6">
       <!-- Empty state placeholder -->
       <div v-if="messages.length === 0" class="flex items-center justify-center h-full min-h-50">
         <p class="text-neutral-500 text-sm">Send a message to start the conversation</p>
@@ -25,7 +25,7 @@
 
       <!-- Render the current chat thread -->
       <ChatMessage
-          v-for="(message, index) in messages" :key="message.id" :is-last="index === messages.length - 1" :is-thinking="isThinking" :is-streaming="isStreaming && index === messages.length - 1 && message.role === 'assistant'" :message="message" :streaming-content="isStreaming && index === messages.length - 1 ? streamingContent : undefined" @regenerate="$emit('regenerate')" @quick-prompt="handleQuickPrompt" />
+          v-for="(message, index) in messages" :key="message.id" :is-last="index === messages.length - 1" :is-streaming="isStreaming && index === messages.length - 1 && message.role === 'assistant'" :is-thinking="isThinking" :message="message" :streaming-content="isStreaming && index === messages.length - 1 ? streamingContent : undefined" @regenerate="$emit('regenerate')" @quick-prompt="handleQuickPrompt" />
 
       <!-- Streaming indicator (visible before assistant message exists in history) -->
       <div v-if="isStreaming && (messages.length === 0 || messages[messages.length - 1]?.role === 'user')" class="flex gap-4 message-enter px-4">
@@ -35,13 +35,13 @@
       </div>
 
       <!-- Bottom Spacer Buffer ensure input area does not overlap content -->
-      <div aria-hidden="true" class="h-24 shrink-0 w-full"></div>
+      <div aria-hidden="true" class="h-28 sm:h-24 shrink-0 w-full"></div>
     </div>
 
     <!-- Floating Scroll-to-bottom button for easy navigation -->
     <Transition name="sidebar">
       <button
-          v-if="showScrollButton" class="fixed bottom-28 right-8 p-2.5 rounded-full bg-neutral-800 border border-neutral-700 text-neutral-300 hover:bg-neutral-700 hover:text-white shadow-lg transition-all z-10" @click="() => scrollToBottom(true)">
+          v-if="showScrollButton" class="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+6rem)] right-3 sm:right-6 p-2.5 rounded-full bg-neutral-800 border border-neutral-700 text-neutral-300 hover:bg-neutral-700 hover:text-white shadow-lg transition-all z-10" @click="() => scrollToBottom(true)">
         <Icon class="w-4 h-4" name="lucide:arrow-down" />
       </button>
     </Transition>

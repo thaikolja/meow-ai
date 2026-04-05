@@ -18,7 +18,10 @@
 import type { Chat, ChatMessage } from '~/types'
 
 /** Local storage key for chat persistence */
-const STORAGE_KEY = 'chat-yanawa-chats'
+const STORAGE_KEY         = 'chat-yanawa-chats'
+const PERSIST_THROTTLE_MS = 250
+
+let persistTimer: ReturnType<typeof setTimeout> | null = null
 
 /**
  * Generates a non-cryptographic short unique identifier.
@@ -49,6 +52,28 @@ function loadChats(): Chat[] {
 function saveChats(chats: Chat[]) {
   if (import.meta.server) return
   localStorage.setItem(STORAGE_KEY, JSON.stringify(chats))
+}
+
+function scheduleSaveChats(chats: Chat[]) {
+  if (import.meta.server) return
+
+  if (persistTimer) {
+    clearTimeout(persistTimer)
+  }
+
+  persistTimer = setTimeout(() => {
+    saveChats(chats)
+    persistTimer = null
+  }, PERSIST_THROTTLE_MS)
+}
+
+function flushSaveChats(chats: Chat[]) {
+  if (persistTimer) {
+    clearTimeout(persistTimer)
+    persistTimer = null
+  }
+
+  saveChats(chats)
 }
 
 /**
@@ -89,7 +114,7 @@ export function useChats() {
       model
     }
     chats.value      = [ ...chats.value, chat ]
-    saveChats(chats.value)
+    flushSaveChats(chats.value)
     return chat
   }
 
@@ -101,7 +126,7 @@ export function useChats() {
   /** Removes a chat thread and updates persistence */
   function deleteChat(id: string) {
     chats.value = chats.value.filter(c => c.id!==id)
-    saveChats(chats.value)
+    flushSaveChats(chats.value)
   }
 
   /** Updates the human-readable title of a specific chat thread */
@@ -110,7 +135,7 @@ export function useChats() {
     if (index!== -1 && chats.value[index]) {
       const updated = { ...chats.value[index] as Chat, title }
       chats.value = [ ...chats.value.slice(0, index), updated, ...chats.value.slice(index + 1) ]
-      saveChats(chats.value)
+      flushSaveChats(chats.value)
     }
   }
 
@@ -146,7 +171,7 @@ export function useChats() {
       updatedChat as Chat,
       ...chats.value.slice(chatIndex + 1)
     ] as Chat[]
-    saveChats(chats.value)
+    flushSaveChats(chats.value)
     return msg
   }
 
@@ -171,12 +196,12 @@ export function useChats() {
     }
 
     const updatedChat: Chat = { ...chat, messages: updatedMessages, updatedAt: Date.now() } as Chat
-    chats.value               = [
+    chats.value = [
       ...chats.value.slice(0, chatIndex),
       updatedChat,
       ...chats.value.slice(chatIndex + 1)
     ] as Chat[]
-    saveChats(chats.value)
+    scheduleSaveChats(chats.value)
   }
 
   /**
@@ -200,7 +225,7 @@ export function useChats() {
       updatedChat,
       ...chats.value.slice(chatIndex + 1)
     ]
-    saveChats(chats.value)
+    flushSaveChats(chats.value)
   }
 
   /** Switches the AI model configuration for a specific chat */
@@ -213,19 +238,19 @@ export function useChats() {
         updatedChat,
         ...chats.value.slice(chatIndex + 1)
       ] as Chat[]
-      saveChats(chats.value)
+      flushSaveChats(chats.value)
     }
   }
 
   /** Wipes all chat history from memory and storage */
   function clearAllChats() {
     chats.value = []
-    saveChats(chats.value)
+    flushSaveChats(chats.value)
   }
 
   /** Manual trigger to force-sync state to localStorage */
   function persist() {
-    saveChats(chats.value)
+    flushSaveChats(chats.value)
   }
 
   return {

@@ -23,10 +23,3 @@
   </UApp>
 </template>
 
-<script lang="ts" setup>
-  /**
-   * Root component of the application.
-   * Wraps the entire app with NuxtLayout and NuxtPage for routing.
-   * Uses UApp for global UI styles and interactions.
-   */
-</script>

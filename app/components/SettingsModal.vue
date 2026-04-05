@@ -33,11 +33,29 @@
           <h3 class="text-sm font-semibold text-neutral-300 uppercase tracking-wider mb-4 italic">Cat-figurations 🐾</h3>
           <div class="space-y-3">
             <div>
-              <label class="block text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1.5">Global System
-                Prompt</label> <textarea
-                v-model="systemPrompt" class="min-h-52 w-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 placeholder-neutral-400 dark:placeholder-neutral-500 outline-none focus:border-primary-500 transition-colors resize-y" placeholder="e.g. You are a helpful assistant..." rows="3"></textarea>
-              <p class="text-xs text-neutral-500 mt-1">This instruction is sent with every new conversation to guide the
-                AI's persona.
+              <div class="mb-1.5 flex flex-wrap items-center justify-between gap-2">
+                <label class="block text-xs font-medium text-neutral-500 dark:text-neutral-400">Global System
+                  Prompt</label>
+                <div class="flex items-center gap-2">
+                  <span
+                      :class="isUsingCustomSystemPrompt
+                          ? 'border-primary-500/40 bg-primary-500/10 text-primary-300'
+                          : 'border-neutral-700 bg-neutral-800 text-neutral-400'" class="rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider">
+                    {{ isUsingCustomSystemPrompt ? 'Custom override': 'Default prompt' }}
+                  </span>
+                  <button
+                      v-if="isUsingCustomSystemPrompt" class="text-xs font-medium text-primary-400 hover:text-primary-300 transition-colors" type="button" @click="resetSystemPromptOverride">
+                    Reset to default
+                  </button>
+                </div>
+              </div>
+
+              <textarea
+                  v-model="systemPromptEditor" class="min-h-52 w-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 text-base sm:text-sm text-neutral-800 dark:text-neutral-200 placeholder-neutral-400 dark:placeholder-neutral-500 outline-none focus:border-primary-500 transition-colors resize-y" placeholder="e.g. You are a helpful assistant..." rows="6" />
+
+              <p class="text-xs text-neutral-500 mt-1">
+                The built-in default prompt is loaded from <code>/public/system-prompt.md</code>. Editing here stores
+                only your local override.
               </p>
             </div>
           </div>
@@ -101,9 +119,23 @@
 // Modal visibility bound to parent state
   const open = defineModel<boolean>('open', { required: true })
 
-  const { addProvider, fetchModels }         = useProviders()
-  const { clearAllChats }                    = useChats()
-  const { systemPrompt, maxContextMessages } = useSettings()
+  const { addProvider, fetchModels } = useProviders()
+  const { clearAllChats }            = useChats()
+  const {
+          defaultSystemPrompt,
+          systemPromptOverride,
+          isUsingCustomSystemPrompt,
+          maxContextMessages,
+          setSystemPromptOverride,
+          resetSystemPromptOverride
+        }                            = useSettings()
+
+  const systemPromptEditor = computed({
+    get: () => systemPromptOverride.value ?? defaultSystemPrompt.value,
+    set: (value: string) => {
+      setSystemPromptOverride(value)
+    }
+  })
 
   // UI Toggle state for adding new providers
   const showAddForm = ref(false)

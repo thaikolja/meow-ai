@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div class="flex h-dvh bg-zinc-900 text-zinc-100">
+  <div class="app-shell flex max-w-full bg-zinc-900 text-zinc-100 overflow-hidden">
     <!-- Mobile sidebar overlay -->
     <Transition name="sidebar">
       <div
@@ -27,7 +27,7 @@
     <Transition name="sidebar">
       <aside
           v-show="sidebarOpen" :class="[
-          'flex flex-col w-[280px] bg-[#141416] shrink-0 z-50',
+          'flex flex-col w-[min(85vw,280px)] md:w-[280px] bg-[#141416] shrink-0 z-50 max-w-full',
           isMobile ? 'fixed inset-y-0 left-0 shadow-2xl' : 'relative'
         ]">
         <!-- Sidebar Branding -->
@@ -56,7 +56,7 @@
           <div class="relative">
             <Icon class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" name="lucide:search" />
             <input
-                v-model="searchQuery" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-8 pr-3 py-1.5 text-sm outline-none focus:border-primary-500 transition-colors text-zinc-200 placeholder-zinc-500" placeholder="Sniff out meows... 🐾" type="text" />
+                v-model="searchQuery" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-8 pr-3 py-2 text-base sm:text-sm outline-none focus:border-primary-500 transition-colors text-zinc-200 placeholder-zinc-500" placeholder="Sniff out meows... 🐾" type="text" />
           </div>
         </div>
 
@@ -91,7 +91,7 @@
     </Transition>
 
     <!-- Main Content -->
-    <main class="flex-1 flex flex-col min-w-0 bg-zinc-900 border-l border-zinc-800/50 relative overflow-hidden">
+    <main class="flex-1 flex max-w-full min-w-0 flex-col bg-zinc-900 border-l border-zinc-800/50 relative overflow-hidden">
       <!-- Background Accents -->
       <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div class="absolute -top-40 -right-40 w-96 h-96 bg-primary-600/10 rounded-full blur-3xl"></div>
@@ -99,14 +99,14 @@
       </div>
 
       <!-- Top Bar -->
-      <header class="relative z-40 flex items-center gap-3 px-4 py-3 border-b border-zinc-800/50 bg-zinc-900/80 backdrop-blur-md">
+      <header class="relative z-40 flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 border-b border-zinc-800/50 bg-zinc-900/80 backdrop-blur-md">
         <button
             v-if="!sidebarOpen" class="p-2 rounded-lg hover:bg-zinc-800 transition-colors text-zinc-400" @click="sidebarOpen = true">
           <Icon class="w-5 h-5" name="lucide:panel-left-open" />
         </button>
 
         <ClientOnly>
-          <ModelSelector v-if="usernameCookie" class="shrink-0" />
+          <ModelSelector v-if="usernameCookie" class="min-w-0 shrink max-w-full" />
         </ClientOnly>
 
         <div class="flex-1" />
@@ -115,6 +115,15 @@
           <div class="flex items-center gap-2">
             <Icon class="w-4 h-4 text-primary-500" name="mdi:cat" />
             Meow 🐾
+          </div>
+          <!-- Repository links: GitLab and GitHub (open in new tab) -->
+          <div class="flex items-center gap-8 ms-3">
+            <a href="https://gitlab.com/thaikolja/meow-ai" target="_blank" rel="noopener noreferrer" class="text-zinc-400 hover:text-zinc-200 transition-colors" aria-label="View on GitLab">
+              <Icon class="w-4 h-4" name="mdi:gitlab" />
+            </a>
+            <a href="https://github.com/thaikolja/meow-ai" target="_blank" rel="noopener noreferrer" class="text-zinc-400 hover:text-zinc-200 transition-colors" aria-label="View on GitHub">
+              <Icon class="w-4 h-4" name="mdi:github" />
+            </a>
           </div>
           <div v-if="usernameCookie" class="h-4 w-px bg-zinc-800" />
           <div v-if="usernameCookie" class="flex items-center gap-1.5 text-zinc-400">
@@ -125,7 +134,7 @@
       </header>
 
       <!-- Page Content -->
-      <div class="flex-1 overflow-hidden relative z-10">
+      <div class="relative z-10 flex-1 min-w-0 overflow-hidden">
         <slot />
       </div>
     </main>
@@ -169,9 +178,6 @@
     )
   })
 
-  /** checks if the app is currently running in dark mode (hardcoded to true) */
-  const isDark = computed(() => true)
-
   /**
    * Checks for mobile screen size and updates layout state.
    * Prevents overlapping UI elements on small screens.
@@ -183,15 +189,29 @@
     }
   }
 
+  function updateViewportHeight() {
+    if (import.meta.server) {
+      return
+    }
+
+    const viewportHeight = window.visualViewport?.height || window.innerHeight
+    document.documentElement.style.setProperty('--app-height', `${Math.round(viewportHeight)}px`)
+  }
+
   // Lifecycle hooks for handling screen resizing and responsiveness
   onMounted(() => {
     checkMobile()
+    updateViewportHeight()
     window.addEventListener('resize', checkMobile)
+    window.addEventListener('resize', updateViewportHeight)
+    window.visualViewport?.addEventListener('resize', updateViewportHeight)
   })
 
   onUnmounted(() => {
     if (import.meta.client) {
       window.removeEventListener('resize', checkMobile)
+      window.removeEventListener('resize', updateViewportHeight)
+      window.visualViewport?.removeEventListener('resize', updateViewportHeight)
     }
   })
 

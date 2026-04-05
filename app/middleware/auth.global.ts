@@ -15,19 +15,59 @@
  * @website   https://meow.yanawa.io
  */
 
+import { AUTH_USERNAME_COOKIE_NAME } from '#shared/constants/auth'
+
 /**
  * Global authentication middleware for the Meow application.
  * Protects all routes except the login page and handles redirection logic based on user session state.
  */
-export default defineNuxtRouteMiddleware((to) => {
+export default defineNuxtRouteMiddleware(async (to) => {
   // Access the authentication identifier stored in cookies
-  const username = useCookie('chat_username')
+  const username  = useCookie(AUTH_USERNAME_COOKIE_NAME)
+  const authState = useState<{ checked: boolean; authenticated: boolean; username: string | null }>('auth-session-state', () => ({
+    checked:       false,
+    authenticated: false,
+    username:      null
+  }))
+
+  async function verifySession() {
+    try {
+      const headers = import.meta.server ? useRequestHeaders([ 'cookie' ]): undefined
+      const session = await $fetch<{ authenticated: boolean; username: string | null }>('/api/auth/session', {
+        headers
+      })
+
+      authState.value = {
+        checked:       true,
+        authenticated: session.authenticated,
+        username:      session.username
+      }
+
+      if (session.username) {
+        username.value = session.username
+      }
+
+      return session.authenticated
+    } catch {
+      authState.value = {
+        checked:       true,
+        authenticated: false,
+        username:      null
+      }
+      username.value  = null
+      return false
+    }
+  }
+
+  const isAuthenticated = authState.value.checked
+      ? authState.value.authenticated
+      : await verifySession()
 
   /**
    * Primary Guard: If no valid session exists, redirect all page requests back to login.
    * Exemption: Explicitly ignore the login path to prevent redirect loops.
    */
-  if (!username.value && to.path!=='/login') {
+  if (!isAuthenticated && to.path!=='/login') {
     return navigateTo('/login')
   }
 
@@ -35,7 +75,7 @@ export default defineNuxtRouteMiddleware((to) => {
    * Optimized Navigation: Prevent logged-in users from manually accessing the login screen.
    * Redirects them back to the main application interface.
    */
-  if (username.value && to.path==='/login') {
+  if (isAuthenticated && to.path==='/login') {
     return navigateTo('/')
   }
 })

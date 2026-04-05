@@ -18,6 +18,7 @@
 import {describe, expect, test} from 'bun:test';
 
 import {
+  assertProviderBaseUrl,
   buildChatRequest,
   buildModelsRequest,
   extractGoogleStreamText,
@@ -106,6 +107,15 @@ describe('providerApi', () => {
     });
   });
 
+  test('rejects insecure or private provider URLs unless they are explicitly allowed', () => {
+    expect(() => assertProviderBaseUrl('http://example.com')).toThrow();
+    expect(() => assertProviderBaseUrl('https://192.168.1.20')).toThrow();
+    expect(assertProviderBaseUrl('http://localhost:11434', {allowInsecureLocalhost: true})).
+        toBe('http://localhost:11434');
+    expect(assertProviderBaseUrl('https://api.openai.com/v1')).toBe('https://api.openai.com/v1');
+    expect(assertProviderBaseUrl('https://192.168.1.20', {allowPrivate: true})).toBe('https://192.168.1.20');
+  });
+
   test('resolves env-backed keys for the known default providers and keeps custom keys intact', () => {
     const secrets = {
       deepseekApiKey: 'deepseek-env-key',
@@ -137,6 +147,18 @@ describe('providerApi', () => {
       clientApiKey: 'custom-key',
       secrets,
     })).toBe('custom-key');
+    expect(resolveProviderApiKey({
+      providerId:   'custom-google-provider',
+      baseUrl:      'https://generativelanguage.googleapis.com',
+      clientApiKey: '',
+      secrets,
+    })).toBe('google-env-key');
+    expect(resolveProviderApiKey({
+      providerId:   'custom-groq-provider',
+      baseUrl:      'https://api.groq.com/openai',
+      clientApiKey: '',
+      secrets,
+    })).toBe('groq-env-key');
   });
 
   test('flags thinking/reasoning models for the compact loader', () => {

@@ -16,10 +16,10 @@
   -->
 
 <template>
-  <div class="flex flex-col h-full bg-transparent relative overflow-hidden">
+  <div class="relative flex h-full max-w-full flex-col overflow-hidden bg-transparent">
     <ClientOnly>
       <!-- Main Centered Content (Hero and Suggested Actions) -->
-      <div class="flex-1 flex flex-col items-center justify-center p-6 text-center z-10 overflow-y-auto w-full max-w-6xl mx-auto">
+      <div class="z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center overflow-y-auto px-4 py-6 text-center sm:p-6 min-w-0">
 
         <!-- Hero Mascot Section with Animations -->
         <div class="mb-10 relative mt-10 sm:mt-0">
@@ -35,20 +35,20 @@
           </div>
         </div>
 
-        <h1 class="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-linear-to-r from-primary-400 via-zinc-100 to-primary-600 mb-2 drop-shadow-xl tracking-tight pt-4 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+        <h1 class="text-4xl sm:text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-linear-to-r from-primary-400 via-zinc-100 to-primary-600 mb-2 drop-shadow-xl tracking-tight pt-4 animate-in fade-in slide-in-from-bottom-4 duration-1000">
           Meow 🐾
         </h1>
 
-        <h2 class="text-2xl md:text-3xl font-bold text-zinc-400 mb-8 tracking-wide">
+        <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-zinc-400 mb-6 sm:mb-8 tracking-wide">
           Willkommen, {{ displayName }}!
         </h2>
 
-        <p class="text-zinc-500 max-w-xl mx-auto mb-12 text-lg leading-relaxed font-medium">
+        <p class="text-zinc-500 max-w-xl mx-auto mb-10 sm:mb-12 text-base sm:text-lg leading-relaxed font-medium">
           I am your personal AI German Tutor. Ready to turn language learning into something feline-tastic? 🐾
         </p>
 
         <!-- Suggested Actions Grid: Pre-defined prompts for quick onboarding -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl w-full mx-auto mb-12 px-2">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl w-full min-w-0 mx-auto mb-10 sm:mb-12 px-1 sm:px-2">
           <!-- Introduction Prompt -->
           <button
               class="group text-left p-5 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 hover:bg-zinc-800 hover:border-primary-500/50 transition-all flex items-start gap-4 shadow-sm" @click="handleSend('Can you teach me how to introduce myself in German? Explain the grammar basics clearly.')">

@@ -36,4 +36,3 @@ Currently planning to add:
 
 ---
 
-*Created by the Yanawa Cat-Team* 🐾

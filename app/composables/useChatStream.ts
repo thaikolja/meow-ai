@@ -35,6 +35,11 @@ export function useChatStream() {
   /** Reference to the current fetch signal, allowing for manual interruption of the stream */
   let abortController: AbortController | null = null
 
+  function resetStreamingState() {
+    isStreaming.value = false
+    abortController   = null
+  }
+
   /**
    * Initiates a POST request to the chat API and begins processing the SSE stream.
    * Parses incoming JSON chunks and facilitates callback triggers.
@@ -65,27 +70,66 @@ export function useChatStream() {
         body:   JSON.stringify({
           messages,
           baseUrl: config.baseUrl,
-          apiKey: config.apiKey,
+          apiKey:  config.apiKey,
           providerId: config.providerId,
-          model:  config.model
+          model:   config.model
         }),
         signal: abortController.signal
       })
 
       if (!response.ok) {
         const errorText = await response.text()
+        resetStreamingState()
         onError(errorText || `HTTP ${response.status}`)
         return
       }
 
       const reader = response.body?.getReader()
       if (!reader) {
+        resetStreamingState()
         onError('No response body available for reading')
         return
       }
 
       const decoder = new TextDecoder()
       let fullContent = ''
+      let buffer    = ''
+
+      function processEventChunk(eventChunk: string): boolean {
+        const data = eventChunk
+        .split('\n')
+        .filter(line => line.startsWith('data: '))
+        .map(line => line.slice(6).trim())
+        .filter(Boolean)
+        .join('\n')
+
+        if (!data) {
+          return false
+        }
+
+        if (data==='[DONE]') {
+          resetStreamingState()
+          onDone(fullContent)
+          return true
+        }
+
+        try {
+          const parsed  = JSON.parse(data)
+          const content = parsed.choices?.[0]?.delta?.content
+              ?? parsed.choices?.[0]?.text
+              ?? ''
+
+          if (content) {
+            fullContent += content
+            streamingContent.value = fullContent
+            onChunk(content)
+          }
+        } catch {
+          // Silently ignore malformed SSE payloads to keep the stream alive.
+        }
+
+        return false
+      }
 
       /**
        * Infinite loop to read the stream reader until completion.
@@ -95,40 +139,27 @@ export function useChatStream() {
         const { done, value } = await reader.read()
         if (done) break
 
-        const text = decoder.decode(value, { stream: true })
-        // Multiple SSE lines may arrive in one chunk
-        const lines = text.split('\n')
+        buffer += decoder.decode(value, { stream: true })
 
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue
-          const data = line.slice(6).trim()
+        const events = buffer.split('\n\n')
+        buffer       = events.pop() || ''
 
-          // OpenAI standard protocol for stream termination
-          if (data==='[DONE]') {
-            isStreaming.value = false
-            onDone(fullContent)
+        for (const eventChunk of events) {
+          if (processEventChunk(eventChunk)) {
             return
-          }
-
-          try {
-            const parsed = JSON.parse(data)
-            // Extract the actual text content from the delta object
-            const content = parsed.choices?.[0]?.delta?.content
-            if (content) {
-              fullContent += content
-              streamingContent.value = fullContent
-              onChunk(content)
-            }
-          } catch {
-            // Silently ignore individual malformed JSON chunks to maintain stream flow
           }
         }
       }
 
-      isStreaming.value = false
+      buffer += decoder.decode()
+      if (buffer.trim() && processEventChunk(buffer)) {
+        return
+      }
+
+      resetStreamingState()
       onDone(fullContent)
     } catch (error: any) {
-      isStreaming.value = false
+      resetStreamingState()
       // Treat user-driven aborts as successful completions of current content
       if (error.name==='AbortError') {
         onDone(streamingContent.value)
@@ -144,9 +175,8 @@ export function useChatStream() {
   function stopStreaming() {
     if (abortController) {
       abortController.abort()
-      abortController = null
     }
-    isStreaming.value = false
+    resetStreamingState()
   }
 
   return {

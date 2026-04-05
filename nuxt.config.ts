@@ -19,36 +19,32 @@
  * Nuxt configuration file.
  * Configures modules, runtime config, global CSS, and app-level metadata.
  */
-const DEFAULT_APP_PASSWORD = 'sine'
+import { DEFAULT_APP_PASSWORD } from './shared/constants/auth'
 
 export default defineNuxtConfig({
   // Ensures compatibility with current development date
   compatibilityDate: '2026-04-04',
 
+  // Disable the in-app devtools overlay in this deployment.
   devtools: { enabled: false },
 
-  // allow hosts: allows connections from any host, useful for development and deployment flexibility
-  vite: {
-    server: {
-      allowedHosts: [ 'processed-cycling-finish-sold.trycloudflare.com' ]
-    }
-  },
 
-  modules: [
-    '@nuxt/ui',    // UI component library
-    '@nuxt/image', // Image optimization
-    '@nuxt/icon'   // Icon management
-  ],
+  modules: [// UI component library
+    '@nuxt/ui', // Image optimization
+    '@nuxt/image', // Icon management
+    '@nuxt/icon', '@nuxt/fonts' ],
 
   runtimeConfig: {
     // Secret key for login (populated from environment variables)
-    appPassword:  DEFAULT_APP_PASSWORD,
-    deepseekApiKey: '',
-    groqApiKey:     '',
-    googleApiKey: '',
-    public:       {
-      defaultProvider: 'gemini-default',
-      defaultModel:    'models/gemini-3.1-flash-lite-preview'
+    appPassword:              process.env['NUXT_APP_PASSWORD']?.trim() || DEFAULT_APP_PASSWORD,
+    sessionSecret:            process.env['NUXT_SESSION_SECRET']?.trim() || process.env['NUXT_APP_PASSWORD']?.trim() || DEFAULT_APP_PASSWORD,
+    allowPrivateProviderUrls: process.env['NUXT_ALLOW_PRIVATE_PROVIDER_URLS']==='true',
+    deepseekApiKey:           process.env['NUXT_DEEPSEEK_API_KEY']?.trim() || '',
+    groqApiKey:               process.env['NUXT_GROQ_API_KEY']?.trim() || '',
+    googleApiKey:             process.env['NUXT_GOOGLE_API_KEY']?.trim() || '',
+    public:                   {
+      defaultProvider: process.env['NUXT_PUBLIC_DEFAULT_PROVIDER']?.trim() || 'gemini-default',
+      defaultModel:    process.env['NUXT_PUBLIC_DEFAULT_MODEL']?.trim() || 'models/gemini-3.1-flash-lite-preview'
     }
   },
 
@@ -63,8 +59,12 @@ export default defineNuxtConfig({
       htmlAttrs: { lang: 'en' },
       meta:  [
         { charset: 'utf-8' },
-        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'Learn German with cats' }
+        { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
+        {
+          name:    'description',
+          content: 'Learn German with a playful AI tutor built for fast, focused conversation practice.'
+        },
+        { name: 'robots', content: 'nofollow,noindex' }
       ],
       link:  [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
@@ -81,5 +81,19 @@ export default defineNuxtConfig({
   icon: {
     // Uses local icon sets to avoid bundling delays and external dependencies
     serverBundle: 'local'
+  },
+
+  nitro: {
+    compressPublicAssets: true,
+    routeRules:           {
+      '/**': {
+        headers: {
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options':        'DENY',
+          'Referrer-Policy':        'strict-origin-when-cross-origin',
+          'Permissions-Policy':     'camera=(), microphone=(), geolocation=()'
+        }
+      }
+    }
   }
 })

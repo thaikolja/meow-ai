@@ -16,12 +16,16 @@
   -->
 
 <template>
-  <div class="bg-transparent pb-4 pt-8">
-    <div class="max-w-6xl mx-auto px-4">
-      <div class="relative glass-input border-2 rounded-2xl border-zinc-700 bg-zinc-800/80 focus-within:border-primary-500/50 transition-colors shadow-lg flex items-end">
+  <div
+      :class="[
+    'w-full bg-transparent overflow-x-clip',
+    sticky ? 'sticky bottom-0 z-20 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] pt-4 backdrop-blur-sm' : 'pb-4 pt-6 sm:pt-8'
+  ]">
+    <div class="mx-auto w-full max-w-4xl min-w-0 px-3 sm:px-4">
+      <div class="relative flex w-full min-w-0 items-end overflow-hidden rounded-2xl border-2 border-zinc-700 bg-zinc-800/80 shadow-lg transition-colors focus-within:border-primary-500/50 glass-input">
         <textarea
-            ref="textareaRef" v-model="message" :disabled="isStreaming" :placeholder="isStreaming ? 'Meow is sharpening claws... 🐾' : 'Chat with Meow... 🐾'" class="w-full bg-transparent text-zinc-100 placeholder-zinc-500 px-4 pt-4 pb-4 pr-16 resize-none outline-none text-sm leading-relaxed max-h-48 overflow-y-auto" rows="1" @input="autoResize" @keydown="handleKeydown" />
-        <div class="absolute bottom-2 right-2 flex items-center gap-2">
+            ref="textareaRef" v-model="message" :disabled="isStreaming" :placeholder="isStreaming ? 'Meow is sharpening claws... 🐾' : 'Chat with Meow... 🐾'" class="min-w-0 w-full max-w-full bg-transparent px-4 pt-4 pb-4 pr-18 text-base sm:text-sm leading-6 text-zinc-100 placeholder-zinc-500 resize-none outline-none max-h-48 overflow-y-auto [overflow-wrap:anywhere]" rows="1" @focus="handleFocus" @input="autoResize" @keydown="handleKeydown" />
+        <div class="absolute bottom-2 right-2 flex shrink-0 items-center gap-2">
           <button
               v-if="isStreaming" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-600/20 text-red-400 hover:bg-red-600/30 transition-colors text-sm" @click="$emit('stop')">
             <Icon class="w-3.5 h-3.5" name="lucide:circle-stop" />
@@ -61,6 +65,8 @@
   const props = defineProps<{
     /** Indicates if a response is currently being streamed back from the model */
     isStreaming: boolean
+    /** Pins the input to the bottom edge for chat screens */
+    sticky?: boolean
   }>()
 
   // Current local input state
@@ -101,8 +107,22 @@
     el.style.height = Math.min(el.scrollHeight, 192) + 'px'
   }
 
+  function handleFocus() {
+    if (import.meta.server || window.innerWidth >= 768) {
+      return
+    }
+
+    window.setTimeout(() => {
+      textareaRef.value?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    }, 150)
+  }
+
   // Initial focus purely for user convenience
   onMounted(() => {
-    textareaRef.value?.focus()
+    autoResize()
+
+    if (window.innerWidth >= 768 && window.matchMedia('(pointer:fine)').matches) {
+      textareaRef.value?.focus()
+    }
   })
 </script>

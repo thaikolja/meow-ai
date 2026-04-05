@@ -25,23 +25,24 @@
    * Includes built-in syntax highlighting via Highlight.js for a wide variety of programming languages.
    */
 
-  import { marked } from 'marked'
-  import hljs       from 'highlight.js/lib/core'
-  import javascript from 'highlight.js/lib/languages/javascript'
-  import typescript from 'highlight.js/lib/languages/typescript'
-  import python     from 'highlight.js/lib/languages/python'
-  import bash       from 'highlight.js/lib/languages/bash'
-  import json       from 'highlight.js/lib/languages/json'
-  import css        from 'highlight.js/lib/languages/css'
-  import xml        from 'highlight.js/lib/languages/xml'
-  import sql        from 'highlight.js/lib/languages/sql'
-  import markdown   from 'highlight.js/lib/languages/markdown'
-  import yaml       from 'highlight.js/lib/languages/yaml'
-  import go         from 'highlight.js/lib/languages/go'
-  import rust       from 'highlight.js/lib/languages/rust'
-  import java       from 'highlight.js/lib/languages/java'
-  import php        from 'highlight.js/lib/languages/php'
-  import csharp     from 'highlight.js/lib/languages/csharp'
+  import { marked }   from 'marked'
+  import sanitizeHtml from 'sanitize-html'
+  import hljs         from 'highlight.js/lib/core'
+  import javascript   from 'highlight.js/lib/languages/javascript'
+  import typescript   from 'highlight.js/lib/languages/typescript'
+  import python       from 'highlight.js/lib/languages/python'
+  import bash         from 'highlight.js/lib/languages/bash'
+  import json         from 'highlight.js/lib/languages/json'
+  import css          from 'highlight.js/lib/languages/css'
+  import xml          from 'highlight.js/lib/languages/xml'
+  import sql          from 'highlight.js/lib/languages/sql'
+  import markdown     from 'highlight.js/lib/languages/markdown'
+  import yaml         from 'highlight.js/lib/languages/yaml'
+  import go           from 'highlight.js/lib/languages/go'
+  import rust         from 'highlight.js/lib/languages/rust'
+  import java         from 'highlight.js/lib/languages/java'
+  import php          from 'highlight.js/lib/languages/php'
+  import csharp       from 'highlight.js/lib/languages/csharp'
 
   // Register all supported highlight.js languages for server-side or client-side rendering
   hljs.registerLanguage('javascript', javascript)
@@ -94,10 +95,17 @@
     return `<div class="relative group my-3 rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-800">
     <div class="flex items-center justify-between px-4 py-2 bg-neutral-100 dark:bg-neutral-800/80 border-b border-neutral-200 dark:border-neutral-700/50">
       <span class="text-xs text-neutral-600 dark:text-neutral-400 font-mono">${language}</span>
-      <button onclick="navigator.clipboard.writeText(this.closest('.group').querySelector('code').textContent).then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',2000)})" class="text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors px-2 py-1 rounded hover:bg-neutral-200 dark:hover:bg-neutral-700">Copy</button>
     </div>
     <pre class="!mt-0 !rounded-none bg-neutral-50 dark:bg-neutral-900 overflow-x-auto p-4"><code class="text-sm leading-relaxed hljs language-${language}">${highlighted}</code></pre>
   </div>`
+  }
+
+  renderer.link = function ({ href, title, tokens }) {
+    const text      = this.parser.parseInline(tokens)
+    const safeHref  = href && /^(https?:|mailto:|tel:)/i.test(href) ? href: '#'
+    const titleAttr = title ? ` title="${escapeHtml(title)}"`: ''
+
+    return `<a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer nofollow"${titleAttr}>${text}</a>`
   }
 
   /**
@@ -127,10 +135,26 @@
   const renderedHtml = computed(() => {
     if (!props.content) return ''
     try {
-      return marked.parse(props.content) as string
+      return sanitizeHtml(marked.parse(props.content) as string, {
+        allowedTags:           [
+          'a', 'blockquote', 'br', 'code', 'del', 'div', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+          'hr', 'li', 'ol', 'p', 'pre', 'span', 'strong', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'ul'
+        ],
+        allowedAttributes:     {
+          a:    [ 'href', 'target', 'rel', 'title' ],
+          code: [ 'class' ],
+          div:  [ 'class' ],
+          pre:  [ 'class' ],
+          span: [ 'class' ],
+          th:   [ 'colspan', 'rowspan' ],
+          td:   [ 'colspan', 'rowspan' ]
+        },
+        allowedSchemes:        [ 'http', 'https', 'mailto', 'tel' ],
+        allowProtocolRelative: false
+      })
     } catch {
       // If parsing fails for any reason, return the raw content to prevent total UI failure
-      return props.content
+      return escapeHtml(props.content)
     }
   })
 </script>
