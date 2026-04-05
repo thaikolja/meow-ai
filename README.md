@@ -16,10 +16,21 @@ This application lets you talk to AI models via your own API endpoints. No more 
 ## 🧶 How to Play (Developer Setup)
 
 1. **Paws-it the Repo**: clone your Meow repository
-2. **Cat-nip Installation**: `bun install`
-3. **Start the Purr**: `bun run dev`
-4. **Bask in the Light**: Open [http://localhost:3000](http://localhost:3000) locally or
+2. **Set the Secret Snacks**: copy `.env.example` to `.env` and fill in your provider API keys
+3. **Cat-nip Installation**: `bun install`
+4. **Start the Purr**: `bun run dev`
+5. **Bask in the Light**: Open [http://localhost:3000](http://localhost:3000) locally or
    visit [https://meow.yanawa.io](https://meow.yanawa.io) in production
+
+### 🔐 Environment Variables
+
+The default providers read their API keys from `.env` via Nuxt runtime config:
+
+- `NUXT_DEEPSEEK_API_KEY`
+- `NUXT_GROQ_API_KEY`
+- `NUXT_GOOGLE_API_KEY`
+
+`.env` is gitignored, so you can keep provider secrets local.
 
 ## 📦 Purr-duction Checklist
 

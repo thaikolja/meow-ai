@@ -106,12 +106,12 @@
         </button>
 
         <ClientOnly>
-          <ModelSelector v-if="usernameCookie" class="flex-shrink-0" />
+          <ModelSelector v-if="usernameCookie" class="shrink-0" />
         </ClientOnly>
 
         <div class="flex-1" />
 
-        <span class="text-xs text-zinc-500 font-medium hidden sm:flex items-center gap-4">
+        <div class="text-xs text-zinc-500 font-medium hidden sm:flex items-center gap-4">
           <div class="flex items-center gap-2">
             <Icon class="w-4 h-4 text-primary-500" name="mdi:cat" />
             Meow 🐾
@@ -121,7 +121,7 @@
             <Icon class="w-3.5 h-3.5" name="lucide:user" />
             {{ usernameCookie }}
           </div>
-        </span>
+        </div>
       </header>
 
       <!-- Page Content -->

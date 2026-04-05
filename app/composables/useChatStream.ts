@@ -47,7 +47,7 @@ export function useChatStream() {
    */
   async function streamMessage(
       messages: Array<{ role: string; content: string }>,
-      config: { baseUrl: string; apiKey: string; model: string },
+      config: { baseUrl: string; apiKey: string; model: string; providerId?: string },
       onChunk: (chunk: string) => void,
       onDone: (fullContent: string) => void,
       onError: (error: string) => void
@@ -66,6 +66,7 @@ export function useChatStream() {
           messages,
           baseUrl: config.baseUrl,
           apiKey: config.apiKey,
+          providerId: config.providerId,
           model:  config.model
         }),
         signal: abortController.signal
@@ -73,11 +74,15 @@ export function useChatStream() {
 
       if (!response.ok) {
         const errorText = await response.text()
-        throw new Error(errorText || `HTTP ${response.status}`)
+        onError(errorText || `HTTP ${response.status}`)
+        return
       }
 
       const reader = response.body?.getReader()
-      if (!reader) throw new Error('No response body available for reading')
+      if (!reader) {
+        onError('No response body available for reading')
+        return
+      }
 
       const decoder = new TextDecoder()
       let fullContent = ''

@@ -20,36 +20,46 @@
  * Receives the conversation history and provider credentials, then forwards
  * the request to the external LLM endpoint using Server-Sent Events (SSE).
  */
+import { buildChatRequest, extractGoogleStreamText, resolveProviderApiKey } from '../utils/providerApi'
+
 export default defineEventHandler(async (event) => {
   // Extract configuration and dialogue history from the incoming request body
-  const body = await readBody(event)
-  const { messages, baseUrl, apiKey, model } = body
+  const body                                             = await readBody(event)
+  const { messages, baseUrl, apiKey, model, providerId } = body
+  const runtimeConfig                                    = useRuntimeConfig(event)
 
   /**
    * Strict Validation Guard: Prevent invalid requests to the downstream provider.
    */
-  if (!baseUrl || !apiKey || !model || !messages) {
-    throw createError({ statusCode: 400, message: 'Missing required fields: baseUrl, apiKey, model, messages' })
+  if (!baseUrl || !model || !messages) {
+    throw createError({ statusCode: 400, message: 'Missing required fields: baseUrl, model, messages' })
   }
 
-  // Construct the target endpoint (standard OpenAI chat URI)
-  const apiUrl = `${baseUrl}/v1/chat/completions`
+  const resolvedApiKey = resolveProviderApiKey({
+    providerId,
+    baseUrl,
+    clientApiKey: apiKey,
+    secrets:      {
+      deepseekApiKey: runtimeConfig.deepseekApiKey,
+      groqApiKey:     runtimeConfig.groqApiKey,
+      googleApiKey:   runtimeConfig.googleApiKey
+    }
+  })
+
+  if (!resolvedApiKey) {
+    throw createError({ statusCode: 400, message: 'Missing API key for provider' })
+  }
+
+  const request = buildChatRequest(baseUrl, resolvedApiKey, model, messages)
 
   /**
    * Relay the request to the third-party LLM provider.
    * Explicitly request 'stream: true' for low-latency chunks.
    */
-  const response = await fetch(apiUrl, {
+  const response = await fetch(request.apiUrl, {
     method:  'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    },
-    body:    JSON.stringify({
-      model,
-      messages,
-      stream: true // Essential for real-time text appearance in the UI
-    })
+    headers: request.headers,
+    body:    JSON.stringify(request.body)
   })
 
   // Propagate downstream failures back to the client
@@ -74,6 +84,9 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, message: 'No response body received from the downstream LLM' })
   }
 
+  const decoder = new TextDecoder()
+  const encoder = new TextEncoder()
+
   /**
    * Internal ReadableStream construction to facilitate standard Nuxt stream handling.
    * Iterates through the reader and enqueues raw byte chunks.
@@ -81,6 +94,54 @@ export default defineEventHandler(async (event) => {
   const stream = new ReadableStream({
     async start(controller) {
       try {
+        if (request.kind==='google') {
+          let buffer       = ''
+          let lastFullText = ''
+
+          const flushGoogleEvent = (eventChunk: string) => {
+            for (const line of eventChunk.split('\n')) {
+              if (!line.startsWith('data: ')) continue
+
+              const data = line.slice(6).trim()
+              if (!data) continue
+
+              const parsed      = JSON.parse(data)
+              const currentText = extractGoogleStreamText(parsed)
+              if (!currentText) continue
+
+              const delta = currentText.startsWith(lastFullText)
+                  ? currentText.slice(lastFullText.length)
+                  : currentText
+
+              if (!delta) continue
+
+              lastFullText = currentText
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ choices: [ { delta: { content: delta } } ] })}\n\n`))
+            }
+          }
+
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+
+            buffer += decoder.decode(value, { stream: true })
+            const events = buffer.split('\n\n')
+            buffer       = events.pop() || ''
+
+            for (const eventChunk of events) {
+              flushGoogleEvent(eventChunk)
+            }
+          }
+
+          if (buffer.trim()) {
+            flushGoogleEvent(buffer)
+          }
+
+          controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+          controller.close()
+          return
+        }
+
         while (true) {
           const { done, value } = await reader.read()
           if (done) {

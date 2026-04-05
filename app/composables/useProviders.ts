@@ -21,6 +21,7 @@ import type { LLMProvider } from '~/types'
  * Local storage key for persisting provider configurations (endpoints and keys).
  */
 const STORAGE_KEY = 'chat-yanawa-providers'
+const DEFAULT_PROVIDER_IDS = new Set([ 'deepseek-default', 'groq-default', 'google-default' ])
 
 /**
  * Hardcoded fallback providers used for initial app state.
@@ -31,7 +32,7 @@ const DEFAULT_PROVIDERS: LLMProvider[] = [
     id:       'deepseek-default',
     name:     'DeepSeek',
     baseUrl:  'https://api.deepseek.com',
-    apiKey:   'REDACTED',
+    apiKey: '',
     models:   [ 'deepseek-chat', 'deepseek-reasoner' ],
     isActive: true,
     createdAt: Date.now()
@@ -40,7 +41,7 @@ const DEFAULT_PROVIDERS: LLMProvider[] = [
     id:       'groq-default',
     name:     'Groq',
     baseUrl:  'https://api.groq.com/openai',
-    apiKey:   'REDACTED',
+    apiKey:    '',
     models:   [
       'llama-3.3-70b-versatile',
       'llama-3.1-8b-instant',
@@ -49,10 +50,23 @@ const DEFAULT_PROVIDERS: LLMProvider[] = [
       'deepseek-r1-distill-llama-70b',
       'deepseek-r1-distill-qwen-32b'
     ],
+    isActive:  true,
+    createdAt: Date.now()
+  },
+  {
+    id:      'google-default',
+    name:    'Google AI',
+    baseUrl: 'https://generativelanguage.googleapis.com',
+    apiKey:  '',
+    models:  [ 'models/gemma-4-26b-a4b-it' ],
     isActive: true,
     createdAt: Date.now()
   }
 ]
+
+function isGoogleProvider(baseUrl: string): boolean {
+  return baseUrl.includes('generativelanguage.googleapis.com')
+}
 
 /** Generates a simple base36 unique ID for new providers */
 function generateId(): string {
@@ -69,7 +83,12 @@ function loadProviders(): LLMProvider[] {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
-      return parsed.length > 0 ? parsed: DEFAULT_PROVIDERS
+      const sanitized = Array.isArray(parsed)
+          ? parsed.map((provider: LLMProvider) => DEFAULT_PROVIDER_IDS.has(provider.id)
+              ? { ...provider, apiKey: '' }
+              : provider)
+          : []
+      return sanitized.length > 0 ? sanitized: DEFAULT_PROVIDERS
     }
     return DEFAULT_PROVIDERS
   } catch {
@@ -89,6 +108,7 @@ function saveProviders(providers: LLMProvider[]) {
  */
 export function formatModelName(modelId: string): string {
   if (!modelId) return ''
+  const normalizedId                        = modelId.replace(/^models\//, '')
   const customNames: Record<string, string> = {
     'deepseek-chat':                'DeepSeek Chat',
     'deepseek-reasoner':            'DeepSeek Reasoner',
@@ -96,15 +116,17 @@ export function formatModelName(modelId: string): string {
     'llama-3.1-8b-instant':         'Llama 3.1 8B',
     'mixtral-8x7b-32768':           'Mixtral 8x7B',
     'gemma2-9b-it':                 'Gemma 2 9B',
+    'gemma-4-26b-a4b-it': 'Gemma 4 26B A4B',
     'deepseek-r1-distill-llama-70b': 'DeepSeek R1 Llama 70B',
     'deepseek-r1-distill-qwen-32b': 'DeepSeek R1 Qwen 32B'
   }
   if (customNames[modelId]) return customNames[modelId]!
+  if (customNames[normalizedId]) return customNames[normalizedId]!
 
   // Generic transformation for unknown models
-  return modelId
+  return normalizedId
   .split('-')
-  .filter(word => ![ 'versatile', 'distill', 'distilled', 'it', 'instant' ].includes(word.toLowerCase()))
+  .filter(word => ![ 'versatile', 'distill', 'distilled', 'it', 'instant', 'latest' ].includes(word.toLowerCase()))
   .map(word => word.charAt(0).toUpperCase() + word.slice(1))
   .join(' ')
 }
@@ -124,8 +146,19 @@ export function useProviders() {
     if (!loaded.find(p => p.id==='groq-default')) {
       loaded.push(DEFAULT_PROVIDERS[1]!)
     }
+    // Migration: ensure Google AI is present for testing Gemini/Gemma models
+    if (!loaded.find(p => p.id==='google-default')) {
+      loaded.push(DEFAULT_PROVIDERS[2]!)
+    }
     providers.value = loaded
     isLoaded.value = true
+    saveProviders(loaded)
+
+    for (const provider of loaded) {
+      if (provider.isActive && (provider.models.length===0 || provider.id==='google-default' || isGoogleProvider(provider.baseUrl))) {
+        fetchModels(provider.id)
+      }
+    }
   }
 
   /** Registers a new LLM provider with custom base URL and credentials */
@@ -172,7 +205,8 @@ export function useProviders() {
         method: 'POST',
         body: {
           baseUrl: provider.baseUrl,
-          apiKey: provider.apiKey
+          apiKey:     provider.apiKey,
+          providerId: provider.id
         }
       })
       const models   = response.models || []

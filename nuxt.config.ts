@@ -33,7 +33,10 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     // Secret key for login (populated from environment variables)
-    appPassword: '' // populated by process.env.NUXT_APP_PASSWORD
+    appPassword:    '',
+    deepseekApiKey: '',
+    groqApiKey:     '',
+    googleApiKey:   ''
   },
 
   css: [

@@ -29,11 +29,13 @@
           v-model="form.name" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-200 placeholder-neutral-500 outline-none focus:border-primary-500 transition-colors" placeholder="e.g. OpenAI, Ollama, DeepSeek" type="text" />
       </div>
 
-      <!-- Connection endpoint for OpenAI-compatible services -->
+      <!-- Connection endpoint for OpenAI-compatible or Google-native services -->
       <div>
         <label class="block text-xs font-medium text-neutral-400 mb-1.5">Base URL</label> <input
-          v-model="form.baseUrl" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-200 placeholder-neutral-500 outline-none focus:border-primary-500 transition-colors font-mono" placeholder="e.g. https://api.openai.com" type="url" />
-        <p class="text-xs text-neutral-500 mt-1">Must support OpenAI-compatible /v1/chat/completions</p>
+          v-model="form.baseUrl" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-200 placeholder-neutral-500 outline-none focus:border-primary-500 transition-colors font-mono" placeholder="e.g. https://api.openai.com or https://generativelanguage.googleapis.com" type="url" />
+        <p class="text-xs text-neutral-500 mt-1">Supports OpenAI-compatible endpoints and Google Generative Language API
+          roots.
+        </p>
       </div>
 
       <!-- Authentication secret -->

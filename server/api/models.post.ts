@@ -19,56 +19,71 @@
  * Server-side endpoint to query available models from an OpenAI-compatible provider.
  * This endpoint is consumed by the ProviderList component for model list discovery and synchronization.
  */
+import { buildModelsRequest, extractModelIds, resolveProviderApiKey } from '../utils/providerApi'
+
 export default defineEventHandler(async (event) => {
   // Extract provider connection details from the request body
-  const body = await readBody(event)
-  const { baseUrl, apiKey } = body
+  const body                            = await readBody(event)
+  const { baseUrl, apiKey, providerId } = body
+  const runtimeConfig                   = useRuntimeConfig(event)
 
   /**
    * Validation Guard: Ensure required connection credentials are provided.
    * Responses with 400 Bad Request if mandatory parameters are missing.
    */
-  if (!baseUrl || !apiKey) {
-    throw createError({ statusCode: 400, message: 'Missing required fields: baseUrl, apiKey' })
+  if (!baseUrl) {
+    throw createError({ statusCode: 400, message: 'Missing required field: baseUrl' })
   }
 
-  // Construct target standard OpenAI models listing endpoint
-  const apiUrl = `${baseUrl}/v1/models`
+  const resolvedApiKey = resolveProviderApiKey({
+    providerId,
+    baseUrl,
+    clientApiKey: apiKey,
+    secrets:      {
+      deepseekApiKey: runtimeConfig.deepseekApiKey,
+      groqApiKey:     runtimeConfig.groqApiKey,
+      googleApiKey:   runtimeConfig.googleApiKey
+    }
+  })
 
+  if (!resolvedApiKey) {
+    throw createError({ statusCode: 400, message: 'Missing API key for provider' })
+  }
+
+  const { kind, apiUrl, headers } = buildModelsRequest(baseUrl, resolvedApiKey)
+
+  let response: Response
   try {
+
     /**
      * Perform the downstream GET request to the provider.
      * Uses Bearer Token authentication to authorize the model listing request.
      */
-    const response = await fetch(apiUrl, {
+    response = await fetch(apiUrl, {
       method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`
-      }
+      headers
     })
-
-    // Handle provider rejection or connectivity issues
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw createError({ statusCode: response.status, message: errorText || `Models API error: ${response.status}` })
-    }
-
-    // Parse successfully received model list JSON
-    const data = await response.json()
-
-    /**
-     * Extract model identifiers from the standard OpenAI response format.
-     * Alphabetically sorts the list for UI consistency.
-     */
-    const models = (data.data || []).map((m: any) => m.id).sort()
-
-    return { models }
   } catch (error: any) {
     /**
-     * Re-throw known validation errors.
      * Wrap generic network fetch failures as 500 Internal Server Error.
      */
-    if (error.statusCode) throw error
     throw createError({ statusCode: 500, message: error.message || 'System-level failure fetching provider models' })
   }
+
+  // Handle provider rejection or connectivity issues
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw createError({ statusCode: response.status, message: errorText || `Models API error: ${response.status}` })
+  }
+
+  // Parse successfully received model list JSON
+  const data = await response.json()
+
+  /**
+   * Extract model identifiers from the standard OpenAI response format.
+   * Alphabetically sorts the list for UI consistency.
+   */
+  const models = extractModelIds(kind, data)
+
+  return { models }
 })

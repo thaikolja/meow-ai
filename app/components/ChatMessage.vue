@@ -119,7 +119,7 @@
             <button
                 class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-medium shrink-0" title="Translate Vocabulary to Thai" @click="$emit('quick-prompt', 'Please translate the main vocabulary from the text above into Thai.')">
               <Icon class="w-3.5 h-3.5" name="lucide:languages" />
-              <span>Vocab Thai</span>
+              <span>Thai</span>
             </button>
 
             <button

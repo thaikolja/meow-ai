@@ -46,7 +46,7 @@
   const router = useRouter()
 
   // Composable integrations for chat logic and global configurations
-  const { getChat, addMessage, updateMessage, createChat, persist, removeLastMessage } = useChats()
+  const { getChat, addMessage, updateMessage, persist, removeLastMessage } = useChats()
   const { getProvider }                                                                = useProviders()
   const { systemPrompt, maxContextMessages }                                           = useSettings()
   const { isStreaming, streamingContent, streamMessage, stopStreaming }                = useChatStream()
@@ -158,6 +158,7 @@
         {
           baseUrl: provider.baseUrl,
           apiKey:  provider.apiKey,
+          providerId: provider.id,
           model:   selectedModel.value
         },
         // Progress callback (runs per chunk)
