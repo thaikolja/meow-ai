@@ -29,6 +29,13 @@ The default providers read their API keys from `.env` via Nuxt runtime config:
 - `NUXT_DEEPSEEK_API_KEY`
 - `NUXT_GROQ_API_KEY`
 - `NUXT_GOOGLE_API_KEY`
+- `NUXT_PUBLIC_DEFAULT_PROVIDER`
+- `NUXT_PUBLIC_DEFAULT_MODEL`
+
+The Gemini default pair is:
+
+- `NUXT_PUBLIC_DEFAULT_PROVIDER=gemini-default`
+- `NUXT_PUBLIC_DEFAULT_MODEL=models/gemini-3.1-flash-lite-preview`
 
 `.env` is gitignored, so you can keep provider secrets local.
 

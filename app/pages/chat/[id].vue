@@ -20,7 +20,7 @@
     <ClientOnly>
       <!-- Messages Area: Scrollable feed of previous and current interactions -->
       <ChatMessages
-          :is-streaming="isStreaming" :messages="currentMessages" :streaming-content="streamingContent" @regenerate="handleRegenerate" @quick-prompt="handleSend" />
+          :is-thinking="isThinking" :is-streaming="isStreaming" :messages="currentMessages" :streaming-content="streamingContent" @regenerate="handleRegenerate" @quick-prompt="handleSend" />
 
       <!-- Input Area: Sticky footer for user text entry and stream control -->
       <ChatInput
@@ -42,18 +42,23 @@
    * Coordinates between UI components and multiple composables for state, settings, and streaming.
    */
 
+  import { isThinkingModel } from '~/composables/useProviders'
+
   const route  = useRoute()
   const router = useRouter()
 
   // Composable integrations for chat logic and global configurations
   const { getChat, addMessage, updateMessage, persist, removeLastMessage } = useChats()
-  const { getProvider }                                                                = useProviders()
-  const { systemPrompt, maxContextMessages }                                           = useSettings()
-  const { isStreaming, streamingContent, streamMessage, stopStreaming }                = useChatStream()
+  const { getProvider }                                                 = useProviders()
+  const { systemPrompt, maxContextMessages }                            = useSettings()
+  const { isStreaming, streamingContent, streamMessage, stopStreaming } = useChatStream()
+  const defaultProvider                                                 = useDefaultProvider()
+  const defaultModel                                                    = useDefaultModel()
 
   // Global model selection state (shared with ModelSelector component)
-  const selectedModel    = useState<string>('selected-model', () => 'llama-3.3-70b-versatile')
-  const selectedProvider = useState<string>('selected-provider', () => 'groq-default')
+  const selectedModel    = useState<string>('selected-model', () => defaultModel.value)
+  const selectedProvider = useState<string>('selected-provider', () => defaultProvider.value)
+  const isThinking       = computed(() => isThinkingModel(selectedModel.value))
 
   /**
    * Extracts the unique chat ID from the route parameters.

@@ -18,10 +18,9 @@
 <template>
   <div
       :class="[
-    'flex w-full py-2 px-4 sm:px-6 transition-all duration-500',
-    message.isError ? 'justify-center py-8' : (message.role === 'assistant' ? 'justify-end' : 'justify-start')
-  ]">
-    <!-- Error Centered Card -->
+        'flex w-full py-2 px-4 sm:px-6 transition-all duration-500',
+        message.isError ? 'justify-center py-8' : (message.role === 'assistant' ? 'justify-end' : 'justify-start')
+      ]">
     <div v-if="message.isError" class="max-w-lg w-full bg-red-950/10 border-2 border-dashed border-red-500/20 rounded-3xl p-8 text-center relative overflow-hidden backdrop-blur-md shadow-2xl group animate-in fade-in zoom-in duration-300">
       <div class="absolute -top-10 -right-10 w-32 h-32 bg-red-500/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
 
@@ -45,44 +44,38 @@
         </div>
       </div>
 
-      <!-- Subtle Paw Background -->
       <Icon class="absolute -bottom-8 -left-8 w-40 h-40 text-red-500 opacity-[0.03] rotate-12" name="mdi:paw" />
     </div>
 
-    <!-- Normal Speech Bubble -->
     <div
         v-else :class="[
-      'w-[90%] md:w-[85%] rounded-[2rem] px-6 pt-6 pb-5 relative group shadow-sm flex flex-col overflow-hidden transition-all duration-300',
-      message.role === 'assistant' 
-        ? 'bg-zinc-800 text-zinc-300 rounded-tr-xl' 
-        : 'bg-purple-900/30 text-purple-200/90 rounded-tl-xl'
-    ]">
-
-      <!-- Cute Background Watermark -->
+          'w-[90%] md:w-[85%] rounded-4xl px-6 pt-6 pb-5 relative group shadow-sm flex flex-col overflow-hidden transition-all duration-300',
+          message.role === 'assistant' ? 'bg-zinc-800 text-zinc-300 rounded-tr-xl' : 'bg-purple-900/30 text-purple-200/90 rounded-tl-xl'
+        ]">
       <Icon
           :class="[
-        'absolute -bottom-6 w-32 h-32 opacity-[0.03] pointer-events-none transition-transform',
-        message.role === 'assistant' ? '-left-6 -rotate-12' : '-right-6 rotate-12'
-      ]" name="mdi:paw" />
+            'absolute -bottom-6 w-32 h-32 opacity-[0.03] pointer-events-none transition-transform',
+            message.role === 'assistant' ? '-left-6 -rotate-12' : '-right-6 rotate-12'
+          ]" name="mdi:paw" />
 
-      <!-- Header -->
       <div class="flex items-center gap-2 mb-2 relative z-10">
         <Icon
             :class="[
-          'w-4 h-4',
-          message.role === 'assistant' ? 'text-primary-400' : 'text-purple-400'
-        ]" :name="message.role === 'assistant' ? 'mdi:cat' : 'lucide:user'" />
+              'w-4 h-4',
+              message.role === 'assistant' ? 'text-primary-400' : 'text-purple-400'
+            ]" :name="message.role === 'assistant' ? 'mdi:cat' : 'lucide:user'" />
         <span class="text-xs font-semibold opacity-70 uppercase tracking-wider">
           {{ message.role==='assistant' ? 'Meow 🐾': (usernameCookie || 'You') }}
         </span>
       </div>
 
-      <!-- Content -->
       <div class="flex-1 min-w-0">
         <div class="chat-prose prose-p:leading-relaxed prose-pre:my-0">
           <ClientOnly>
-            <!-- Check if there is actual content, otherwise default slots handle streaming indicator -->
             <MarkdownRenderer v-if="displayContent" :class="message.role === 'user' ? 'text-purple-100!' : ''" :content="displayContent" />
+            <div v-else-if="isStreaming && isThinking" class="py-1">
+              <ThinkingCat compact label="Thinking..." />
+            </div>
             <div v-else-if="isStreaming" class="py-1">
               <ThinkingCat />
             </div>
@@ -92,18 +85,16 @@
         </div>
       </div>
 
-      <!-- Actions & Metadata Box -->
       <div v-if="!isStreaming && displayContent" class="flex flex-nowrap overflow-x-auto no-scrollbar items-center justify-between gap-4 pt-3 mt-1.5 transition-opacity w-full">
-        <!-- Metadata on Left -->
         <div
             :class="[
-          'flex items-center gap-3 text-[10px] font-medium tracking-wide opacity-40',
-          message.role === 'assistant' ? 'text-zinc-500' : 'text-purple-300'
-        ]">
+              'flex items-center gap-3 text-[10px] font-medium tracking-wide opacity-40',
+              message.role === 'assistant' ? 'text-zinc-500' : 'text-purple-300'
+            ]">
           <div class="flex items-center gap-1.5" title="Model Used">
             <Icon class="w-3 h-3" name="mdi:cat" />
             {{
-              message.role==='assistant' ? (formatModelName(message.model || 'Meow 🐾')): (usernameCookie || 'Client Input')
+              message.role==='assistant' ? formatModelName(message.model || 'Meow 🐾'): (usernameCookie || 'Client Input')
             }}
           </div>
           <div class="flex items-center gap-1.5" title="Estimated Tokens">
@@ -112,9 +103,7 @@
           </div>
         </div>
 
-        <!-- Buttons on Right -->
         <div class="flex items-center gap-1.5 flex-nowrap shrink-0 justify-end">
-          <!-- Tutor Actions -->
           <template v-if="message.role === 'assistant'">
             <button
                 class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-medium shrink-0" title="Translate Vocabulary to Thai" @click="$emit('quick-prompt', 'Please translate the main vocabulary from the text above into Thai.')">
@@ -139,9 +128,9 @@
 
           <button
               :class="[
-              'p-1.5 rounded-xl transition-colors',
-              message.role === 'assistant' ? 'hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200' : 'hover:bg-purple-800/50 text-purple-300 hover:text-purple-100'
-            ]" title="Copy message" @click="copyContent">
+                'p-1.5 rounded-xl transition-colors',
+                message.role === 'assistant' ? 'hover:bg-zinc-700/50 text-zinc-400 hover:text-zinc-200' : 'hover:bg-purple-800/50 text-purple-300 hover:text-purple-100'
+              ]" title="Copy message" @click="copyContent">
             <Icon :name="copied ? 'lucide:check' : 'lucide:copy'" class="w-4 h-4" />
           </button>
           <button
@@ -158,80 +147,29 @@
   /**
    * Component for displaying a single message in the chat thread.
    * Handles both user and assistant roles, error states, and specialized tutor actions.
-   * Includes text-to-speech auto-detection and content copying.
+   * Includes content copying and message metadata rendering.
    */
 
   import type { ChatMessage } from '~/types'
 
   const { formatModelName } = useProviders()
-  const props               = defineProps<{
-    /** The message object containing role, content, and metadata */
+  const props = defineProps<{
     message: ChatMessage
-    /** Indicates if this message is the most recent one in the thread */
     isLast: boolean
-    /** Indicates if a response is currently streaming into this message slot */
     isStreaming: boolean
-    /** Real-time content being received from the stream */
+    isThinking: boolean
     streamingContent?: string
   }>()
 
-  const emit = defineEmits<{
-    /** Triggered when the user wants to retry the AI response generation */
-    regenerate: []
-    /** Triggered for specialized learning prompts related to the current message */
-    'quick-prompt': [ prompt: string ]
-  }>()
-
-  // UI Utility states
-  const copied         = ref(false)
+  const copied = ref(false)
   const usernameCookie = useCookie('chat_username')
 
-  /**
-   * Automatically detects the language and reads the text aloud using browser TTS.
-   * Heuristic rules for Thai, German, and English.
-   */
-  function speakDetect() {
-    if (import.meta.client) {
-      const text = displayContent.value
-      let lang   = 'de-DE' // Fallback to german
-
-      // Quick heuristic auto-detection for Thai characters
-      if (/[\u0E00-\u0E7F]/.test(text)) {
-        lang = 'th-TH'
-      } else {
-        // Comparison of common term sets between German and English
-        const deTerms = /\b(und|der|die|das|ich|du|er|sie|es|wir|ihr|ist|sind|nicht|ja|nein)\b/gi
-        const enTerms = /\b(the|and|is|are|you|they|it|we|not|yes|no)\b/gi
-        const deCount = (text.match(deTerms) || []).length
-        const enCount = (text.match(enTerms) || []).length
-        if (enCount > deCount) lang = 'en-US'
-      }
-
-      const utterance = new SpeechSynthesisUtterance(text)
-      utterance.lang  = lang
-      utterance.rate  = 0.9 // slightly slower for better foreign language comprehension
-
-      // Explicitly request the correct voice object matching the language
-      const voices        = window.speechSynthesis.getVoices()
-      const matchingVoice = voices.find(v => v.lang.startsWith(lang.substring(0, 2)))
-      if (matchingVoice) utterance.voice = matchingVoice
-
-      window.speechSynthesis.speak(utterance)
-    }
-  }
-
-  /**
-   * Resolves the final content to display.
-   * Prioritizes active stream content over the persisted message content.
-   */
   const displayContent = computed(() => {
-    if (props.isStreaming && props.streamingContent!==undefined) {
-      return props.streamingContent
-    }
+    if (props.isThinking && props.isStreaming) return ''
+    if (props.isStreaming && props.streamingContent!==undefined) return props.streamingContent
     return props.message.content
   })
 
-  /** Copies the current message content to the system clipboard */
   async function copyContent() {
     try {
       await navigator.clipboard.writeText(displayContent.value)
@@ -244,10 +182,6 @@
     }
   }
 
-  /**
-   * Rough estimation of tokens used by this message.
-   * Uses the industry standard '4 characters per token' heuristic for simple UI tracking.
-   */
   const tokenEstimate = computed(() => {
     const text = displayContent.value
     if (!text) return 0

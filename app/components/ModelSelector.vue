@@ -21,7 +21,7 @@
     <button
         class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-zinc-800 transition-colors text-sm text-zinc-300 relative z-50" type="button" @click.stop="isOpen = !isOpen">
       <Icon class="w-4 h-4 text-primary-400" name="mdi:cat" />
-      <span class="max-w-[200px] truncate">{{ displayLabel || 'Pick a Meow-del' }}</span>
+      <span class="max-w-50 truncate">{{ displayLabel || 'Pick a Meow-del' }}</span>
       <Icon :class="['w-3.5 h-3.5 transition-transform', isOpen && 'rotate-180']" name="lucide:chevron-down" />
     </button>
 
@@ -73,14 +73,16 @@
    * Includes search functionality and groups models under their respective providers.
    */
 
-  import { onMounted, onUnmounted, ref, computed } from 'vue'
+  import { onMounted, onUnmounted, ref, computed, watchEffect } from 'vue'
 
-  const { allModels, formatModelName } = useProviders()
-  const dropdownContainer              = ref<HTMLElement | null>(null)
+  const { allModels, formatModelName, activeProviders, getProvider } = useProviders()
+  const defaultProvider                                              = useDefaultProvider()
+  const defaultModel                                                 = useDefaultModel()
+  const dropdownContainer                                            = ref<HTMLElement | null>(null)
 
   // Shared state for the currently active model and provider
-  const selectedModel    = useState<string>('selected-model', () => 'llama-3.3-70b-versatile')
-  const selectedProvider = useState<string>('selected-provider', () => 'groq-default')
+  const selectedModel    = useState<string>('selected-model', () => defaultModel.value)
+  const selectedProvider = useState<string>('selected-provider', () => defaultProvider.value)
   const settingsOpen     = useState('settings-open', () => false)
 
   // Local UI state
@@ -91,7 +93,7 @@
    * Event listener to close the dropdown when clicking outside its bounds.
    */
   const handleClickOutside = (event: MouseEvent) => {
-    if (dropdownContainer.value && !dropdownContainer.value.contains(event.target as Node)) {
+    if (dropdownContainer.value && !event.composedPath().includes(dropdownContainer.value)) {
       isOpen.value = false
     }
   }
@@ -102,6 +104,26 @@
 
   onUnmounted(() => {
     window.removeEventListener('click', handleClickOutside)
+  })
+
+  watchEffect(() => {
+    if (!selectedProvider.value) {
+      selectedProvider.value = defaultProvider.value
+    }
+
+    const provider = getProvider(selectedProvider.value) || activeProviders.value[0]
+    if (!provider) return
+
+    if (provider.id!==selectedProvider.value) {
+      selectedProvider.value = provider.id
+    }
+
+    const providerModels = provider.models || []
+    if (providerModels.length===0) return
+
+    if (!providerModels.includes(selectedModel.value)) {
+      selectedModel.value = providerModels.includes(defaultModel.value) ? defaultModel.value: providerModels[0]!
+    }
   })
 
   /** Human-readable label for the trigger button reflecting the choice */

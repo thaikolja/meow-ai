@@ -104,7 +104,7 @@ export function resolveProviderApiKey(params: {
 }): string {
   const fallbackKey = params.clientApiKey?.trim() || ''
 
-  if (params.providerId==='google-default') {
+  if (params.providerId==='google-default' || params.providerId==='gemini-default') {
     return params.secrets.googleApiKey?.trim() || fallbackKey
   }
 

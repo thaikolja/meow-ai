@@ -19,18 +19,18 @@
   <div ref="container" class="flex-1 overflow-y-auto w-full" @scroll="handleScroll">
     <div class="max-w-4xl w-full mx-auto px-4 py-6 space-y-6">
       <!-- Empty state placeholder -->
-      <div v-if="messages.length === 0" class="flex items-center justify-center h-full min-h-[200px]">
+      <div v-if="messages.length === 0" class="flex items-center justify-center h-full min-h-50">
         <p class="text-neutral-500 text-sm">Send a message to start the conversation</p>
       </div>
 
       <!-- Render the current chat thread -->
       <ChatMessage
-          v-for="(message, index) in messages" :key="message.id" :is-last="index === messages.length - 1" :is-streaming="isStreaming && index === messages.length - 1 && message.role === 'assistant'" :message="message" :streaming-content="isStreaming && index === messages.length - 1 ? streamingContent : undefined" @regenerate="() => $emit('regenerate')" @quick-prompt="(p) => $emit('quick-prompt', p)" />
+          v-for="(message, index) in messages" :key="message.id" :is-last="index === messages.length - 1" :is-thinking="isThinking" :is-streaming="isStreaming && index === messages.length - 1 && message.role === 'assistant'" :message="message" :streaming-content="isStreaming && index === messages.length - 1 ? streamingContent : undefined" @regenerate="$emit('regenerate')" @quick-prompt="handleQuickPrompt" />
 
       <!-- Streaming indicator (visible before assistant message exists in history) -->
       <div v-if="isStreaming && (messages.length === 0 || messages[messages.length - 1]?.role === 'user')" class="flex gap-4 message-enter px-4">
         <div class="flex items-center gap-3 py-2">
-          <ThinkingCat />
+          <ThinkingCat :compact="isThinking" :label="isThinking ? 'Thinking...' : undefined" />
         </div>
       </div>
 
@@ -61,16 +61,20 @@
     messages: ChatMessageType[]
     /** Indicates if a response is currently being received */
     isStreaming: boolean
+    /** Indicates whether the active stream is a thinking/reasoning model */
+    isThinking: boolean
     /** Ongoing chunk content for the active stream */
     streamingContent: string
   }>()
 
   const emit = defineEmits<{
-    /** Passthrough event for regeneration requests from individual messages */
     regenerate: []
-    /** Passthrough event for quick tutor prompts triggered by user */
     'quick-prompt': [ prompt: string ]
   }>()
+
+  function handleQuickPrompt(prompt: string) {
+    emit('quick-prompt', prompt)
+  }
 
   // UI and scroll management states
   const container        = ref<HTMLElement>()

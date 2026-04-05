@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div class="flex flex-col items-start gap-3 py-2 animate-in fade-in duration-500">
+  <div :class="compact ? 'flex items-center gap-3 py-2 animate-in fade-in duration-500' : 'flex flex-col items-start gap-3 py-2 animate-in fade-in duration-500'">
     <div class="flex items-center gap-3">
       <!-- Pulsing Cat Head Icon -->
       <div class="relative flex items-center justify-center">
@@ -42,8 +42,11 @@
     </div>
 
     <!-- Pulse label for personality/feedback -->
-    <p class="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-500 italic animate-pulse">
+    <p v-if="!compact" class="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-500 italic animate-pulse">
       Meow is purring... 🐾
+    </p>
+    <p v-else class="text-sm font-medium text-zinc-400 animate-pulse">
+      {{ label || 'Thinking...' }}
     </p>
   </div>
 </template>
@@ -54,6 +57,14 @@
    * Provides the user with responsive feedback while waiting for an AI response.
    * Uses a combination of pinging circles, bouncing 'tails', and pulsing labels.
    */
+
+  withDefaults(defineProps<{
+    compact?: boolean
+    label?: string
+  }>(), {
+    compact: false,
+    label:   'Thinking...'
+  })
 </script>
 
 <style scoped>

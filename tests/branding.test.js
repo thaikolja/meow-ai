@@ -90,11 +90,15 @@ describe('Meow branding sweep', () => {
     const chatInput = await readFile(join(ROOT, 'app/components/ChatInput.vue'), 'utf8')
     const chatMessage = await readFile(join(ROOT, 'app/components/ChatMessage.vue'), 'utf8')
     const thinkingCat = await readFile(join(ROOT, 'app/components/ThinkingCat.vue'), 'utf8')
+    const chatMessages = await readFile(join(ROOT, 'app/components/ChatMessages.vue'), 'utf8')
 
     expect(layout).toContain('Meow 🐾')
     expect(chatInput).toContain('Meow is sharpening claws')
     expect(chatMessage).toContain('Meow 🐾')
+    expect(chatMessage).toContain('Thinking...')
+    expect(chatMessages).toContain('Thinking...')
     expect(thinkingCat).toContain('Meow is purring')
+    expect(thinkingCat).toContain('Thinking...')
   })
 })
 

@@ -25,7 +25,9 @@ import {
   isGoogleProvider,
   resolveProviderApiKey,
   normalizeGoogleModel,
-} from '../server/utils/providerApi';
+}                                                    from '../server/utils/providerApi';
+import {formatModelName, isThinkingModel}            from '../app/composables/useProviders';
+import {resolveDefaultModel, resolveDefaultProvider} from '../app/composables/useDefaultModel';
 
 describe('providerApi', () => {
   test('detects Google Generative Language providers and normalizes model listing URLs', () => {
@@ -124,11 +126,34 @@ describe('providerApi', () => {
       secrets,
     })).toBe('google-env-key');
     expect(resolveProviderApiKey({
+      providerId:   'gemini-default',
+      baseUrl:      'https://generativelanguage.googleapis.com',
+      clientApiKey: '',
+      secrets,
+    })).toBe('google-env-key');
+    expect(resolveProviderApiKey({
       providerId:   'custom-google-provider',
       baseUrl:      'https://generativelanguage.googleapis.com',
       clientApiKey: 'custom-key',
       secrets,
     })).toBe('custom-key');
+  });
+
+  test('flags thinking/reasoning models for the compact loader', () => {
+    expect(isThinkingModel('deepseek-reasoner')).toBe(true);
+    expect(isThinkingModel('models/gemma-4-26b-a4b-it')).toBe(false);
+  });
+
+  test('removes preview labels from displayed model names', () => {
+    expect(formatModelName('gemini-2.5-pro-preview')).toBe('Gemini 2.5 Pro');
+    expect(formatModelName('Gemini 2.5 Flash (Preview)')).toBe('Gemini 2.5 Flash');
+  });
+
+  test('resolves env-backed default provider and model values', () => {
+    expect(resolveDefaultProvider('gemini-default')).toBe('gemini-default');
+    expect(resolveDefaultProvider('')).toBe('gemini-default');
+    expect(resolveDefaultModel('models/gemini-3.1-flash-lite-preview')).toBe('models/gemini-3.1-flash-lite-preview');
+    expect(resolveDefaultModel('')).toBe('models/gemini-3.1-flash-lite-preview');
   });
 
   test('extracts streamed text from Google SSE payloads', () => {

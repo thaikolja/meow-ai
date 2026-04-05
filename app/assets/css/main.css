@@ -132,7 +132,7 @@ html {
 }
 
 .chat-prose p {
-  font-size:   1.125rem; /* Large text for readability */
+  @apply text-xl lg:text-lg;
   line-height: 1.8;
   margin:      0.75rem 0;
 }

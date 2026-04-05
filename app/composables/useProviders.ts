@@ -21,7 +21,7 @@ import type { LLMProvider } from '~/types'
  * Local storage key for persisting provider configurations (endpoints and keys).
  */
 const STORAGE_KEY = 'chat-yanawa-providers'
-const DEFAULT_PROVIDER_IDS = new Set([ 'deepseek-default', 'groq-default', 'google-default' ])
+const DEFAULT_PROVIDER_IDS = new Set([ 'deepseek-default', 'groq-default', 'google-default', 'gemini-default' ])
 
 /**
  * Hardcoded fallback providers used for initial app state.
@@ -54,11 +54,11 @@ const DEFAULT_PROVIDERS: LLMProvider[] = [
     createdAt: Date.now()
   },
   {
-    id:      'google-default',
-    name:    'Google AI',
+    id:     'gemini-default',
+    name:   'Gemini',
     baseUrl: 'https://generativelanguage.googleapis.com',
     apiKey:  '',
-    models:  [ 'models/gemma-4-26b-a4b-it' ],
+    models: [ 'models/gemini-3.1-flash-lite-preview', 'models/gemma-4-26b-a4b-it' ],
     isActive: true,
     createdAt: Date.now()
   }
@@ -66,6 +66,12 @@ const DEFAULT_PROVIDERS: LLMProvider[] = [
 
 function isGoogleProvider(baseUrl: string): boolean {
   return baseUrl.includes('generativelanguage.googleapis.com')
+}
+
+/** Identifies model IDs that expose chain-of-thought / reasoning style output. */
+export function isThinkingModel(modelId: string): boolean {
+  const normalized = modelId.replace(/^models\//, '').toLowerCase()
+  return [ /reasoner/, /thinking/, /deepseek-r1/, /r1-distill/ ].some(pattern => pattern.test(normalized))
 }
 
 /** Generates a simple base36 unique ID for new providers */
@@ -84,9 +90,20 @@ function loadProviders(): LLMProvider[] {
     if (raw) {
       const parsed = JSON.parse(raw)
       const sanitized = Array.isArray(parsed)
-          ? parsed.map((provider: LLMProvider) => DEFAULT_PROVIDER_IDS.has(provider.id)
+          ? parsed.map((provider: LLMProvider) => {
+            if (provider.id==='google-default') {
+              return {
+                ...provider,
+                id:     'gemini-default',
+                name:   'Gemini',
+                apiKey: ''
+              }
+            }
+
+            return DEFAULT_PROVIDER_IDS.has(provider.id)
               ? { ...provider, apiKey: '' }
-              : provider)
+                : provider
+          })
           : []
       return sanitized.length > 0 ? sanitized: DEFAULT_PROVIDERS
     }
@@ -108,7 +125,7 @@ function saveProviders(providers: LLMProvider[]) {
  */
 export function formatModelName(modelId: string): string {
   if (!modelId) return ''
-  const normalizedId                        = modelId.replace(/^models\//, '')
+  const normalizedId = modelId.replace(/^models\//, '').replace(/\s*\(preview\)\s*/gi, '').trim()
   const customNames: Record<string, string> = {
     'deepseek-chat':                'DeepSeek Chat',
     'deepseek-reasoner':            'DeepSeek Reasoner',
@@ -126,7 +143,7 @@ export function formatModelName(modelId: string): string {
   // Generic transformation for unknown models
   return normalizedId
   .split('-')
-  .filter(word => ![ 'versatile', 'distill', 'distilled', 'it', 'instant', 'latest' ].includes(word.toLowerCase()))
+  .filter(word => ![ 'versatile', 'distill', 'distilled', 'it', 'instant', 'latest', 'preview' ].includes(word.toLowerCase()))
   .map(word => word.charAt(0).toUpperCase() + word.slice(1))
   .join(' ')
 }
@@ -146,8 +163,8 @@ export function useProviders() {
     if (!loaded.find(p => p.id==='groq-default')) {
       loaded.push(DEFAULT_PROVIDERS[1]!)
     }
-    // Migration: ensure Google AI is present for testing Gemini/Gemma models
-    if (!loaded.find(p => p.id==='google-default')) {
+    // Migration: ensure Gemini is present for testing Gemini/Gemma models
+    if (!loaded.find(p => p.id==='gemini-default')) {
       loaded.push(DEFAULT_PROVIDERS[2]!)
     }
     providers.value = loaded

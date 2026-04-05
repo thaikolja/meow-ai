@@ -52,57 +52,45 @@
           <!-- Introduction Prompt -->
           <button
               class="group text-left p-5 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 hover:bg-zinc-800 hover:border-primary-500/50 transition-all flex items-start gap-4 shadow-sm" @click="handleSend('Can you teach me how to introduce myself in German? Explain the grammar basics clearly.')">
-            <div class="p-2.5 bg-primary-900/30 rounded-xl group-hover:scale-110 transition-transform shrink-0">
+            <span class="p-2.5 bg-primary-900/30 rounded-xl group-hover:scale-110 transition-transform shrink-0">
               <Icon class="w-5 h-5 text-primary-400" name="lucide:hand" />
-            </div>
-            <div>
-              <h3 class="text-sm font-semibold text-zinc-200 mb-1.5">Introductions</h3>
-              <p class="text-xs text-zinc-500 leading-relaxed">Learn how to say hello and introduce yourself correctly
-                in German.
-              </p>
-            </div>
+            </span> <span>
+              <span class="block text-sm font-semibold text-zinc-200 mb-1.5">Introductions</span>
+              <span class="block text-xs text-zinc-500 leading-relaxed">Learn how to say hello and introduce yourself correctly in German.</span>
+            </span>
           </button>
 
           <!-- Roleplay Prompt -->
           <button
               class="group text-left p-5 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 hover:bg-zinc-800 hover:border-blue-500/50 transition-all flex items-start gap-4 shadow-sm" @click="handleSend('Let\'s do a simple roleplay! You are a barista at a coffee shop in Berlin, and I am a customer ordering coffee.')">
-            <div class="p-2.5 bg-blue-900/30 rounded-xl group-hover:scale-110 transition-transform shrink-0">
+            <span class="p-2.5 bg-blue-900/30 rounded-xl group-hover:scale-110 transition-transform shrink-0">
               <Icon class="w-5 h-5 text-blue-400" name="lucide:coffee" />
-            </div>
-            <div>
-              <h3 class="text-sm font-semibold text-zinc-200 mb-1.5">Roleplay: Café</h3>
-              <p class="text-xs text-zinc-500 leading-relaxed">Practice ordering coffee in a realistic casual Berlin
-                setting.
-              </p>
-            </div>
+            </span> <span>
+              <span class="block text-sm font-semibold text-zinc-200 mb-1.5">Roleplay: Café</span>
+              <span class="block text-xs text-zinc-500 leading-relaxed">Practice ordering coffee in a realistic casual Berlin setting.</span>
+            </span>
           </button>
 
           <!-- Grammar Deep-dive Prompt -->
           <button
               class="group text-left p-5 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 hover:bg-zinc-800 hover:border-orange-500/50 transition-all flex items-start gap-4 shadow-sm" @click="handleSend('Please explain the difference between Der, Die, and Das using examples that a Thai speaker would understand.')">
-            <div class="p-2.5 bg-orange-900/30 rounded-xl group-hover:scale-110 transition-transform shrink-0">
+            <span class="p-2.5 bg-orange-900/30 rounded-xl group-hover:scale-110 transition-transform shrink-0">
               <Icon class="w-5 h-5 text-orange-400" name="lucide:book-open" />
-            </div>
-            <div>
-              <h3 class="text-sm font-semibold text-zinc-200 mb-1.5">Grammar: Articles</h3>
-              <p class="text-xs text-zinc-500 leading-relaxed">Master the complexity of German articles (der, die, das)
-                with local context.
-              </p>
-            </div>
+            </span> <span>
+              <span class="block text-sm font-semibold text-zinc-200 mb-1.5">Grammar: Articles</span>
+              <span class="block text-xs text-zinc-500 leading-relaxed">Master the complexity of German articles (der, die, das) with local context.</span>
+            </span>
           </button>
 
           <!-- Phrase List Prompt -->
           <button
               class="group text-left p-5 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 hover:bg-zinc-800 hover:border-emerald-500/50 transition-all flex items-start gap-4 shadow-sm" @click="handleSend('Give me 5 essential German phrases related to traveling, along with their Thai translations and pronunciation.')">
-            <div class="p-2.5 bg-emerald-900/30 rounded-xl group-hover:scale-110 transition-transform shrink-0">
+            <span class="p-2.5 bg-emerald-900/30 rounded-xl group-hover:scale-110 transition-transform shrink-0">
               <Icon class="w-5 h-5 text-emerald-400" name="lucide:plane" />
-            </div>
-            <div>
-              <h3 class="text-sm font-semibold text-zinc-200 mb-1.5">Travel Vocabulary</h3>
-              <p class="text-xs text-zinc-500 leading-relaxed">Prepare for your next trip with train and transport
-                essentials.
-              </p>
-            </div>
+            </span> <span>
+              <span class="block text-sm font-semibold text-zinc-200 mb-1.5">Travel Vocabulary</span>
+              <span class="block text-xs text-zinc-500 leading-relaxed">Prepare for your next trip with train and transport essentials.</span>
+            </span>
           </button>
         </div>
       </div>
@@ -124,10 +112,12 @@
 
   const router                     = useRouter()
   const { createChat, addMessage } = useChats()
+  const defaultProvider = useDefaultProvider()
+  const defaultModel    = useDefaultModel()
 
   // Shared global state for current AI configuration
-  const selectedProvider = useState<string>('selected-provider', () => 'groq-default')
-  const selectedModel    = useState<string>('selected-model', () => 'llama-3.3-70b-versatile')
+  const selectedProvider = useState<string>('selected-provider', () => defaultProvider.value)
+  const selectedModel    = useState<string>('selected-model', () => defaultModel.value)
 
   // Personalized greeting state
   const username    = useCookie('chat_username')

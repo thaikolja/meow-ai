@@ -24,7 +24,7 @@
         <div class="absolute bottom-2 right-2 flex items-center gap-2">
           <button
               v-if="isStreaming" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-600/20 text-red-400 hover:bg-red-600/30 transition-colors text-sm" @click="$emit('stop')">
-            <Icon class="w-3.5 h-3.5" name="lucide:square" />
+            <Icon class="w-3.5 h-3.5" name="lucide:circle-stop" />
             <span class="sr-only">Stop</span>
           </button>
           <button

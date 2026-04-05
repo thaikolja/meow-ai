@@ -19,11 +19,20 @@
  * Nuxt configuration file.
  * Configures modules, runtime config, global CSS, and app-level metadata.
  */
+const DEFAULT_APP_PASSWORD = 'sine'
+
 export default defineNuxtConfig({
   // Ensures compatibility with current development date
   compatibilityDate: '2026-04-04',
 
   devtools: { enabled: false },
+
+  // allow hosts: allows connections from any host, useful for development and deployment flexibility
+  vite: {
+    server: {
+      allowedHosts: [ 'processed-cycling-finish-sold.trycloudflare.com' ]
+    }
+  },
 
   modules: [
     '@nuxt/ui',    // UI component library
@@ -33,10 +42,14 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     // Secret key for login (populated from environment variables)
-    appPassword:    '',
+    appPassword:  DEFAULT_APP_PASSWORD,
     deepseekApiKey: '',
     groqApiKey:     '',
-    googleApiKey:   ''
+    googleApiKey: '',
+    public:       {
+      defaultProvider: 'gemini-default',
+      defaultModel:    'models/gemini-3.1-flash-lite-preview'
+    }
   },
 
   css: [
