@@ -15,18 +15,12 @@
   - @website   https://meow.yanawa.io
   -->
 
-<template>
-  <UApp>
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
-  </UApp>
-</template>
-
-<script lang="ts" setup>
-  /**
-   * Root component of the application.
-   * Wraps the entire app with NuxtLayout and NuxtPage for routing.
-   * Uses UApp for global UI styles and interactions.
-   */
-</script>
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+    <!-- Main Pad -->
+    <path fill="white" d="M12 11c-2.209 0-4 1.791-4 4 0 2.209 1.791 4 4 4s4-1.791 4-4c0-2.209-1.791-4-4-4z"/>
+    <!-- Toe Pads -->
+    <circle fill="white" cx="7" cy="8" r="2"/>
+    <circle fill="white" cx="10.5" cy="5.5" r="2"/>
+    <circle fill="white" cx="13.5" cy="5.5" r="2"/>
+    <circle fill="white" cx="17" cy="8" r="2"/>
+</svg>

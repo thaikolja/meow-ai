@@ -15,15 +15,23 @@
  * @website   https://meow.yanawa.io
  */
 
-/**
- * Application-wide UI configuration for Nuxt UI.
- * Defines the primary and neutral color palettes used throughout the app.
- */
-export default defineAppConfig({
-  ui: {
-    colors: {
-      primary: 'purple', // Main brand color for accents and highlights
-      neutral: 'zinc'    // Base neutral color for backgrounds and text
-    }
-  }
-})
+declare module 'bun:test' {
+  export const describe: any
+  export const expect: any
+  export const test: any
+}
+
+declare module 'node:fs/promises' {
+  export const readdir: any
+  export const readFile: any
+}
+
+declare module 'node:path' {
+  export const extname: any
+  export const join: any
+}
+
+declare module 'node:url' {
+  export const fileURLToPath: any
+}
+

@@ -7,3 +7,7 @@ node_modules
 .env
 dist
 .DS_Store
+.idea
+*.md
+!README.md
+!CHANGELOG.md

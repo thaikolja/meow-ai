@@ -1,5 +1,5 @@
 {
-  "name": "chat-yanawa-io",
+  "name":            "meow.yanawa.io",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,6 +8,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
+    "test": "bun test",
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
@@ -23,6 +24,9 @@
   },
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.0",
+    "@types/node":        "^25.5.2",
+    "@vue/language-core": "^3.2.6",
+    "bun-types":          "^1.3.11",
     "typescript": "^5.7.0"
   }
 }

@@ -37,7 +37,7 @@ deploy_production:
     # Add your deployment logic here, e.g., rsync, docker push, etc.
   environment:
     name: production
-    url: https://chat.yanawa.io
+    url: https://meow.yanawa.io
   rules:
     - if: $CI_COMMIT_BRANCH == 'main'
       when: manual

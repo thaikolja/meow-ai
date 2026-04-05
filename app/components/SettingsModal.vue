@@ -1,81 +1,89 @@
+<!--
+  - Copyright (C) 2026 Kolja Nolte
+  - https://meow.yanawa.io
+  - info@meow.yanawa.io
+  -
+  - This work is licensed under the MIT License. You are free to use, modify,
+  - and distribute this work, provided that you include the copyright notice
+  - and this permission notice in all copies or substantial portions of the work.
+  - For more information, visit: https://opensource.org/licenses/MIT
+  -
+  - @author    Kolja Nolte
+  - @email     kolja.nolte@gmail.com
+  - @license   MIT
+  - @date      2026
+  - @website   https://meow.yanawa.io
+  -->
+
 <template>
   <UModal v-model:open="open" :ui="{ content: 'sm:max-w-2xl' }">
+    <!-- Modal Header with Cat-themed Title -->
     <template #header>
       <div class="flex items-center gap-3">
-        <Icon name="mdi:paw" class="w-5 h-5 text-primary-400" />
+        <Icon class="w-5 h-5 text-primary-400" name="mdi:paw" />
         <h2 class="text-lg font-semibold text-neutral-100 italic">Paw-ferences 🐾</h2>
       </div>
     </template>
 
+    <!-- Settings Main Body -->
     <template #body>
       <div class="space-y-8 p-1">
-        <!-- General Section -->
+        <!-- AI Behavior Configurations (System Prompts) -->
         <div>
           <h3 class="text-sm font-semibold text-neutral-300 uppercase tracking-wider mb-4 italic">Cat-figurations 🐾</h3>
           <div class="space-y-3">
             <div>
-              <label class="block text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1.5">Global System Prompt</label>
-              <textarea
-                v-model="systemPrompt"
-                rows="3"
-                placeholder="e.g. You are a helpful assistant..."
-                class="w-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 placeholder-neutral-400 dark:placeholder-neutral-500 outline-none focus:border-primary-500 transition-colors resize-none"
-              ></textarea>
-              <p class="text-xs text-neutral-500 mt-1">This instruction is sent with every new conversation.</p>
+              <label class="block text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1.5">Global System
+                Prompt</label> <textarea
+                v-model="systemPrompt" class="min-h-52 w-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 placeholder-neutral-400 dark:placeholder-neutral-500 outline-none focus:border-primary-500 transition-colors resize-y" placeholder="e.g. You are a helpful assistant..." rows="3"></textarea>
+              <p class="text-xs text-neutral-500 mt-1">This instruction is sent with every new conversation to guide the
+                AI's persona.
+              </p>
             </div>
           </div>
         </div>
 
-        <!-- Token Management Section -->
+        <!-- Token Handling & Context Limits -->
         <div>
-          <h3 class="text-sm font-semibold text-neutral-300 uppercase tracking-wider mb-4 italic">Paw-token Handling 🐾</h3>
+          <h3 class="text-sm font-semibold text-neutral-300 uppercase tracking-wider mb-4 italic">Paw-token Handling 🐾
+          </h3>
           <div class="space-y-3">
             <div>
-              <label class="block text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1.5">Max Context Messages</label>
-              <input
-                v-model.number="maxContextMessages"
-                type="number"
-                min="0"
-                class="w-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 outline-none focus:border-primary-500 transition-colors"
-              />
-              <p class="text-xs text-neutral-500 mt-1">Limit how many previous messages are sent to the API to save tokens. The rest stay locally in your browser. (0 to send everything)</p>
+              <label class="block text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1.5">Max Context
+                Messages</label> <input
+                v-model.number="maxContextMessages" class="w-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 outline-none focus:border-primary-500 transition-colors" min="0" type="number" />
+              <p class="text-xs text-neutral-500 mt-1">Controls how many previous messages are attached to outgoing
+                requests. Set to 0 for unlimited context (may incur higher costs).
+              </p>
             </div>
           </div>
         </div>
 
-        <!-- Providers Section -->
+        <!-- LLM Provider Management -->
         <div>
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-sm font-semibold text-neutral-300 uppercase tracking-wider italic">Meow-del Feeders 🐾</h3>
             <button
-              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-600/20 text-primary-400 hover:bg-primary-600/30 transition-colors text-sm"
-              @click="showAddForm = true"
-            >
-              <Icon name="lucide:plus" class="w-3.5 h-3.5" />
+                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-600/20 text-primary-400 hover:bg-primary-600/30 transition-colors text-sm" @click="showAddForm = true">
+              <Icon class="w-3.5 h-3.5" name="lucide:plus" />
               <span>Add Provider</span>
             </button>
           </div>
 
-          <!-- Add Provider Form -->
+          <!-- Add Provider UI Logic Toggle -->
           <ProviderForm
-            v-if="showAddForm"
-            class="mb-4"
-            @save="handleAddProvider"
-            @cancel="showAddForm = false"
-          />
+              v-if="showAddForm" class="mb-4" @cancel="showAddForm = false" @save="handleAddProvider" />
 
-          <!-- Provider List -->
+          <!-- List of active providers and their respective settings -->
           <ProviderList />
         </div>
 
-        <!-- Danger Zone -->
+        <!-- Irreversible Actions Section -->
         <div class="border-t border-neutral-800 pt-4">
           <h3 class="text-sm font-semibold text-red-400 uppercase tracking-wider mb-3 italic">Danger Zone 🐾</h3>
           <button
-            class="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-800/50 text-red-400 hover:bg-red-900/20 transition-colors text-sm"
-            @click="handleClearChats"
-          >
-            <Icon name="mdi:trash-can" class="w-4 h-4" />
+              class="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-800/50 text-red-400 hover:bg-red-900/20 transition-colors text-sm" @click="handleClearChats">
+            <Icon class="w-4 h-4" name="mdi:trash-can" />
             <span>Empty Litter Box 🐾</span>
           </button>
         </div>
@@ -84,26 +92,41 @@
   </UModal>
 </template>
 
-<script setup lang="ts">
-const open = defineModel<boolean>('open', { required: true })
+<script lang="ts" setup>
+  /**
+   * Main settings modal providing access to global app configurations.
+   * Handles system prompts, context management, provider lists, and state cleanup.
+   */
 
-const { addProvider, fetchModels } = useProviders()
-const { clearAllChats } = useChats()
-const { systemPrompt, maxContextMessages } = useSettings()
+// Modal visibility bound to parent state
+  const open = defineModel<boolean>('open', { required: true })
 
-const showAddForm = ref(false)
+  const { addProvider, fetchModels }         = useProviders()
+  const { clearAllChats }                    = useChats()
+  const { systemPrompt, maxContextMessages } = useSettings()
 
-async function handleAddProvider(data: { name: string; baseUrl: string; apiKey: string }) {
-  const provider = addProvider(data)
-  showAddForm.value = false
-  // Auto-fetch models
-  await fetchModels(provider.id)
-}
+  // UI Toggle state for adding new providers
+  const showAddForm = ref(false)
 
-function handleClearChats() {
-  if (confirm('Are you sure you want to empty the litter box? All meows will be gone forever! 🐾')) {
-    clearAllChats()
-    navigateTo('/')
+  /**
+   * Handles the creation of a new provider entry.
+   * Automatically attempts to fetch the model list immediately after insertion.
+   */
+  async function handleAddProvider(data: { name: string; baseUrl: string; apiKey: string }) {
+    const provider    = addProvider(data)
+    showAddForm.value = false
+    // Proactively fetch models to ensure the UI is populated immediately
+    await fetchModels(provider.id)
   }
-}
+
+  /**
+   * Deletes all local chat history across all threads.
+   * Includes a mandatory confirmation dialog to prevent accidental data loss.
+   */
+  function handleClearChats() {
+    if (confirm('Are you sure you want to empty the litter box? All meows will be gone forever! 🐾')) {
+      clearAllChats()
+      navigateTo('/') // Redirect to home as current threads are now invalid
+    }
+  }
 </script>

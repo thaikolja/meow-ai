@@ -1,6 +1,7 @@
-# 🐾 Chat.Yanawa.io — The Furry-Fi AI Interface
+# 🐾 Meow — The Furry-Fi AI Interface
 
-Welcome to **Chat-Yanawa**, the AI-powered chat interface that is simply... *purr-fect* for connecting to your remote LLM endpoints.
+Welcome to **Meow**, the AI-powered chat interface that is simply... *purr-fect* for connecting to your remote LLM
+endpoints.
 
 ![Cat Mascot](https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=2048&auto=format&fit=crop) *(Pretend this is a cool cyber-cat!)*
 
@@ -14,10 +15,11 @@ This application lets you talk to AI models via your own API endpoints. No more 
 
 ## 🧶 How to Play (Developer Setup)
 
-1. **Paws-it the Repo**: `git clone git@gitlab.com:your-user/chat-yanawa-io.git`
+1. **Paws-it the Repo**: clone your Meow repository
 2. **Cat-nip Installation**: `bun install`
 3. **Start the Purr**: `bun run dev`
-4. **Bask in the Light**: Open [http://localhost:3000](http://localhost:3000)
+4. **Bask in the Light**: Open [http://localhost:3000](http://localhost:3000) locally or
+   visit [https://meow.yanawa.io](https://meow.yanawa.io) in production
 
 ## 📦 Purr-duction Checklist
 
