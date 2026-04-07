@@ -101,6 +101,7 @@ export default defineNuxtConfig({
      * Controlled via NUXT_ALLOW_PRIVATE_PROVIDER_URLS environment variable.
      */
     allowPrivateProviderUrls:                                                     process.env['NUXT_ALLOW_PRIVATE_PROVIDER_URLS']==='true', // boolean flag
+    /** Server-only: absolute path to the persistent data directory */ dataDir: process.env['NUXT_DATA_DIR']?.trim() || join(process.cwd(), '.data'),
     /** Server-only: DeepSeek API key (trimmed, default empty) */ deepseekApiKey: process.env['NUXT_DEEPSEEK_API_KEY']?.trim() || '',
     /** Server-only: Groq API key (trimmed, default empty) */ groqApiKey:         process.env['NUXT_GROQ_API_KEY']?.trim() || '',
     /** Server-only: Google API key (trimmed, default empty) */ googleApiKey:     process.env['NUXT_GOOGLE_API_KEY']?.trim() || '',
@@ -241,3 +242,5 @@ export default defineNuxtConfig({
     }
   }
 })
+
+import { join } from 'node:path'

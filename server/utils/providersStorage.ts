@@ -21,8 +21,9 @@
  */
 
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto'
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
+import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { join }                                               from 'node:path'
+import { ensureDataDir }                           from './dataDir'
 
 export type StoredProvider = {
   id: string
@@ -55,10 +56,7 @@ function getEncryptionKey(secret: string): Buffer {
 }
 
 function getStoragePath(): string {
-  const dataDir = process.env['NUXT_DATA_DIR'] || join(process.cwd(), '.data')
-  if (!existsSync(dataDir)) {
-    mkdirSync(dataDir, { recursive: true })
-  }
+  const dataDir = ensureDataDir(useRuntimeConfig().dataDir || process.env['NUXT_DATA_DIR'])
   return join(dataDir, 'providers.json')
 }
 

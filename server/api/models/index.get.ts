@@ -20,8 +20,9 @@
  * Returns models with their human-readable names and provider associations.
  */
 
-import { readFileSync, existsSync, mkdirSync } from 'node:fs'
+import { readFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
+import { ensureDataDir }            from '../../utils/dataDir'
 
 export type StoredModel = {
   id: string
@@ -30,16 +31,14 @@ export type StoredModel = {
   isActive: boolean
 }
 
-function getModelsPath(): string {
-  const dataDir = process.env['NUXT_DATA_DIR'] || join(process.cwd(), '.data')
-  if (!existsSync(dataDir)) {
-    mkdirSync(dataDir, { recursive: true })
-  }
+function getModelsPath(event?: Parameters<typeof useRuntimeConfig>[0]): string {
+  const runtimeConfig = useRuntimeConfig(event)
+  const dataDir       = ensureDataDir(runtimeConfig.dataDir || process.env['NUXT_DATA_DIR'])
   return join(dataDir, 'models.json')
 }
 
-function loadModelsFile(): StoredModel[] {
-  const filePath = getModelsPath()
+function loadModelsFile(event?: Parameters<typeof useRuntimeConfig>[0]): StoredModel[] {
+  const filePath = getModelsPath(event)
   if (!existsSync(filePath)) {
     return []
   }
@@ -51,7 +50,7 @@ function loadModelsFile(): StoredModel[] {
   }
 }
 
-export default defineEventHandler(() => {
-  const models = loadModelsFile()
+export default defineEventHandler((event) => {
+  const models = loadModelsFile(event)
   return { models }
 })

@@ -18,6 +18,7 @@ All notable changes to this project are documented here.
 - Shared-password auth now keeps the secret in `.env` while sending only a client-side proof to the server
 - Root app loading now happens in `app.vue`, with session warmup gated through `/api/auth/session`
 - New chats keep the currently selected provider and model
+- The model selector now explicitly reloads providers and the file-backed model catalog when it mounts
 - Project metadata and developer docs now reflect the current auth, storage, and streaming architecture
 - Production secret validation now happens when the server starts instead of during `nuxt build`, so local and Docker
   builds no longer require a baked-in password
@@ -29,6 +30,8 @@ All notable changes to this project are documented here.
 - Session-related auth responses now avoid cacheable behavior
 - Docker now uses pinned Bun stages for build and production dependencies, excludes `.data/providers.json`, and runs the
   final Nitro server on a non-root Node runtime
+- Preview and other built runtimes now keep reading the real persistent `.data` directory instead of resolving from
+  `.output`, restoring the full model catalog from `.data/models.json`
 - Static Nuxt assets and favicons now ship with cache headers for faster repeat loads
 
 ## v1.0.0 — 2026-04-04

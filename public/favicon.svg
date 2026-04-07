@@ -18,12 +18,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
     <style>
         .paw {
-            fill: #18181b;
+        fill: #ffffff;
         }
 
-        @media (prefers-color-scheme: dark) {
-            .paw {
-                fill: #ffffff;
+        @media (prefers-color-scheme: light) {
+        .paw {
+        fill: #222222;
             }
         }
     </style>

@@ -88,7 +88,7 @@ describe('Meow branding sweep', () => {
     expect(chatPage).toContain('meow.yanawa.io')
     expect(agents).toContain('How to work with meow.yanawa.io')
     expect(styles).toContain('meow.yanawa.io — Custom Styles')
-    expect(favicon).toContain('prefers-color-scheme: dark')
+    expect(favicon).toContain('prefers-color-scheme: light')
   })
 
   test('core UI branding now uses Meow copy', async () => {

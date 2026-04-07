@@ -75,8 +75,8 @@
 
   import { onMounted, onUnmounted, ref, computed, watchEffect } from 'vue'
 
-  const { activeProviders, getProvider } = useProviders()
-  const { activeModels, getModel } = useModels()
+  const { activeProviders, getProvider, loadProviders } = useProviders()
+  const { activeModels, getModel, loadModels }          = useModels()
   const defaultProvider            = useDefaultProvider()
   const defaultModel               = useDefaultModel()
   const dropdownContainer          = ref<HTMLElement | null>(null)
@@ -100,6 +100,10 @@
   }
 
   onMounted(() => {
+    void Promise.all([
+      loadProviders(),
+      loadModels()
+    ])
     window.addEventListener('click', handleClickOutside)
   })
 
