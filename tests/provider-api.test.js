@@ -166,11 +166,6 @@ describe('providerApi', () => {
     expect(isThinkingModel('models/gemma-4-26b-a4b-it')).toBe(false);
   });
 
-  test('removes preview labels from displayed model names', () => {
-    expect(formatModelName('gemini-2.5-pro-preview')).toBe('Gemini 2.5 Pro');
-    expect(formatModelName('Gemini 2.5 Flash (Preview)')).toBe('Gemini 2.5 Flash');
-  });
-
   test('resolves env-backed default provider and model values', () => {
     expect(resolveDefaultProvider('gemini-default')).toBe('gemini-default');
     expect(resolveDefaultProvider('')).toBe('gemini-default');

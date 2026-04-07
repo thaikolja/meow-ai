@@ -36,20 +36,12 @@
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2">
           <span class="text-sm font-medium text-neutral-200">{{ provider.name }}</span>
-          <span class="text-xs bg-neutral-800 px-2 py-0.5 rounded-full text-neutral-400">
-            {{ provider.models.length }} models
-          </span>
         </div>
         <p class="text-xs text-neutral-500 truncate font-mono mt-0.5">{{ provider.baseUrl }}</p>
       </div>
 
       <!-- Provider Management Actions (Visible on Hover) -->
       <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        <!-- Fetch latest model list from the provider endpoint -->
-        <button
-            class="p-1.5 rounded-lg hover:bg-neutral-800 text-neutral-500 hover:text-primary-400 transition-colors" title="Refresh models" @click="handleRefreshModels(provider.id)">
-          <Icon :class="['w-4 h-4', refreshingId === provider.id && 'animate-spin']" :name="refreshingId === provider.id ? 'lucide:loader-2' : 'lucide:refresh-cw'" />
-        </button>
         <!-- Opens the edit form for this provider -->
         <button
             class="p-1.5 rounded-lg hover:bg-neutral-800 text-neutral-500 hover:text-neutral-300 transition-colors" title="Edit provider" @click="startEdit(provider)">
@@ -77,16 +69,15 @@
 <script lang="ts" setup>
   /**
    * UI Component for managing the list of configured LLM providers.
-   * Supports enabling/disabling, editing, deleting, and refreshing model lists from the remote API.
+   * Supports enabling/disabling, editing, and deleting providers.
    */
 
   import type { LLMProvider } from '~/types'
 
-  const { providers, removeProvider, updateProvider, fetchModels } = useProviders()
+  const { providers, removeProvider, updateProvider } = useProviders()
 
   // Internal UI management states
   const editingProvider = ref<LLMProvider>()
-  const refreshingId    = ref<string>()
 
   /** Opens the edit dialog with a shallow copy of the provider data */
   function startEdit(provider: LLMProvider) {
@@ -124,18 +115,5 @@
   /** Flips the isActive flag to hide/show the provider in selection menus */
   async function toggleProvider(provider: LLMProvider) {
     await updateProvider(provider.id, { isActive: !provider.isActive })
-  }
-
-  /**
-   * Dispatches an async request to fetch current models from the provider endpoint.
-   * Tracks loading state via refreshingId for UI feedback (spinner).
-   */
-  async function handleRefreshModels(id: string) {
-    refreshingId.value = id
-    try {
-      await fetchModels(id)
-    } finally {
-      refreshingId.value = undefined
-    }
   }
 </script>

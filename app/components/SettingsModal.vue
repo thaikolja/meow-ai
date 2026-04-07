@@ -119,7 +119,7 @@
 // Modal visibility bound to parent state
   const open = defineModel<boolean>('open', { required: true })
 
-  const { addProvider, fetchModels } = useProviders()
+  const { addProvider } = useProviders()
   const { clearAllChats }            = useChats()
   const {
           defaultSystemPrompt,
@@ -142,14 +142,11 @@
 
   /**
    * Handles the creation of a new provider entry.
-   * Automatically attempts to fetch the model list immediately after insertion.
    */
   async function handleAddProvider(data: { name: string; baseUrl: string; apiKey: string }) {
     try {
-      const provider = await addProvider(data)
+      await addProvider(data)
       showAddForm.value = false
-      // Proactively fetch models to ensure the UI is populated immediately
-      await fetchModels(provider.id)
     } catch (error: any) {
       console.error('Failed to add provider:', error)
       // Could show error to user here
