@@ -112,8 +112,9 @@
 
   const router                     = useRouter()
   const { createChat, addMessage } = useChats()
-  const defaultProvider = useDefaultProvider()
-  const defaultModel    = useDefaultModel()
+  const { authState }              = useAuthSession()
+  const defaultProvider            = useDefaultProvider()
+  const defaultModel               = useDefaultModel()
 
   // Shared global state for current AI configuration
   const selectedProvider = useState<string>('selected-provider', () => defaultProvider.value)
@@ -121,7 +122,7 @@
 
   // Personalized greeting state
   const username    = useCookie('chat_username')
-  const displayName = computed(() => username.value || 'Friend')
+  const displayName = computed(() => authState.value.username || username.value || 'Friend')
 
   /**
    * Handles the initial message submission from the dashboard.

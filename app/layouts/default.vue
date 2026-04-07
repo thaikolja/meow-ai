@@ -61,7 +61,7 @@
         </div>
 
         <!-- Chat List (Authenticated only) -->
-        <nav v-if="usernameCookie" class="flex-1 overflow-y-auto p-2 space-y-0.5">
+        <nav v-if="displayName" class="flex-1 overflow-y-auto p-2 space-y-0.5">
           <ClientOnly>
             <div v-if="filteredChats.length === 0" class="px-3 py-8 text-center text-zinc-500 text-sm">
               <span v-if="searchQuery">No matching meows 🐾</span> <span v-else>No purrs recorded yet 🐾</span>
@@ -75,12 +75,12 @@
         <div v-else class="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-4">
           <Icon class="w-16 h-16 text-zinc-700 opacity-20" name="mdi:cat" />
           <p class="text-zinc-600 text-sm font-medium leading-relaxed italic">
-            Meow! Please log in to see your chat history 🐾
+            Meow! Unlock the cat flap to see your chat history 🐾
           </p>
         </div>
 
         <!-- Sidebar Footer -->
-        <div v-if="usernameCookie" class="p-3 border-t border-zinc-800/80 space-y-1">
+        <div v-if="displayName" class="p-3 border-t border-zinc-800/80 space-y-1">
           <button
               id="btn-settings" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg hover:bg-zinc-800 transition-colors text-zinc-300 text-sm" @click="settingsOpen = true">
             <Icon class="w-4 h-4 text-primary-400" name="mdi:paw" />
@@ -106,18 +106,18 @@
         </button>
 
         <ClientOnly>
-          <ModelSelector v-if="usernameCookie" class="min-w-0 shrink max-w-full" />
+          <ModelSelector v-if="displayName" class="min-w-0 shrink max-w-full" />
         </ClientOnly>
 
         <div class="flex-1" />
 
-        <div class="text-xs text-zinc-500 font-medium hidden sm:flex items-center gap-4">
-          <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 sm:gap-4 text-xs text-zinc-500 font-medium">
+          <div class="hidden sm:flex items-center gap-2">
             <Icon class="w-4 h-4 text-primary-500" name="mdi:cat" />
             Meow 🐾
           </div>
           <!-- Repository links: GitLab and GitHub (open in new tab) -->
-          <div class="flex items-center gap-8 ms-3">
+          <div class="hidden sm:flex items-center gap-8 ms-3">
             <a href="https://gitlab.com/thaikolja/meow-ai" target="_blank" rel="noopener noreferrer" class="text-zinc-400 hover:text-zinc-200 transition-colors" aria-label="View on GitLab">
               <Icon class="w-4 h-4" name="mdi:gitlab" />
             </a>
@@ -125,10 +125,18 @@
               <Icon class="w-4 h-4" name="mdi:github" />
             </a>
           </div>
-          <div v-if="usernameCookie" class="h-4 w-px bg-zinc-800" />
-          <div v-if="usernameCookie" class="flex items-center gap-1.5 text-zinc-400">
-            <Icon class="w-3.5 h-3.5" name="lucide:user" />
-            {{ usernameCookie }}
+          <div v-if="displayName" class="hidden sm:block h-4 w-px bg-zinc-800" />
+          <div v-if="displayName" class="flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/80 px-2.5 py-1.5 text-zinc-400">
+            <Icon class="w-3.5 h-3.5 text-primary-400" name="lucide:user" />
+            <span class="max-w-28 truncate">{{ displayName }}</span>
+            <button
+                :disabled="logoutPending"
+                class="inline-flex items-center gap-1.5 rounded-full border border-zinc-700/70 bg-zinc-800 px-2.5 py-1 text-[11px] font-semibold text-zinc-300 transition-colors hover:border-primary-500/40 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                title="Log out"
+                @click="handleLogout">
+              <Icon :name="logoutPending ? 'lucide:loader-circle' : 'lucide:log-out'" :class="['w-3.5 h-3.5', logoutPending && 'animate-spin']" />
+              <span class="hidden sm:inline">{{ logoutPending ? 'Padding out...' : 'Paws out' }}</span>
+            </button>
           </div>
         </div>
       </header>
@@ -157,13 +165,21 @@
   const router                                              = useRouter()
   // Access custom chat logic for management
   const { sortedChats, createChat, deleteChat, renameChat } = useChats()
+  const { authState, logout }                               = useAuthSession()
+  const defaultProvider                                     = useDefaultProvider()
+  const defaultModel                                        = useDefaultModel()
 
   // Global application states
-  const sidebarOpen    = useState('sidebar-open', () => true)
-  const settingsOpen   = useState('settings-open', () => false)
-  const isMobile       = ref(false)
-  const searchQuery    = ref('')
-  const usernameCookie = useCookie('chat_username')
+  const sidebarOpen      = useState('sidebar-open', () => true)
+  const settingsOpen     = useState('settings-open', () => false)
+  const isMobile         = ref(false)
+  const searchQuery      = ref('')
+  const usernameCookie   = useCookie('chat_username')
+  const selectedProvider = useState<string>('selected-provider', () => defaultProvider.value)
+  const selectedModel    = useState<string>('selected-model', () => defaultModel.value)
+  const logoutPending    = ref(false)
+
+  const displayName = computed(() => authState.value.username || usernameCookie.value || '')
 
   /**
    * Filtered list of chats based on search query.
@@ -220,7 +236,7 @@
    * Automatically closes the sidebar on mobile to focus on the new chat.
    */
   function handleNewChat() {
-    const chat = createChat()
+    const chat = createChat(selectedProvider.value, selectedModel.value)
     router.push(`/chat/${chat.id}`)
     if (isMobile.value) sidebarOpen.value = false
   }
@@ -247,5 +263,20 @@
   /** Event handler for renaming a specific chat thread */
   function handleRenameChat({ id, title }: { id: string; title: string }) {
     renameChat(id, title)
+  }
+
+  async function handleLogout() {
+    if (logoutPending.value) {
+      return
+    }
+
+    logoutPending.value = true
+
+    try {
+      await logout()
+      await router.push('/')
+    } finally {
+      logoutPending.value = false
+    }
   }
 </script>

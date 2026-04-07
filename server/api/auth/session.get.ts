@@ -19,6 +19,10 @@ import { AUTH_SESSION_COOKIE_NAME, AUTH_USERNAME_COOKIE_NAME } from '#shared/con
 import { clearAuthCookies, getAuthSecret, verifySessionToken } from '../../utils/authSession'
 
 export default defineEventHandler((event) => {
+  setResponseHeaders(event, {
+    'Cache-Control': 'no-store'
+  })
+
   const sessionToken = getCookie(event, AUTH_SESSION_COOKIE_NAME)
   const session      = verifySessionToken(sessionToken, getAuthSecret(event))
 
@@ -37,4 +41,3 @@ export default defineEventHandler((event) => {
     username
   }
 })
-

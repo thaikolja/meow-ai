@@ -1,15 +1,17 @@
 {
   "name": "meow.yanawa.io",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
+  "description": "Cat-themed Nuxt chat interface for focused AI-powered German practice.",
   "scripts": {
     "build": "bun --env-file=./.env nuxt build",
     "dev": "bun --env-file=./.env nuxt dev",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
+    "generate": "bun --env-file=./.env nuxt generate",
+    "preview": "bun --env-file=./.env nuxt preview",
     "postinstall": "nuxt prepare",
     "test": "bun test",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "bun --env-file=./.env nuxt typecheck"
   },
   "dependencies": {
     "@nuxt/fonts": "0.14.0",

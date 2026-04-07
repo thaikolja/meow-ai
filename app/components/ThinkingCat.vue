@@ -43,10 +43,10 @@
 
     <!-- Pulse label for personality/feedback -->
     <p v-if="!compact" class="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-500 italic animate-pulse">
-      Meow is purring... 🐾
+      {{ loadingLine }}
     </p>
     <p v-else class="text-sm font-medium text-zinc-400 animate-pulse">
-      {{ label || 'Thinking...' }}
+      {{ loadingLine }}
     </p>
   </div>
 </template>
@@ -58,13 +58,29 @@
    * Uses a combination of pinging circles, bouncing 'tails', and pulsing labels.
    */
 
-  withDefaults(defineProps<{
+  const props = withDefaults(defineProps<{
     compact?: boolean
     label?: string
   }>(), {
-    compact: false,
-    label:   'Thinking...'
+    compact: false
   })
+
+  const loadingLines = [
+    'Meow is drafting a reply... 🐾',
+    'Meow is chasing the right words... 🐾',
+    'Meow is untangling the yarn... 🐾',
+    'Meow is pawing through the chat... 🐾',
+    'Meow is warming up the whiskers... 🐾',
+    'Meow is batting around a bright idea... 🐾',
+    'Meow is lining up the next pounce... 🐾'
+  ]
+
+  function pickLoadingLine() {
+    return loadingLines[Math.floor(Math.random() * loadingLines.length)] || 'Meow is drafting a reply... 🐾'
+  }
+
+  const randomLoadingLine = ref(pickLoadingLine())
+  const loadingLine = computed(() => props.label?.trim() || randomLoadingLine.value)
 </script>
 
 <style scoped>

@@ -15,35 +15,27 @@
  * @website   https://meow.yanawa.io
  */
 
-/**
- * Nuxt configuration file.
- * Configures modules, runtime config, global CSS, and app-level metadata.
- */
 const appPassword = process.env['NUXT_APP_PASSWORD']?.trim() || ''
 const sessionSecret = process.env['NUXT_SESSION_SECRET']?.trim() || appPassword
 
-// In production, require the app password to be set
 if (process.env['NODE_ENV'] === 'production' && !appPassword) {
   throw new Error('NUXT_APP_PASSWORD environment variable is required in production')
 }
 
 export default defineNuxtConfig({
-  // Ensures compatibility with current development date
   compatibilityDate: '2026-04-04',
-
-  // Disable the in-app devtools overlay in this deployment.
   devtools: { enabled: false },
 
-  modules: [// UI component library
-    '@nuxt/ui', // Image optimization
-    '@nuxt/image', // Icon management
+  modules: [
+    '@nuxt/ui',
+    '@nuxt/image',
     '@nuxt/icon',
-    '@nuxt/fonts'],
+    '@nuxt/fonts'
+  ],
 
   runtimeConfig: {
-    // Secret key for login (REQUIRED in production)
-    appPassword: appPassword || '',
-    sessionSecret: sessionSecret || '',
+    appPassword,
+    sessionSecret,
     allowPrivateProviderUrls: process.env['NUXT_ALLOW_PRIVATE_PROVIDER_URLS'] === 'true',
     deepseekApiKey: process.env['NUXT_DEEPSEEK_API_KEY']?.trim() || '',
     groqApiKey: process.env['NUXT_GROQ_API_KEY']?.trim() || '',
@@ -54,11 +46,9 @@ export default defineNuxtConfig({
     }
   },
 
-
-
   css: [
-    '~/assets/css/main.css',     // Core application styles
-    '~/assets/css/markdown.css' // Specialized styles for chat message content
+    '~/assets/css/main.css',
+    '~/assets/css/markdown.css'
   ],
 
   app: {
@@ -75,19 +65,18 @@ export default defineNuxtConfig({
         { name: 'robots', content: 'nofollow,noindex' }
       ],
       link: [
-        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg', sizes: 'any' },
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         { rel: 'canonical', href: 'https://meow.yanawa.io' }
       ]
     }
   },
 
-  // Forces dark mode by default for high-premium aesthetic
   colorMode: {
     preference: 'dark'
   },
 
   icon: {
-    // Uses local icon sets to avoid bundling delays and external dependencies
     serverBundle: 'local'
   },
 
@@ -109,8 +98,8 @@ export default defineNuxtConfig({
     optimizeDeps: {
       include: [
         'marked',
-        'sanitize-html', // CJS
-        'highlight.js/lib/core',
+        'sanitize-html',
+        'highlight.js/lib/core'
       ]
     }
   }

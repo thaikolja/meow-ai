@@ -15,15 +15,19 @@
  * @website   https://meow.yanawa.io
  */
 
-/**
- * Global authentication middleware for the Meow application.
- * Keeps session state warm and retires the old /login route.
- */
-export default defineNuxtRouteMiddleware(async (to) => {
-  if (to.path==='/login') {
-    return navigateTo('/', { replace: true })
-  }
+import { clearAuthCookies } from '../../utils/authSession'
+import { validateCsrf } from '../../utils/csrf'
 
-  const { verifySession } = useAuthSession()
-  await verifySession(import.meta.server)
+export default defineEventHandler((event) => {
+  validateCsrf(event)
+
+  clearAuthCookies(event)
+
+  setResponseHeaders(event, {
+    'Cache-Control': 'no-store'
+  })
+
+  return {
+    success: true
+  }
 })

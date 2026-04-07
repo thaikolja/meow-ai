@@ -28,9 +28,10 @@
 
       <!-- Loading skeleton while Nuxt hydrates client-side state -->
       <template #fallback>
-        <div class="flex-1 flex items-center justify-center">
-          <div class="text-neutral-500 text-sm">Loading chat...</div>
-        </div>
+        <CatLoadingState
+            label="Uncurling the tail..."
+            subtitle="Meow is arranging the cushions and loading your chat thread."
+            title="Warming up this chat..." />
       </template>
     </ClientOnly>
   </div>

@@ -73,7 +73,7 @@
           <ClientOnly>
             <MarkdownRenderer v-if="displayContent" :class="message.role === 'user' ? 'text-purple-100!' : ''" :content="displayContent" />
             <div v-else-if="isStreaming && isThinking" class="py-1">
-              <ThinkingCat compact label="Thinking..." />
+              <ThinkingCat compact />
             </div>
             <div v-else-if="isStreaming" class="py-1">
               <ThinkingCat />

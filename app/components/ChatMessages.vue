@@ -18,21 +18,20 @@
 <template>
   <div ref="container" class="flex-1 w-full overflow-y-auto overflow-x-hidden" @scroll="handleScroll">
     <div class="mx-auto w-full max-w-4xl min-w-0 px-3 py-4 sm:px-4 sm:py-6 space-y-5 sm:space-y-6">
-      <!-- Empty state placeholder -->
-      <div v-if="messages.length === 0" class="flex items-center justify-center h-full min-h-50">
-        <p class="text-neutral-500 text-sm">Send a message to start the conversation</p>
-      </div>
+      <ChatEmptyState v-if="messages.length === 0 && !isStreaming" @quick-prompt="handleQuickPrompt" />
 
-      <!-- Render the current chat thread -->
-      <ChatMessage
-          v-for="(message, index) in messages" :key="message.id" :is-last="index === messages.length - 1" :is-streaming="isStreaming && index === messages.length - 1 && message.role === 'assistant'" :is-thinking="isThinking" :message="message" :streaming-content="isStreaming && index === messages.length - 1 ? streamingContent : undefined" @regenerate="$emit('regenerate')" @quick-prompt="handleQuickPrompt" />
+      <template v-else>
+        <!-- Render the current chat thread -->
+        <ChatMessage
+            v-for="(message, index) in messages" :key="message.id" :is-last="index === messages.length - 1" :is-streaming="isStreaming && index === messages.length - 1 && message.role === 'assistant'" :is-thinking="isThinking" :message="message" :streaming-content="isStreaming && index === messages.length - 1 ? streamingContent : undefined" @regenerate="$emit('regenerate')" @quick-prompt="handleQuickPrompt" />
 
-      <!-- Streaming indicator (visible before assistant message exists in history) -->
-      <div v-if="isStreaming && (messages.length === 0 || messages[messages.length - 1]?.role === 'user')" class="flex gap-4 message-enter px-4">
-        <div class="flex items-center gap-3 py-2">
-          <ThinkingCat :compact="isThinking" :label="isThinking ? 'Thinking...' : undefined" />
+        <!-- Streaming indicator (visible before assistant message exists in history) -->
+        <div v-if="isStreaming && (messages.length === 0 || messages[messages.length - 1]?.role === 'user')" class="flex gap-4 message-enter px-4">
+          <div class="flex items-center gap-3 py-2">
+            <ThinkingCat :compact="isThinking" />
+          </div>
         </div>
-      </div>
+      </template>
 
       <!-- Bottom Spacer Buffer ensure input area does not overlap content -->
       <div aria-hidden="true" class="h-28 sm:h-24 shrink-0 w-full"></div>

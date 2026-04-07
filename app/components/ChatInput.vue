@@ -24,7 +24,7 @@
     <div class="mx-auto w-full max-w-4xl min-w-0 px-3 sm:px-4">
       <div class="relative flex w-full min-w-0 items-end overflow-hidden rounded-2xl border-2 border-zinc-700 bg-zinc-800/80 shadow-lg transition-colors focus-within:border-primary-500/50 glass-input">
         <textarea
-            ref="textareaRef" v-model="message" :disabled="isStreaming" :placeholder="isStreaming ? 'Meow is sharpening claws... 🐾' : 'Chat with Meow... 🐾'" class="min-w-0 w-full max-w-full bg-transparent px-4 pt-4 pb-4 pr-18 text-base sm:text-sm leading-6 text-zinc-100 placeholder-zinc-500 resize-none outline-none max-h-48 overflow-y-auto [overflow-wrap:anywhere]" rows="1" @focus="handleFocus" @input="autoResize" @keydown="handleKeydown" />
+            ref="textareaRef" v-model="message" :placeholder="isStreaming ? 'Meow is sharpening claws... 🐾' : 'Chat with Meow... 🐾'" class="min-w-0 w-full max-w-full bg-transparent px-4 pt-4 pb-4 pr-18 text-base sm:text-sm leading-6 text-zinc-100 placeholder-zinc-500 resize-none outline-none max-h-48 overflow-y-auto [overflow-wrap:anywhere]" rows="1" @focus="handleFocus" @input="autoResize" @keydown="handleKeydown" />
         <div class="absolute bottom-2 right-2 flex shrink-0 items-center gap-2">
           <button
               v-if="isStreaming" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-600/20 text-red-400 hover:bg-red-600/30 transition-colors text-sm" @click="$emit('stop')">
@@ -78,11 +78,15 @@
    * Clears the input and resets the textarea height upon success.
    */
   function sendMessage() {
+    if (props.isStreaming) return
     const content = message.value.trim()
     if (!content) return
     emit('send', content)
     message.value = ''
-    nextTick(autoResize)
+    nextTick(() => {
+      autoResize()
+      textareaRef.value?.focus({ preventScroll: true })
+    })
   }
 
   /**
@@ -90,6 +94,10 @@
    * Prevents default Enter behavior and triggers sendMessage unless Shift is pressed.
    */
   function handleKeydown(e: KeyboardEvent) {
+    if (props.isStreaming) {
+      return
+    }
+
     if (e.key==='Enter' && !e.shiftKey) {
       e.preventDefault()
       sendMessage()

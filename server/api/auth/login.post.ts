@@ -17,12 +17,18 @@
 
 /**
  * Server-side login handler for the Meow application.
- * Validates the provided password against the environment runtime configuration.
- * Sets a persistent session cookie upon successful verification.
+ * Verifies a one-time challenge response against the shared environment secret
+ * and sets a persistent session cookie upon success.
  */
+import {
+  AUTH_DISPLAY_NAME_MAX_LENGTH,
+  isValidAuthUsername,
+  normalizeAuthUsername
+} from '#shared/utils/authProof'
+import { consumeLoginChallenge, verifyLoginProof } from '../../utils/authChallenge'
 import { getAuthSecret, setAuthCookies } from '../../utils/authSession'
-import { checkRateLimit, resetRateLimit } from '../../utils/rateLimit'
 import { validateCsrf } from '../../utils/csrf'
+import { checkRateLimit, resetRateLimit } from '../../utils/rateLimit'
 
 const LOGIN_WINDOW_MS    = 15 * 60 * 1000
 const MAX_LOGIN_ATTEMPTS = 5
@@ -31,11 +37,15 @@ export default defineEventHandler(async (event) => {
   // CSRF protection
   validateCsrf(event)
 
+  setResponseHeaders(event, {
+    'Cache-Control': 'no-store'
+  })
+
   // Extract body contents from the POST request
   const body = await readBody(event)
   // Access global app settings (including the password secret)
-  const config    = useRuntimeConfig(event)
-  const ipAddress = getRequestIP(event, { xForwardedFor: true }) || 'unknown'
+  const config       = useRuntimeConfig(event)
+  const ipAddress    = getRequestIP(event, { xForwardedFor: true }) || 'unknown'
   const rateLimitKey = `login:${ipAddress}`
 
   // Check rate limit
@@ -44,38 +54,61 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 429,
       message:    'Too many failed login attempts. Please wait a few minutes and try again.'
-    })
+      })
   }
 
-  const username = typeof body?.username === 'string' ? body.username.trim() : ''
-  const password = typeof body?.password === 'string' ? body.password.trim() : ''
+  const username    = typeof body?.username === 'string' ? normalizeAuthUsername(body.username) : ''
+  const challengeId = typeof body?.challengeId === 'string' ? body.challengeId.trim() : ''
+  const proof       = typeof body?.proof === 'string' ? body.proof.trim() : ''
 
   /**
-   * Validation Guard: Ensure both username and password parameters exist.
+   * Validation Guard: Ensure challenge flow parameters exist.
    * Responds with 400 Bad Request if parameters are missing.
    */
-  if (!password || !username) {
+  if (!username || !challengeId || !proof) {
     throw createError({
       statusCode: 400,
-      message: 'Username and password are required'
+      message:    'Cat name, challenge, and paw-print proof are required'
     })
   }
 
-  if (username.length > 80) {
+  if (!isValidAuthUsername(username)) {
     throw createError({
       statusCode: 400,
-      message:    'Username is too long'
+      message:    username.length > AUTH_DISPLAY_NAME_MAX_LENGTH
+                      ? 'Cat name is too long'
+                      : 'Please choose a valid cat name'
+    })
+  }
+
+  if (!config.appPassword?.trim()) {
+    throw createError({
+      statusCode: 503,
+      message:    'The house secret is not configured yet.'
+    })
+  }
+
+  const challenge = consumeLoginChallenge(challengeId, ipAddress)
+  if (!challenge) {
+    throw createError({
+      statusCode: 400,
+      message:    'That paw-print expired. Please fetch a fresh one and try again.'
     })
   }
 
   /**
-   * Authentication Check: Compare provided secret with the master app password.
-   * Rejects requests with 401 Unauthorized for incorrect secrets.
+   * Authentication Check: verify the one-time proof using the shared secret.
    */
-  if (password !== config.appPassword) {
+  if (!verifyLoginProof({
+    secret: config.appPassword,
+    challengeId,
+    challenge: challenge.challenge,
+    username,
+    proof
+  })) {
     throw createError({
       statusCode: 401,
-      message: 'Invalid password provided'
+      message:    'The house secret did not match that paw-print.'
     })
   }
 

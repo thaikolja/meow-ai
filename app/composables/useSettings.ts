@@ -44,7 +44,7 @@ export function useSettings() {
   /** User-specific override for the shipped system prompt */
   const systemPromptOverride = useState<string | null>('system-prompt-override', () => null)
   /** Maximum number of previous messages sent in the AI request context */
-  const maxContextMessages = useState('max-context-messages', () => 10)
+  const maxContextMessages = useState('max-context-messages', () => 25)
   /** Tracks if settings have been successfully re-hydrated from browser storage */
   const isLoaded = useState('settings-loaded', () => false)
   /** Prevent duplicate persistence watchers across multiple composable consumers */

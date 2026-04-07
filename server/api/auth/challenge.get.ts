@@ -15,15 +15,22 @@
  * @website   https://meow.yanawa.io
  */
 
-/**
- * Global authentication middleware for the Meow application.
- * Keeps session state warm and retires the old /login route.
- */
-export default defineNuxtRouteMiddleware(async (to) => {
-  if (to.path==='/login') {
-    return navigateTo('/', { replace: true })
+import { issueLoginChallenge } from '../../utils/authChallenge'
+
+export default defineEventHandler((event) => {
+  const config = useRuntimeConfig(event)
+  if (!config.appPassword?.trim()) {
+    throw createError({
+      statusCode: 503,
+      message:    'The house secret is not configured yet.'
+    })
   }
 
-  const { verifySession } = useAuthSession()
-  await verifySession(import.meta.server)
+  setResponseHeaders(event, {
+    'Cache-Control': 'no-store'
+  })
+
+  const ipAddress = getRequestIP(event, { xForwardedFor: true }) || 'unknown'
+
+  return issueLoginChallenge(ipAddress)
 })

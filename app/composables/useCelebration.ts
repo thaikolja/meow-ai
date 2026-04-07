@@ -15,15 +15,15 @@
  * @website   https://meow.yanawa.io
  */
 
-/**
- * Global authentication middleware for the Meow application.
- * Keeps session state warm and retires the old /login route.
- */
-export default defineNuxtRouteMiddleware(async (to) => {
-  if (to.path==='/login') {
-    return navigateTo('/', { replace: true })
+export function useCelebration() {
+  const celebrationSequence = useState<number>('celebration-sequence', () => 0)
+
+  function triggerCelebration() {
+    celebrationSequence.value += 1
   }
 
-  const { verifySession } = useAuthSession()
-  await verifySession(import.meta.server)
-})
+  return {
+    celebrationSequence,
+    triggerCelebration
+  }
+}

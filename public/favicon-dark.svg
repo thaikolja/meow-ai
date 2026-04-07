@@ -17,8 +17,12 @@
 
 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
     <style>
+        :root {
+            color-scheme: light dark;
+        }
+
         .paw {
-            fill: #18181b;
+            fill: #111111;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -28,7 +32,9 @@
         }
     </style>
 
+    <!-- Main Pad -->
     <path class="paw" d="M12 11c-2.209 0-4 1.791-4 4 0 2.209 1.791 4 4 4s4-1.791 4-4c0-2.209-1.791-4-4-4z"/>
+    <!-- Toe Pads -->
     <circle class="paw" cx="7" cy="8" r="2"/>
     <circle class="paw" cx="10.5" cy="5.5" r="2"/>
     <circle class="paw" cx="13.5" cy="5.5" r="2"/>
