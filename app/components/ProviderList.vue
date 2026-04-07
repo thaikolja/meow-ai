@@ -97,9 +97,17 @@
    * Submits the updated provider data back to the central store.
    * Clears the editing state upon completion.
    */
-  function handleUpdate(data: { name: string; baseUrl: string; apiKey: string }) {
+  async function handleUpdate(data: { name: string; baseUrl: string; apiKey: string }) {
     if (editingProvider.value) {
-      updateProvider(editingProvider.value.id, data)
+      const updateData: Partial<LLMProvider & { apiKey?: string }> = {
+        name: data.name,
+        baseUrl: data.baseUrl
+      }
+      // Only include apiKey if user provided one
+      if (data.apiKey.trim()) {
+        updateData.apiKey = data.apiKey.trim()
+      }
+      await updateProvider(editingProvider.value.id, updateData)
       editingProvider.value = undefined
     }
   }
@@ -107,15 +115,15 @@
   /**
    * Prompts for confirmation before permanently removing a provider.
    */
-  function handleDelete(id: string) {
+  async function handleDelete(id: string) {
     if (confirm('Delete this provider? This cannot be undone.')) {
-      removeProvider(id)
+      await removeProvider(id)
     }
   }
 
   /** Flips the isActive flag to hide/show the provider in selection menus */
-  function toggleProvider(provider: LLMProvider) {
-    updateProvider(provider.id, { isActive: !provider.isActive })
+  async function toggleProvider(provider: LLMProvider) {
+    await updateProvider(provider.id, { isActive: !provider.isActive })
   }
 
   /**

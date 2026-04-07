@@ -27,7 +27,7 @@ import {
   resolveProviderApiKey,
   normalizeGoogleModel,
 }                                                    from '../server/utils/providerApi';
-import {formatModelName, isThinkingModel}            from '../app/composables/useProviders';
+import {isThinkingModel}                             from '../app/composables/useProviders';
 import {resolveDefaultModel, resolveDefaultProvider} from '../app/composables/useDefaultModel';
 
 describe('providerApi', () => {

@@ -18,30 +18,52 @@
 import type { RuntimeConfig }                                                                      from 'nuxt/schema'
 /**
  * Server-side proxy for executing AI chat completions.
- * Receives the conversation history and provider credentials, then forwards
- * the request to the external LLM endpoint using Server-Sent Events (SSE).
+ * Receives the conversation history and provider ID, retrieves encrypted API key server-side,
+ * then forwards the request to the external LLM endpoint using Server-Sent Events (SSE).
  */
 import { requireAuthenticatedSession }                                                             from '../utils/authSession'
+import { getAuthSecret }                                                                           from '../utils/authSession'
+import { getProviderWithKey }                                                                      from '../utils/providersStorage'
 import { assertProviderBaseUrl, buildChatRequest, extractGoogleStreamText, resolveProviderApiKey } from '../utils/providerApi'
+import { validateCsrf }                                                                            from '../utils/csrf'
 
 export default defineEventHandler(async (event) => {
+  // CSRF protection
+  validateCsrf(event)
+
   requireAuthenticatedSession(event)
 
   // Extract configuration and dialogue history from the incoming request body
-  const body                                             = await readBody(event)
-  const { messages, baseUrl, apiKey, model, providerId } = body
+  const body                                   = await readBody(event)
+  const { messages, baseUrl, model, providerId } = body
   const runtimeConfig: RuntimeConfig = useRuntimeConfig(event)
+  const secret = getAuthSecret(event)
 
   /**
    * Strict Validation Guard: Prevent invalid requests to the downstream provider.
    */
-  if (!baseUrl || !model || !Array.isArray(messages)) {
-    throw createError({ statusCode: 400, message: 'Missing required fields: baseUrl, model, messages' })
+  if (!providerId || typeof providerId !== 'string' || !providerId.trim()) {
+    throw createError({ statusCode: 400, message: 'Missing required field: providerId' })
+  }
+
+  if (!model || !Array.isArray(messages)) {
+    throw createError({ statusCode: 400, message: 'Missing required fields: model, messages' })
   }
 
   if (typeof model!=='string' || !model.trim()) {
     throw createError({ statusCode: 400, message: 'Invalid model value' })
   }
+
+  // Retrieve provider with decrypted API key from server-side storage
+  const provider = getProviderWithKey(providerId, secret)
+  if (!provider) {
+    throw createError({ statusCode: 400, message: 'Provider not found' })
+  }
+
+  const validatedBaseUrl = assertProviderBaseUrl(provider.baseUrl, {
+    allowPrivate:           runtimeConfig.allowPrivateProviderUrls,
+    allowInsecureLocalhost: import.meta.dev
+  })
 
   const sanitizedMessages = messages
   .filter((message): message is { role: string; content: string } => (
@@ -63,15 +85,11 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Too many messages supplied in a single request' })
   }
 
-  const validatedBaseUrl = assertProviderBaseUrl(baseUrl, {
-    allowPrivate:           runtimeConfig.allowPrivateProviderUrls,
-    allowInsecureLocalhost: import.meta.dev
-  })
-
+  // Resolve API key: prefer server-stored key, fall back to env secrets for default providers
   const resolvedApiKey = resolveProviderApiKey({
     providerId,
     baseUrl: validatedBaseUrl,
-    clientApiKey: apiKey,
+    clientApiKey: provider.apiKey,
     secrets:      {
       deepseekApiKey: runtimeConfig.deepseekApiKey,
       groqApiKey:     runtimeConfig.groqApiKey,

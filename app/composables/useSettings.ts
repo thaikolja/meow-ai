@@ -16,8 +16,8 @@
  */
 
 const SYSTEM_PROMPT_OVERRIDE_STORAGE_KEY = 'chat-yanawa-system-prompt-override'
-const LEGACY_SYSTEM_PROMPT_STORAGE_KEY   = 'chat-yanawa-system-prompt'
-const MAX_CONTEXT_STORAGE_KEY            = 'chat-yanawa-max-context'
+const LEGACY_SYSTEM_PROMPT_STORAGE_KEY = 'chat-yanawa-system-prompt'
+const MAX_CONTEXT_STORAGE_KEY = 'chat-yanawa-max-context'
 
 const DEFAULT_SYSTEM_PROMPT_FALLBACK = `You are Meow, a helpful and friendly German language tutor.
 
@@ -40,15 +40,15 @@ let defaultPromptLoadPromise: Promise<string> | null = null
  */
 export function useSettings() {
   /** Immutable prompt shipped with the app and loaded from /public/system-prompt.md */
-  const defaultSystemPrompt  = useState('default-system-prompt', () => DEFAULT_SYSTEM_PROMPT_FALLBACK)
+  const defaultSystemPrompt = useState('default-system-prompt', () => DEFAULT_SYSTEM_PROMPT_FALLBACK)
   /** User-specific override for the shipped system prompt */
   const systemPromptOverride = useState<string | null>('system-prompt-override', () => null)
   /** Maximum number of previous messages sent in the AI request context */
-  const maxContextMessages   = useState('max-context-messages', () => 10)
+  const maxContextMessages = useState('max-context-messages', () => 10)
   /** Tracks if settings have been successfully re-hydrated from browser storage */
-  const isLoaded             = useState('settings-loaded', () => false)
+  const isLoaded = useState('settings-loaded', () => false)
   /** Prevent duplicate persistence watchers across multiple composable consumers */
-  const persistenceBound     = useState('settings-persistence-bound', () => false)
+  const persistenceBound = useState('settings-persistence-bound', () => false)
 
   const effectiveSystemPrompt = computed(() => {
     const override = systemPromptOverride.value?.trim()
@@ -58,7 +58,7 @@ export function useSettings() {
   const isUsingCustomSystemPrompt = computed(() => Boolean(systemPromptOverride.value?.trim()))
 
   async function ensureDefaultSystemPromptLoaded() {
-    if (import.meta.server || defaultSystemPrompt.value!==DEFAULT_SYSTEM_PROMPT_FALLBACK) {
+    if (import.meta.server || defaultSystemPrompt.value !== DEFAULT_SYSTEM_PROMPT_FALLBACK) {
       return defaultSystemPrompt.value
     }
 
@@ -67,26 +67,26 @@ export function useSettings() {
     }
 
     defaultPromptLoadPromise = $fetch<string>('/system-prompt.md', { responseType: 'text' })
-    .then((prompt) => {
-      const normalized = prompt.trim()
+      .then((prompt) => {
+        const normalized = prompt.trim()
 
-      if (normalized) {
-        defaultSystemPrompt.value = normalized
-      }
+        if (normalized) {
+          defaultSystemPrompt.value = normalized
+        }
 
-      return defaultSystemPrompt.value
-    })
-    .catch(() => defaultSystemPrompt.value)
-    .finally(() => {
-      defaultPromptLoadPromise = null
-    })
+        return defaultSystemPrompt.value
+      })
+      .catch(() => defaultSystemPrompt.value)
+      .finally(() => {
+        defaultPromptLoadPromise = null
+      })
 
     return defaultPromptLoadPromise as Promise<string>
   }
 
   function normalizeOverride(value: string | null | undefined): string | null {
     const normalized = value?.trim() || ''
-    if (!normalized || normalized===defaultSystemPrompt.value.trim()) {
+    if (!normalized || normalized === defaultSystemPrompt.value.trim()) {
       return null
     }
 
@@ -104,11 +104,11 @@ export function useSettings() {
   // Initialize and load persistent configurations on the client-side
   if (import.meta.client && !isLoaded.value) {
     const storedOverride = localStorage.getItem(SYSTEM_PROMPT_OVERRIDE_STORAGE_KEY)
-    const legacyPrompt   = localStorage.getItem(LEGACY_SYSTEM_PROMPT_STORAGE_KEY)
+    const legacyPrompt = localStorage.getItem(LEGACY_SYSTEM_PROMPT_STORAGE_KEY)
 
-    if (storedOverride!==null) {
+    if (storedOverride !== null) {
       setSystemPromptOverride(storedOverride)
-    } else if (legacyPrompt!==null) {
+    } else if (legacyPrompt !== null) {
       setSystemPromptOverride(legacyPrompt)
       localStorage.removeItem(LEGACY_SYSTEM_PROMPT_STORAGE_KEY)
     }
@@ -147,7 +147,7 @@ export function useSettings() {
    * Ensures settings are always synced without manual 'Save' button.
    */
   if (!persistenceBound.value) {
-    watch([ systemPromptOverride, maxContextMessages ], () => {
+    watch([systemPromptOverride, maxContextMessages], () => {
       saveSettings()
     })
 

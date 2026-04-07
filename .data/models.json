@@ -1,0 +1,326 @@
+[
+  {
+    "id": "deepseek-chat",
+    "name": "DeepSeek Chat",
+    "providerId": "deepseek-default",
+    "isActive": true
+  },
+  {
+    "id": "deepseek-reasoner",
+    "name": "DeepSeek Reasoner",
+    "providerId": "deepseek-default",
+    "isActive": true
+  },
+  {
+    "id": "allam-2-7b",
+    "name": "Allam 2 7B",
+    "providerId": "groq-default",
+    "isActive": true
+  },
+  {
+    "id": "canopylabs/orpheus-arabic-saudi",
+    "name": "Orpheus Arabic Saudi",
+    "providerId": "groq-default",
+    "isActive": true
+  },
+  {
+    "id": "canopylabs/orpheus-v1-english",
+    "name": "Orpheus V1 English",
+    "providerId": "groq-default",
+    "isActive": true
+  },
+  {
+    "id": "groq/compound",
+    "name": "Groq Compound",
+    "providerId": "groq-default",
+    "isActive": true
+  },
+  {
+    "id": "groq/compound-mini",
+    "name": "Groq Compound Mini",
+    "providerId": "groq-default",
+    "isActive": true
+  },
+  {
+    "id": "llama-3.1-8b-instant",
+    "name": "Llama 3.1 8B Instant",
+    "providerId": "groq-default",
+    "isActive": true
+  },
+  {
+    "id": "llama-3.3-70b-versatile",
+    "name": "Llama 3.3 70B Versatile",
+    "providerId": "groq-default",
+    "isActive": true
+  },
+  {
+    "id": "meta-llama/llama-4-scout-17b-16e-instruct",
+    "name": "Llama 4 Scout 17B",
+    "providerId": "groq-default",
+    "isActive": true
+  },
+  {
+    "id": "meta-llama/llama-prompt-guard-2-22m",
+    "name": "Llama Prompt Guard 2 22M",
+    "providerId": "groq-default",
+    "isActive": true
+  },
+  {
+    "id": "meta-llama/llama-prompt-guard-2-86m",
+    "name": "Llama Prompt Guard 2 86M",
+    "providerId": "groq-default",
+    "isActive": true
+  },
+  {
+    "id": "moonshotai/kimi-k2-instruct",
+    "name": "Kimi K2 Instruct",
+    "providerId": "groq-default",
+    "isActive": true
+  },
+  {
+    "id": "moonshotai/kimi-k2-instruct-0905",
+    "name": "Kimi K2 Instruct 0905",
+    "providerId": "groq-default",
+    "isActive": true
+  },
+  {
+    "id": "openai/gpt-oss-120b",
+    "name": "GPT OSS 120B",
+    "providerId": "groq-default",
+    "isActive": true
+  },
+  {
+    "id": "openai/gpt-oss-20b",
+    "name": "GPT OSS 20B",
+    "providerId": "groq-default",
+    "isActive": true
+  },
+  {
+    "id": "openai/gpt-oss-safeguard-20b",
+    "name": "GPT OSS Safeguard 20B",
+    "providerId": "groq-default",
+    "isActive": true
+  },
+  {
+    "id": "qwen/qwen3-32b",
+    "name": "Qwen 3 32B",
+    "providerId": "groq-default",
+    "isActive": true
+  },
+  {
+    "id": "whisper-large-v3",
+    "name": "Whisper Large V3",
+    "providerId": "groq-default",
+    "isActive": true
+  },
+  {
+    "id": "whisper-large-v3-turbo",
+    "name": "Whisper Large V3 Turbo",
+    "providerId": "groq-default",
+    "isActive": true
+  },
+  {
+    "id": "models/deep-research-pro-preview-12-2025",
+    "name": "Deep Research Pro Preview",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-2.0-flash",
+    "name": "Gemini 2.0 Flash",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-2.0-flash-001",
+    "name": "Gemini 2.0 Flash 001",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-2.0-flash-lite",
+    "name": "Gemini 2.0 Flash Lite",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-2.0-flash-lite-001",
+    "name": "Gemini 2.0 Flash Lite 001",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-2.5-computer-use-preview-10-2025",
+    "name": "Gemini 2.5 Computer Use Preview",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-2.5-flash",
+    "name": "Gemini 2.5 Flash",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-2.5-flash-image",
+    "name": "Gemini 2.5 Flash Image",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-2.5-flash-lite",
+    "name": "Gemini 2.5 Flash Lite",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-2.5-flash-preview-tts",
+    "name": "Gemini 2.5 Flash TTS",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-2.5-pro",
+    "name": "Gemini 2.5 Pro",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-2.5-pro-preview-tts",
+    "name": "Gemini 2.5 Pro TTS",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-3-flash-preview",
+    "name": "Gemini 3 Flash Preview",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-3-pro-image-preview",
+    "name": "Gemini 3 Pro Image Preview",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-3-pro-preview",
+    "name": "Gemini 3 Pro Preview",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-3.1-flash-image-preview",
+    "name": "Gemini 3.1 Flash Image Preview",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-3.1-flash-lite-preview",
+    "name": "Gemini 3.1 Flash Lite Preview",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-3.1-pro-preview",
+    "name": "Gemini 3.1 Pro Preview",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-3.1-pro-preview-customtools",
+    "name": "Gemini 3.1 Pro Custom Tools",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-flash-latest",
+    "name": "Gemini Flash Latest",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-flash-lite-latest",
+    "name": "Gemini Flash Lite Latest",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-pro-latest",
+    "name": "Gemini Pro Latest",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemini-robotics-er-1.5-preview",
+    "name": "Gemini Robotics ER 1.5 Preview",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemma-3-12b-it",
+    "name": "Gemma 3 12B",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemma-3-1b-it",
+    "name": "Gemma 3 1B",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemma-3-27b-it",
+    "name": "Gemma 3 27B",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemma-3-4b-it",
+    "name": "Gemma 3 4B",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemma-3n-e2b-it",
+    "name": "Gemma 3N E2B",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemma-3n-e4b-it",
+    "name": "Gemma 3N E4B",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemma-4-26b-a4b-it",
+    "name": "Gemma 4 26B A4B",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/gemma-4-31b-it",
+    "name": "Gemma 4 31B",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/lyria-3-clip-preview",
+    "name": "Lyria 3 Clip Preview",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/lyria-3-pro-preview",
+    "name": "Lyria 3 Pro Preview",
+    "providerId": "gemini-default",
+    "isActive": true
+  },
+  {
+    "id": "models/nano-banana-pro-preview",
+    "name": "Nano Banana Pro Preview",
+    "providerId": "gemini-default",
+    "isActive": true
+  }
+]

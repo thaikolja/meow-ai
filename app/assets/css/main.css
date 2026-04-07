@@ -53,23 +53,27 @@ html,
 body,
 #__nuxt {
   font-family: var(--font-sans);
-  overflow-x:  hidden;
-  width:       100%;
-  min-height:  100%;
+  overflow-x: hidden;
+  width: 100%;
+  min-height: 100%;
 }
 
 body {
   background: var(--color-zinc-900);
 }
 
+table td {
+  font-size: var(--text-base);
+}
+
 .app-shell {
-  height:     var(--app-height, 100dvh);
+  height: var(--app-height, 100dvh);
   min-height: var(--app-height, 100dvh);
 }
 
 .no-scrollbar {
   -ms-overflow-style: none;
-  scrollbar-width:    none;
+  scrollbar-width: none;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -82,6 +86,7 @@ body {
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -94,10 +99,14 @@ body {
 
 /* Typing indicator */
 @keyframes typing-dot {
-  0%, 60%, 100% {
+
+  0%,
+  60%,
+  100% {
     opacity: 0.3;
     transform: translateY(0);
   }
+
   30% {
     opacity: 1;
     transform: translateY(-4px);
@@ -130,9 +139,12 @@ body {
 
 /* Pulse animation for streaming indicator */
 @keyframes pulse-soft {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -144,10 +156,10 @@ body {
 
 /* Code block styling in messages */
 .chat-prose pre {
-  position:      relative;
+  position: relative;
   overflow-x: auto;
-  max-width:  100%;
-  margin:        1rem 0;
+  max-width: 100%;
+  margin: 1rem 0;
   border-radius: 0.75rem;
 }
 
@@ -157,9 +169,9 @@ body {
 }
 
 .chat-prose code:not(pre code) {
-  font-size:  0.9em;
-  padding:    0.2rem 0.5rem;
-  color:      var(--color-primary-400);
+  font-size: 0.9em;
+  padding: 0.2rem 0.5rem;
+  color: var(--color-primary-400);
   border-radius: 0.375rem;
   background: var(--color-zinc-800);
 }
@@ -168,17 +180,18 @@ body {
   @apply text-lg lg:text-base;
 
   line-height: 1.8;
-  margin:      0.75rem 0;
+  margin: 0.75rem 0;
 }
 
 .chat-prose ul,
 .chat-prose ol {
   font-size: 1rem;
-  margin:    0.75rem 0;
+  margin: 0.75rem 0;
   padding-left: 1.75rem;
 }
 
 @media (min-width: 640px) {
+
   .chat-prose ul,
   .chat-prose ol,
   .chat-prose blockquote,
@@ -196,7 +209,7 @@ body {
 .chat-prose h3,
 .chat-prose h4 {
   font-weight: 600;
-  margin-top:  1.5rem;
+  margin-top: 1.5rem;
   margin-bottom: 0.75rem;
 }
 
@@ -214,24 +227,24 @@ body {
 
 .chat-prose a {
   text-decoration: underline;
-  color:           var(--color-primary-400);
+  color: var(--color-primary-400);
   text-underline-offset: 3px;
 }
 
 .chat-prose blockquote {
-  font-size:   1.125rem;
-  font-style:  italic;
-  margin:      1rem 0;
+  font-size: 1.125rem;
+  font-style: italic;
+  margin: 1rem 0;
   padding-left: 1.25rem;
-  color:       var(--color-zinc-400);
+  color: var(--color-zinc-400);
   border-left: 4px solid var(--color-primary-500);
 }
 
 .chat-prose table {
-  display:    block;
+  display: block;
   overflow-x: auto;
-  width:      100%;
-  margin:     1rem 0;
+  width: 100%;
+  margin: 1rem 0;
   border-collapse: collapse;
 }
 
@@ -239,7 +252,7 @@ body {
 .chat-prose td {
   padding: 0.75rem 1rem;
   text-align: left;
-  border:  1px solid var(--color-zinc-700);
+  border: 1px solid var(--color-zinc-700);
 }
 
 .chat-prose th {
@@ -249,7 +262,7 @@ body {
 
 /* Glassmorphic input container */
 .glass-input {
-  background:      color-mix(in srgb, var(--color-zinc-900) 80%, transparent);
+  background: color-mix(in srgb, var(--color-zinc-900) 80%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -260,7 +273,7 @@ body {
 }
 
 .chat-prose {
-  word-break:    break-word;
+  word-break: break-word;
   overflow-wrap: anywhere;
 }
 
@@ -269,4 +282,3 @@ body {
 .chat-prose iframe {
   max-width: 100%;
 }
-

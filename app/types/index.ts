@@ -22,6 +22,7 @@
 /**
  * Configuration schema for an external AI service endpoint.
  * Supports OpenAI-compatible API structures.
+ * API keys are stored encrypted server-side and never exposed to the client.
  */
 export interface LLMProvider {
   /** Unique base36 identifier for the provider entry */
@@ -30,8 +31,6 @@ export interface LLMProvider {
   name: string
   /** The root service URL for API requests (e.g. 'https://api.openai.com') */
   baseUrl: string
-  /** Authentication credential passed in the Bearer header */
-  apiKey: string
   /** Cached list of model identifiers available on this specific provider */
   models: string[]
   /** Determines if this provider is currently available for chat interactions */

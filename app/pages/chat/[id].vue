@@ -42,14 +42,13 @@
    * Coordinates between UI components and multiple composables for state, settings, and streaming.
    */
 
-  import { isThinkingModel } from '~/composables/useProviders'
-
   const route  = useRoute()
   const router = useRouter()
 
   // Composable integrations for chat logic and global configurations
   const { getChat, addMessage, updateMessage, persist, removeLastMessage }             = useChats()
   const { getProvider }                                                                = useProviders()
+  const { isThinkingModel }                                                            = useModels()
   const { effectiveSystemPrompt, maxContextMessages, ensureDefaultSystemPromptLoaded } = useSettings()
   const { isStreaming, streamingContent, streamMessage, stopStreaming }                = useChatStream()
   const defaultProvider                                                                = useDefaultProvider()
@@ -150,6 +149,7 @@
   /**
    * Prepares the conversation context and executes the AI request.
    * Handles system prompt insertion, context window capping, and result streaming.
+   * API keys are retrieved server-side from encrypted storage.
    */
   async function triggerCompletion() {
     const currentChatId = chatId.value
@@ -190,12 +190,10 @@
       providerId: selectedProvider.value
     })
 
-    // Start the actual streaming fetch
+    // Start the actual streaming fetch (API key retrieved server-side)
     await streamMessage(
         apiMessages,
         {
-          baseUrl: provider.baseUrl,
-          apiKey:  provider.apiKey,
           providerId: provider.id,
           model:   selectedModel.value
         },

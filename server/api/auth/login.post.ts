@@ -21,30 +21,34 @@
  * Sets a persistent session cookie upon successful verification.
  */
 import { getAuthSecret, setAuthCookies } from '../../utils/authSession'
+import { checkRateLimit, resetRateLimit } from '../../utils/rateLimit'
+import { validateCsrf } from '../../utils/csrf'
 
 const LOGIN_WINDOW_MS    = 15 * 60 * 1000
 const MAX_LOGIN_ATTEMPTS = 5
 
-const loginAttempts = new Map<string, { count: number; resetAt: number }>()
-
 export default defineEventHandler(async (event) => {
+  // CSRF protection
+  validateCsrf(event)
+
   // Extract body contents from the POST request
   const body = await readBody(event)
   // Access global app settings (including the password secret)
   const config    = useRuntimeConfig(event)
   const ipAddress = getRequestIP(event, { xForwardedFor: true }) || 'unknown'
-  const now       = Date.now()
-  const attempt   = loginAttempts.get(ipAddress)
+  const rateLimitKey = `login:${ipAddress}`
 
-  if (attempt && attempt.resetAt > now && attempt.count >= MAX_LOGIN_ATTEMPTS) {
+  // Check rate limit
+  const rateLimit = await checkRateLimit(rateLimitKey, MAX_LOGIN_ATTEMPTS, LOGIN_WINDOW_MS)
+  if (!rateLimit.allowed) {
     throw createError({
       statusCode: 429,
       message:    'Too many failed login attempts. Please wait a few minutes and try again.'
     })
   }
 
-  const username = typeof body?.username==='string' ? body.username.trim(): ''
-  const password = typeof body?.password==='string' ? body.password.trim(): ''
+  const username = typeof body?.username === 'string' ? body.username.trim() : ''
+  const password = typeof body?.password === 'string' ? body.password.trim() : ''
 
   /**
    * Validation Guard: Ensure both username and password parameters exist.
@@ -68,19 +72,15 @@ export default defineEventHandler(async (event) => {
    * Authentication Check: Compare provided secret with the master app password.
    * Rejects requests with 401 Unauthorized for incorrect secrets.
    */
-  if (password!==config.appPassword) {
-    loginAttempts.set(ipAddress, {
-      count:   attempt && attempt.resetAt > now ? attempt.count + 1: 1,
-      resetAt: now + LOGIN_WINDOW_MS
-    })
-
+  if (password !== config.appPassword) {
     throw createError({
       statusCode: 401,
       message: 'Invalid password provided'
     })
   }
 
-  loginAttempts.delete(ipAddress)
+  // Reset rate limit on successful login
+  await resetRateLimit(rateLimitKey)
 
   /**
    * Persistence: Create a login session valid for 7 days.

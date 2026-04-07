@@ -159,7 +159,7 @@ export function setAuthCookies(event: any, username: string, secret: string) {
     maxAge:   AUTH_SESSION_MAX_AGE,
     httpOnly: true,
     secure,
-    sameSite: 'lax',
+    sameSite: 'strict',
     path:     '/'
   })
 

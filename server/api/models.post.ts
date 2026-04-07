@@ -17,28 +17,40 @@
 
 /**
  * Server-side endpoint to query available models from an OpenAI-compatible provider.
- * This endpoint is consumed by the ProviderList component for model list discovery and synchronization.
+ * Retrieves encrypted API key server-side and syncs models to provider storage.
  */
 import { requireAuthenticatedSession }                                                       from '../utils/authSession'
+import { getAuthSecret }                                                                     from '../utils/authSession'
+import { getProviderWithKey, updateProvider }                                                from '../utils/providersStorage'
 import { assertProviderBaseUrl, buildModelsRequest, extractModelIds, resolveProviderApiKey } from '../utils/providerApi'
+import { validateCsrf }                                                                      from '../utils/csrf'
 
 export default defineEventHandler(async (event) => {
+  // CSRF protection
+  validateCsrf(event)
+
   requireAuthenticatedSession(event)
 
   // Extract provider connection details from the request body
-  const body                            = await readBody(event)
-  const { baseUrl, apiKey, providerId } = body
-  const runtimeConfig                   = useRuntimeConfig(event)
+  const body              = await readBody(event)
+  const { providerId }    = body
+  const runtimeConfig     = useRuntimeConfig(event)
+  const secret            = getAuthSecret(event)
 
   /**
-   * Validation Guard: Ensure required connection credentials are provided.
-   * Responses with 400 Bad Request if mandatory parameters are missing.
+   * Validation Guard: Ensure provider ID is provided.
    */
-  if (!baseUrl) {
-    throw createError({ statusCode: 400, message: 'Missing required field: baseUrl' })
+  if (!providerId || typeof providerId !== 'string' || !providerId.trim()) {
+    throw createError({ statusCode: 400, message: 'Missing required field: providerId' })
   }
 
-  const validatedBaseUrl = assertProviderBaseUrl(baseUrl, {
+  // Retrieve provider with decrypted API key from server-side storage
+  const provider = getProviderWithKey(providerId, secret)
+  if (!provider) {
+    throw createError({ statusCode: 400, message: 'Provider not found' })
+  }
+
+  const validatedBaseUrl = assertProviderBaseUrl(provider.baseUrl, {
     allowPrivate:           runtimeConfig.allowPrivateProviderUrls,
     allowInsecureLocalhost: import.meta.dev
   })
@@ -46,7 +58,7 @@ export default defineEventHandler(async (event) => {
   const resolvedApiKey = resolveProviderApiKey({
     providerId,
     baseUrl: validatedBaseUrl,
-    clientApiKey: apiKey,
+    clientApiKey: provider.apiKey,
     secrets:      {
       deepseekApiKey: runtimeConfig.deepseekApiKey,
       groqApiKey:     runtimeConfig.groqApiKey,
@@ -98,6 +110,9 @@ export default defineEventHandler(async (event) => {
    * Alphabetically sorts the list for UI consistency.
    */
   const models = extractModelIds(kind, data)
+
+  // Update provider with fetched models
+  updateProvider(providerId, { models }, secret)
 
   return { models }
 })

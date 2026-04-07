@@ -145,10 +145,15 @@
    * Automatically attempts to fetch the model list immediately after insertion.
    */
   async function handleAddProvider(data: { name: string; baseUrl: string; apiKey: string }) {
-    const provider    = addProvider(data)
-    showAddForm.value = false
-    // Proactively fetch models to ensure the UI is populated immediately
-    await fetchModels(provider.id)
+    try {
+      const provider = await addProvider(data)
+      showAddForm.value = false
+      // Proactively fetch models to ensure the UI is populated immediately
+      await fetchModels(provider.id)
+    } catch (error: any) {
+      console.error('Failed to add provider:', error)
+      // Could show error to user here
+    }
   }
 
   /**

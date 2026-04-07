@@ -43,16 +43,17 @@ export function useChatStream() {
   /**
    * Initiates a POST request to the chat API and begins processing the SSE stream.
    * Parses incoming JSON chunks and facilitates callback triggers.
+   * API keys are retrieved server-side from encrypted storage.
    *
    * @param messages - Ordered history of dialogue sent as context
-   * @param config - Provider connection details (Base URL, key, and specific model)
+   * @param config - Provider and model selection (providerId required, apiKey no longer needed)
    * @param onChunk - Callback executed every time a new text fragment arrives
    * @param onDone - Callback executed when the stream completes successfully
    * @param onError - Callback for handling network or API failures
    */
   async function streamMessage(
       messages: Array<{ role: string; content: string }>,
-      config: { baseUrl: string; apiKey: string; model: string; providerId?: string },
+      config: { providerId: string; model: string },
       onChunk: (chunk: string) => void,
       onDone: (fullContent: string) => void,
       onError: (error: string) => void
@@ -69,8 +70,6 @@ export function useChatStream() {
         headers: { 'Content-Type': 'application/json' },
         body:   JSON.stringify({
           messages,
-          baseUrl: config.baseUrl,
-          apiKey:  config.apiKey,
           providerId: config.providerId,
           model:   config.model
         }),

@@ -19,7 +19,13 @@
  * Nuxt configuration file.
  * Configures modules, runtime config, global CSS, and app-level metadata.
  */
-import { DEFAULT_APP_PASSWORD } from './shared/constants/auth'
+const appPassword = process.env['NUXT_APP_PASSWORD']?.trim() || ''
+const sessionSecret = process.env['NUXT_SESSION_SECRET']?.trim() || appPassword
+
+// In production, require the app password to be set
+if (process.env['NODE_ENV'] === 'production' && !appPassword) {
+  throw new Error('NUXT_APP_PASSWORD environment variable is required in production')
+}
 
 export default defineNuxtConfig({
   // Ensures compatibility with current development date
@@ -28,25 +34,27 @@ export default defineNuxtConfig({
   // Disable the in-app devtools overlay in this deployment.
   devtools: { enabled: false },
 
-
   modules: [// UI component library
     '@nuxt/ui', // Image optimization
     '@nuxt/image', // Icon management
-    '@nuxt/icon', '@nuxt/fonts' ],
+    '@nuxt/icon',
+    '@nuxt/fonts'],
 
   runtimeConfig: {
-    // Secret key for login (populated from environment variables)
-    appPassword:              process.env['NUXT_APP_PASSWORD']?.trim() || DEFAULT_APP_PASSWORD,
-    sessionSecret:            process.env['NUXT_SESSION_SECRET']?.trim() || process.env['NUXT_APP_PASSWORD']?.trim() || DEFAULT_APP_PASSWORD,
-    allowPrivateProviderUrls: process.env['NUXT_ALLOW_PRIVATE_PROVIDER_URLS']==='true',
-    deepseekApiKey:           process.env['NUXT_DEEPSEEK_API_KEY']?.trim() || '',
-    groqApiKey:               process.env['NUXT_GROQ_API_KEY']?.trim() || '',
-    googleApiKey:             process.env['NUXT_GOOGLE_API_KEY']?.trim() || '',
-    public:                   {
+    // Secret key for login (REQUIRED in production)
+    appPassword: appPassword || '',
+    sessionSecret: sessionSecret || '',
+    allowPrivateProviderUrls: process.env['NUXT_ALLOW_PRIVATE_PROVIDER_URLS'] === 'true',
+    deepseekApiKey: process.env['NUXT_DEEPSEEK_API_KEY']?.trim() || '',
+    groqApiKey: process.env['NUXT_GROQ_API_KEY']?.trim() || '',
+    googleApiKey: process.env['NUXT_GOOGLE_API_KEY']?.trim() || '',
+    public: {
       defaultProvider: process.env['NUXT_PUBLIC_DEFAULT_PROVIDER']?.trim() || 'gemini-default',
-      defaultModel:    process.env['NUXT_PUBLIC_DEFAULT_MODEL']?.trim() || 'models/gemini-3.1-flash-lite-preview'
+      defaultModel: process.env['NUXT_PUBLIC_DEFAULT_MODEL']?.trim() || 'models/gemini-3.1-flash-lite-preview'
     }
   },
+
+
 
   css: [
     '~/assets/css/main.css',     // Core application styles
@@ -57,16 +65,16 @@ export default defineNuxtConfig({
     head: {
       title: 'Meow 🐾',
       htmlAttrs: { lang: 'en' },
-      meta:  [
+      meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
         {
-          name:    'description',
+          name: 'description',
           content: 'Learn German with a playful AI tutor built for fast, focused conversation practice.'
         },
         { name: 'robots', content: 'nofollow,noindex' }
       ],
-      link:  [
+      link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
         { rel: 'canonical', href: 'https://meow.yanawa.io' }
       ]
@@ -85,15 +93,25 @@ export default defineNuxtConfig({
 
   nitro: {
     compressPublicAssets: true,
-    routeRules:           {
+    routeRules: {
       '/**': {
         headers: {
           'X-Content-Type-Options': 'nosniff',
-          'X-Frame-Options':        'DENY',
-          'Referrer-Policy':        'strict-origin-when-cross-origin',
-          'Permissions-Policy':     'camera=(), microphone=(), geolocation=()'
+          'X-Frame-Options': 'DENY',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
         }
       }
+    }
+  },
+
+  vite: {
+    optimizeDeps: {
+      include: [
+        'marked',
+        'sanitize-html', // CJS
+        'highlight.js/lib/core',
+      ]
     }
   }
 })

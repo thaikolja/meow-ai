@@ -93,7 +93,7 @@
           <div class="flex items-center gap-1.5" title="Model Used">
             <Icon class="w-3 h-3" name="mdi:cat" />
             {{
-              message.role==='assistant' ? formatModelName(message.model || 'Meow 🐾'): (usernameCookie || 'Client Input')
+              message.role==='assistant' ? getModelName(message.model || 'Meow 🐾'): (usernameCookie || 'Client Input')
             }}
           </div>
           <div class="flex items-center gap-1.5" title="Estimated Tokens">
@@ -151,7 +151,7 @@
 
   import type { ChatMessage } from '~/types'
 
-  const { formatModelName } = useProviders()
+  const { getModelName } = useModels()
   const props = defineProps<{
     message: ChatMessage
     isLast: boolean

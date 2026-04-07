@@ -40,8 +40,12 @@
 
       <!-- Authentication secret -->
       <div>
-        <label class="block text-xs font-medium text-neutral-400 mb-1.5">API Key</label> <input
-          v-model="form.apiKey" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-200 placeholder-neutral-500 outline-none focus:border-primary-500 transition-colors font-mono" placeholder="sk-..." type="password" />
+        <label class="block text-xs font-medium text-neutral-400 mb-1.5">
+          API Key
+          <span v-if="isEditing" class="text-neutral-600">(leave blank to keep existing)</span>
+        </label>
+        <input
+          v-model="form.apiKey" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-200 placeholder-neutral-500 outline-none focus:border-primary-500 transition-colors font-mono" :placeholder="isEditing ? 'Leave blank to keep current key' : 'sk-...'" type="password" />
       </div>
     </div>
 
@@ -69,6 +73,7 @@
   /**
    * Interactive form for adding or editing an LLM provider connection.
    * Collects name, base URL, and API key with basic validation and formatting.
+   * API keys are stored encrypted server-side.
    */
 
   import type { LLMProvider } from '~/types'
@@ -92,15 +97,21 @@
   const form = reactive({
     name:    props.provider?.name || '',
     baseUrl: props.provider?.baseUrl || '',
-    apiKey:  props.provider?.apiKey || ''
+    apiKey:  '' // Always empty on load - user must re-enter if changing
   })
 
   /**
-   * Simple presence check for mandatory fields.
-   * Prevents submission of empty strings for essential connection parameters.
+   * Validation: name and baseUrl always required.
+   * For new providers, apiKey is required.
+   * For editing, apiKey is optional (keep existing if not provided).
    */
   const isValid = computed(() => {
-    return form.name.trim() && form.baseUrl.trim() && form.apiKey.trim()
+    const hasName = form.name.trim().length > 0
+    const hasBaseUrl = form.baseUrl.trim().length > 0
+    // When creating new provider, API key is required
+    // When editing, API key is optional (user can leave blank to keep existing)
+    const hasApiKey = isEditing.value ? true : form.apiKey.trim().length > 0
+    return hasName && hasBaseUrl && hasApiKey
   })
 
   /**

@@ -15,11 +15,22 @@
  * @website   https://meow.yanawa.io
  */
 
-/*
- * Shared authentication constants.
+/**
+ * Server-side endpoint to list all providers (without API keys).
  */
 
-export const AUTH_SESSION_COOKIE_NAME: string  = 'chat_session'
-export const AUTH_USERNAME_COOKIE_NAME: string = 'chat_username'
-export const AUTH_SESSION_MAX_AGE: number      = 60 * 60 * 24 * 7
+import { getAllProviders, initializeDefaultProviders } from '../../utils/providersStorage'
+import { getAuthSecret, requireAuthenticatedSession } from '../../utils/authSession'
 
+export default defineEventHandler((event) => {
+  requireAuthenticatedSession(event)
+
+  const secret = getAuthSecret(event)
+
+  // Initialize default providers if storage is empty
+  initializeDefaultProviders(secret)
+
+  const providers = getAllProviders(secret)
+
+  return { providers }
+})

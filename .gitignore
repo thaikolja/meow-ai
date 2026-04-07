@@ -11,3 +11,4 @@ dist
 *.md
 !README.md
 !CHANGELOG.md
+!/public/*.md
