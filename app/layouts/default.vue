@@ -118,10 +118,10 @@
           </div>
           <!-- Repository links: GitLab and GitHub (open in new tab) -->
           <div class="hidden sm:flex items-center gap-8 ms-3">
-            <a href="https://gitlab.com/thaikolja/meow-ai" target="_blank" rel="noopener noreferrer" class="text-zinc-400 hover:text-zinc-200 transition-colors" aria-label="View on GitLab">
+            <a aria-label="View on GitLab" class="text-zinc-400 hover:text-zinc-200 transition-colors" href="https://gitlab.com/thaikolja/meow-ai" rel="noopener noreferrer" target="_blank">
               <Icon class="w-4 h-4" name="mdi:gitlab" />
             </a>
-            <a href="https://github.com/thaikolja/meow-ai" target="_blank" rel="noopener noreferrer" class="text-zinc-400 hover:text-zinc-200 transition-colors" aria-label="View on GitHub">
+            <a aria-label="View on GitHub" class="text-zinc-400 hover:text-zinc-200 transition-colors" href="https://github.com/thaikolja/meow-ai" rel="noopener noreferrer" target="_blank">
               <Icon class="w-4 h-4" name="mdi:github" />
             </a>
           </div>
@@ -130,12 +130,9 @@
             <Icon class="w-3.5 h-3.5 text-primary-400" name="lucide:user" />
             <span class="max-w-28 truncate">{{ displayName }}</span>
             <button
-                :disabled="logoutPending"
-                class="inline-flex items-center gap-1.5 rounded-full border border-zinc-700/70 bg-zinc-800 px-2.5 py-1 text-[11px] font-semibold text-zinc-300 transition-colors hover:border-primary-500/40 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
-                title="Log out"
-                @click="handleLogout">
-              <Icon :name="logoutPending ? 'lucide:loader-circle' : 'lucide:log-out'" :class="['w-3.5 h-3.5', logoutPending && 'animate-spin']" />
-              <span class="hidden sm:inline">{{ logoutPending ? 'Padding out...' : 'Paws out' }}</span>
+                :disabled="logoutPending" class="inline-flex items-center gap-1.5 rounded-full border border-zinc-700/70 bg-zinc-800 px-2.5 py-1 text-[11px] font-semibold text-zinc-300 transition-colors hover:border-primary-500/40 hover:text-white disabled:cursor-not-allowed disabled:opacity-60" title="Log out" @click="handleLogout">
+              <Icon :class="['w-3.5 h-3.5', logoutPending && 'animate-spin']" :name="logoutPending ? 'lucide:loader-circle' : 'lucide:log-out'" />
+              <span class="hidden sm:inline">{{ logoutPending ? 'Padding out...': 'Paws out' }}</span>
             </button>
           </div>
         </div>

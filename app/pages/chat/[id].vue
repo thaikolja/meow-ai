@@ -29,9 +29,7 @@
       <!-- Loading skeleton while Nuxt hydrates client-side state -->
       <template #fallback>
         <CatLoadingState
-            label="Uncurling the tail..."
-            subtitle="Meow is arranging the cushions and loading your chat thread."
-            title="Warming up this chat..." />
+            label="Uncurling the tail..." subtitle="Meow is arranging the cushions and loading your chat thread." title="Warming up this chat..." />
       </template>
     </ClientOnly>
   </div>
@@ -196,7 +194,7 @@
         apiMessages,
         {
           providerId: provider.id,
-          model:   selectedModel.value
+          model: selectedModel.value
         },
         // Progress callback (runs per chunk)
         (_chunk: string) => {

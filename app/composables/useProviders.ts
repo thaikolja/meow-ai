@@ -52,30 +52,30 @@ export function useProviders() {
 
   /** Registers a new LLM provider with custom base URL and credentials */
   async function addProvider(data: { name: string; baseUrl: string; apiKey: string }): Promise<ProviderSafe> {
-    const response = await $fetch<{ provider: ProviderSafe }>('/api/providers', {
+    const response  = await $fetch<{ provider: ProviderSafe }>('/api/providers', {
       method: 'POST',
       body: {
-        name: data.name,
+        name:   data.name,
         baseUrl: data.baseUrl.replace(/\/+$/, ''),
         apiKey: data.apiKey
       }
     })
-    const provider = response.provider
-    providers.value = [...providers.value, provider]
+    const provider  = response.provider
+    providers.value = [ ...providers.value, provider ]
     return provider
   }
 
   /** Updates existing provider properties. Partial updates are supported. */
   async function updateProvider(id: string, data: Partial<LLMProvider> & { apiKey?: string }) {
-    const index = providers.value.findIndex(p => p.id === id)
-    if (index === -1) return
+    const index = providers.value.findIndex(p => p.id===id)
+    if (index=== -1) return
 
     // Only send safe fields to server; apiKey only sent if explicitly updating
     const body: Record<string, unknown> = {}
-    if (data.name !== undefined) body.name = data.name
-    if (data.baseUrl !== undefined) body.baseUrl = data.baseUrl
-    if (data.apiKey !== undefined) body.apiKey = data.apiKey
-    if (data.isActive !== undefined) body.isActive = data.isActive
+    if (data.name!==undefined) body.name = data.name
+    if (data.baseUrl!==undefined) body.baseUrl = data.baseUrl
+    if (data.apiKey!==undefined) body.apiKey = data.apiKey
+    if (data.isActive!==undefined) body.isActive = data.isActive
 
     const response = await $fetch<{ provider: ProviderSafe }>(`/api/providers/${id}`, {
       method: 'PUT',
@@ -92,7 +92,7 @@ export function useProviders() {
   /** Permanently deletes a provider */
   async function removeProvider(id: string) {
     await $fetch(`/api/providers/${id}`, { method: 'DELETE' })
-    providers.value = providers.value.filter(p => p.id !== id)
+    providers.value = providers.value.filter(p => p.id!==id)
   }
 
   /** Accesses only providers that currently have their isActive flag set to true */
@@ -100,17 +100,17 @@ export function useProviders() {
 
   /** Simple selector for finding a provider by ID */
   function getProvider(id: string): ProviderSafe | undefined {
-    return providers.value.find(p => p.id === id)
+    return providers.value.find(p => p.id===id)
   }
 
   /** Check if provider has an API key configured (server-side check) */
   function hasApiKey(providerId: string): boolean {
     // Default providers may use env secrets, always return true
-    const defaultIds = ['deepseek-default', 'groq-default', 'google-default', 'gemini-default']
+    const defaultIds = [ 'deepseek-default', 'groq-default', 'google-default', 'gemini-default' ]
     if (defaultIds.includes(providerId)) return true
     // For custom providers, we assume they have a key if they exist
     // The actual validation happens server-side
-    return providers.value.some(p => p.id === providerId)
+    return providers.value.some(p => p.id===providerId)
   }
 
   return {
@@ -128,5 +128,5 @@ export function useProviders() {
 /** Identifies model IDs that expose chain-of-thought / reasoning style output. */
 export function isThinkingModel(modelId: string): boolean {
   const normalized = modelId.replace(/^models\//, '').toLowerCase()
-  return [/reasoner/, /thinking/, /deepseek-r1/, /r1-distill/].some(pattern => pattern.test(normalized))
+  return [ /reasoner/, /thinking/, /deepseek-r1/, /r1-distill/ ].some(pattern => pattern.test(normalized))
 }

@@ -28,7 +28,7 @@ export function validateCsrf(event: any): void {
   const method = getMethod(event)
 
   // Only validate state-changing methods
-  if (!['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+  if (![ 'POST', 'PUT', 'DELETE', 'PATCH' ].includes(method)) {
     return
   }
 
@@ -37,11 +37,11 @@ export function validateCsrf(event: any): void {
   const referer = String(headers['referer'] || headers['Referer'] || '')
 
   // Get the expected origin from the host header
-  const host = String(headers['host'] || headers['Host'] || '')
-  const protocol = event?.node?.req?.socket?.encrypted ? 'https' : 'http'
-  const forwardedProto = String(headers['x-forwarded-proto'] || headers['X-Forwarded-Proto'] || '')
-  const expectedProtocol = forwardedProto ? (forwardedProto.split(',')[0] || protocol).trim() : protocol
-  const expectedOrigin = `${expectedProtocol}://${host}`
+  const host             = String(headers['host'] || headers['Host'] || '')
+  const protocol         = event?.node?.req?.socket?.encrypted ? 'https': 'http'
+  const forwardedProto   = String(headers['x-forwarded-proto'] || headers['X-Forwarded-Proto'] || '')
+  const expectedProtocol = forwardedProto ? (forwardedProto.split(',')[0] || protocol).trim(): protocol
+  const expectedOrigin   = `${expectedProtocol}://${host}`
 
   // Allow requests with no origin/referer for same-origin requests from bookmarks/direct navigation
   // This is safe because browsers only omit these headers for GET/HEAD, not POST
@@ -98,7 +98,7 @@ export function validateCsrf(event: any): void {
  */
 function isValidOrigin(requestOrigin: string, expectedOrigin: string): boolean {
   // Exact match
-  if (requestOrigin === expectedOrigin) {
+  if (requestOrigin===expectedOrigin) {
     return true
   }
 
@@ -108,18 +108,18 @@ function isValidOrigin(requestOrigin: string, expectedOrigin: string): boolean {
     const expectedUrl = new URL(expectedOrigin)
 
     // Compare protocol and hostname
-    if (requestUrl.protocol !== expectedUrl.protocol) {
+    if (requestUrl.protocol!==expectedUrl.protocol) {
       // Allow http->https upgrade in production
-      if (!(requestUrl.protocol === 'https:' && expectedUrl.protocol === 'http:')) {
+      if (!(requestUrl.protocol==='https:' && expectedUrl.protocol==='http:')) {
         return false
       }
     }
 
     // Compare hostnames
-    if (requestUrl.hostname !== expectedUrl.hostname) {
+    if (requestUrl.hostname!==expectedUrl.hostname) {
       // Allow localhost variations in development
       if (import.meta.dev) {
-        const localhosts = ['localhost', '127.0.0.1', '::1']
+        const localhosts = [ 'localhost', '127.0.0.1', '::1' ]
         if (localhosts.includes(requestUrl.hostname) && localhosts.includes(expectedUrl.hostname)) {
           return true
         }

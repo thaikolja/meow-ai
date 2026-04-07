@@ -1,6 +1,8 @@
-# Meow 🐾
+# Meow AI 🐾
 
-Meow is a cat-themed Nuxt 4 chat interface for focused German practice with your own LLM providers. It keeps provider secrets on the server, stores chats in the browser, and streams model responses back through a small Nuxt API layer.
+**Meow AI** is a kitten-themed Nuxt 4 chat interface for focused German practice with your own LLM providers. It keeps
+provider secrets on the server, stores chats in the browser, and streams model responses back through a small Nuxt API
+layer.
 
 ## Highlights
 
@@ -34,15 +36,16 @@ There is no longer a dedicated `/login` experience for normal access.
 1. `app.vue` checks `/api/auth/session` on load.
 2. If the session is missing, the app shows `AuthGate.vue` directly inside the main shell.
 3. The browser fetches a one-time challenge from `GET /api/auth/challenge`.
-4. The browser signs that challenge with the shared secret from `NUXT_APP_PASSWORD` and sends only the proof to `POST /api/auth/login`.
-5. The server verifies the proof, sets the signed cookies, and the UI triggers a confetti burst before entering the app.
+4. The browser signs the challenge with the shared secret from `NUXT_APP_PASSWORD` and sends only the proof to
+   `POST /api/auth/login`.
+5. The server verifies the proof, sets the signed cookies, and the UI triggers a confetti burst before the app loads.
 
 The shared password still lives in `.env`, but it is no longer posted directly to the server.
 
 ## Chat flow
 
 1. The landing page creates a new local chat thread.
-2. The first prompt is carried into `/chat/[id]` through `sessionStorage`.
+2. The first prompt is passed to`/chat/[id]` via `sessionStorage`.
 3. `useChatStream()` posts messages to `/api/chat`.
 4. The server resolves the provider key, forwards the request upstream, and returns SSE chunks.
 5. The client parses those chunks and keeps the prompt focused so the next message can be drafted immediately.
@@ -57,16 +60,36 @@ bun run dev
 
 Open `http://localhost:3000`.
 
+## Production builds
+
+`bun run build` no longer requires baking `NUXT_APP_PASSWORD` into the build step. The production secret is validated
+when the Nitro server starts, which makes local builds and container builds work without copying a real `.env` into the
+image.
+
+## Docker
+
+The Docker setup is multi-stage: Bun builds the app, a dedicated production-deps stage keeps only runtime packages, and
+the final image runs Nitro on Node as a non-root user. It intentionally excludes `.env` and `.data/providers.json` from
+the build context, so pass secrets at runtime instead:
+
+```bash
+docker build -t meow .
+docker run --rm -p 3000:3000 \
+  -e NUXT_APP_PASSWORD='replace-me' \
+  -e NUXT_SESSION_SECRET='replace-me-too' \
+  meow
+```
+
 ## Available scripts
 
-| Command | Purpose |
-| --- | --- |
-| `bun run dev` | Start the Nuxt dev server with `.env` loaded |
-| `bun run build` | Build the production bundle |
-| `bun run generate` | Generate a static build with the current env file |
-| `bun run preview` | Preview the production bundle with the current env file |
-| `bun run typecheck` | Run `nuxt typecheck` |
-| `bun test` | Run the Bun test suite |
+| Command             | Purpose                                                                  |
+|---------------------|--------------------------------------------------------------------------|
+| `bun run dev`       | Start the Nuxt dev server with `.env` loaded                             |
+| `bun run build`     | Build the production bundle; secrets are enforced when the server starts |
+| `bun run generate`  | Generate a static build with the current env file                        |
+| `bun run preview`   | Preview the production bundle with the current env file                  |
+| `bun run typecheck` | Run `nuxt typecheck`                                                     |
+| `bun test`          | Run the Bun test suite                                                   |
 
 ## Environment variables
 
@@ -89,6 +112,7 @@ Open `http://localhost:3000`.
 - Chats, prompt overrides, and context settings stay in browser storage.
 - `chat_username` is UI-only; auth decisions rely on the signed session cookie and `/api/auth/session`.
 - The SVG favicon switches paw color based on `prefers-color-scheme`, and `favicon.ico` is kept as a fallback.
+- Production containers should inject `NUXT_APP_PASSWORD` and any provider keys at runtime, not during image build.
 
 ## Testing
 

@@ -25,8 +25,5 @@
 
 <template>
   <CatLoadingState
-      full-screen
-      label="Padding back home..."
-      subtitle="The old login page retired. Meow is taking you to the new cat flap on the front page."
-      title="The cat flap moved 🐾" />
+      full-screen label="Padding back home..." subtitle="The old login page retired. Meow is taking you to the new cat flap on the front page." title="The cat flap moved 🐾" />
 </template>

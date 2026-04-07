@@ -40,7 +40,8 @@
                 Meow 🐾
               </h1>
               <p class="mt-3 max-w-xl text-base leading-relaxed text-zinc-400 sm:text-lg">
-                The cats moved the old login door. Whisper the house secret here and step straight into the learning lounge.
+                The cats moved the old login door. Whisper the house secret here and step straight into the learning
+                lounge.
               </p>
             </div>
           </div>
@@ -52,7 +53,8 @@
                 <span class="text-sm font-semibold">Safer paw-print proof</span>
               </div>
               <p class="text-sm leading-relaxed text-zinc-400">
-                The shared secret stays in the browser. The server sees only a one-time paw-print proof tied to a short-lived challenge.
+                The shared secret stays in the browser. The server sees only a one-time paw-print proof tied to a
+                short-lived challenge.
               </p>
             </div>
 
@@ -62,7 +64,8 @@
                 <span class="text-sm font-semibold">No more `/login` routine</span>
               </div>
               <p class="text-sm leading-relaxed text-zinc-400">
-                Access now lives inside the app itself, so the experience feels like a cozy cat lounge instead of a generic sign-in page.
+                Access now lives inside the app itself, so the experience feels like a cozy cat lounge instead of a
+                generic sign-in page.
               </p>
             </div>
           </div>
@@ -89,27 +92,17 @@
               <div class="relative">
                 <Icon class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" name="lucide:user-round" />
                 <input
-                    v-model="username"
-                    autocomplete="nickname"
-                    class="w-full rounded-2xl border border-zinc-700 bg-zinc-900 py-3 pl-10 pr-4 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-500 focus:border-primary-500"
-                    maxlength="32"
-                    placeholder="e.g. Captain Whiskers"
-                    required
-                    type="text" />
+                    v-model="username" autocomplete="nickname" class="w-full rounded-2xl border border-zinc-700 bg-zinc-900 py-3 pl-10 pr-4 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-500 focus:border-primary-500" maxlength="32" placeholder="e.g. Captain Whiskers" required type="text" />
               </div>
             </div>
 
             <div>
-              <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">House Secret</label>
+              <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">House
+                Secret</label>
               <div class="relative">
                 <Icon class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" name="lucide:key-round" />
                 <input
-                    v-model="password"
-                    autocomplete="current-password"
-                    class="w-full rounded-2xl border border-zinc-700 bg-zinc-900 py-3 pl-10 pr-4 text-sm font-mono text-zinc-100 outline-none transition-colors placeholder:text-zinc-500 focus:border-primary-500"
-                    placeholder="••••••••"
-                    required
-                    type="password" />
+                    v-model="password" autocomplete="current-password" class="w-full rounded-2xl border border-zinc-700 bg-zinc-900 py-3 pl-10 pr-4 text-sm font-mono text-zinc-100 outline-none transition-colors placeholder:text-zinc-500 focus:border-primary-500" placeholder="••••••••" required type="password" />
               </div>
             </div>
 
@@ -128,12 +121,10 @@
             </div>
 
             <button
-                :disabled="loading || challengeLoading"
-                class="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-primary-500 disabled:cursor-not-allowed disabled:opacity-60"
-                type="submit">
+                :disabled="loading || challengeLoading" class="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-primary-500 disabled:cursor-not-allowed disabled:opacity-60" type="submit">
               <Icon v-if="loading || challengeLoading" class="h-4 w-4 animate-spin" name="lucide:loader-circle" />
               <Icon v-else class="h-4 w-4" name="mdi:paw" />
-              <span>{{ loading ? 'Sniffing your paw-print...' : 'Open the cat flap' }}</span>
+              <span>{{ loading ? 'Sniffing your paw-print...': 'Open the cat flap' }}</span>
             </button>
           </form>
         </section>
@@ -153,7 +144,7 @@
 
   const LAST_USERNAME_STORAGE_KEY = 'chat-yanawa-display-name'
 
-  const route = useRoute()
+  const route                = useRoute()
   const { setAuthenticated } = useAuthSession()
   const { triggerCelebration } = useCelebration()
 

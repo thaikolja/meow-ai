@@ -1,36 +1,43 @@
-# 🐾 The Cat-Container: Production Bun Dockerfile
-FROM oven/bun:latest as build-stage
+ARG BUN_VERSION=1.3.11
+ARG NODE_VERSION=22-bookworm-slim
 
-# Set the cat cave
+FROM oven/bun:${BUN_VERSION} AS deps
+
 WORKDIR /app
 
-# Copy the yarn-ball and paws-cfg
 COPY package.json bun.lock ./
-
-# Install dependencies before any scratching
 RUN bun install --frozen-lockfile
 
-# Copy the rest of the cat's toys
-COPY . .
-
-# Build the purr-fect app
-RUN bun run build
-
-# Stage 2: The Final Kitty Landing
-FROM oven/bun:latest
+FROM deps AS build
 
 WORKDIR /app
 
-# Copy the results of the build
-COPY --from=build-stage /app/.output ./.output
-COPY --from=build-stage /app/package.json ./package.json
+COPY . .
+RUN bun run build
 
-# Environment variables for production
-ENV PORT=3000
-ENV NODE_ENV=production
+FROM oven/bun:${BUN_VERSION} AS prod-deps
 
-# The final meow
+WORKDIR /app
+
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile --production
+
+FROM node:${NODE_VERSION} AS runtime
+
+WORKDIR /app
+
+ENV NODE_ENV=production \
+    NUXT_TELEMETRY_DISABLED=1 \
+    HOST=0.0.0.0 \
+    NITRO_HOST=0.0.0.0 \
+    PORT=3000 \
+    NITRO_PORT=3000
+
+COPY --from=build --chown=node:node /app/.output ./.output
+COPY --from=prod-deps --chown=node:node /app/node_modules ./node_modules
+
+USER node
+
 EXPOSE 3000
 
-# Start the purring
-CMD ["bun", ".output/server/index.mjs"]
+CMD ["node", ".output/server/index.mjs"]

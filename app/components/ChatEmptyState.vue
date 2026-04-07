@@ -27,16 +27,13 @@
       </h2>
 
       <p class="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-zinc-400 sm:text-base">
-        Start with a gentle warm-up, tap one of the ready-made prompts, or type your own meow below. A brand-new chat deserves a cozy first purr.
+        Start with a gentle warm-up, tap one of the ready-made prompts, or type your own meow below. A brand-new chat
+        deserves a cozy first purr.
       </p>
 
       <div class="mt-6 grid gap-3 text-left sm:grid-cols-3">
         <button
-            v-for="starter in starters"
-            :key="starter.title"
-            class="group rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4 transition-colors hover:border-primary-500/40 hover:bg-zinc-900"
-            type="button"
-            @click="$emit('quick-prompt', starter.prompt)">
+            v-for="starter in starters" :key="starter.title" class="group rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4 transition-colors hover:border-primary-500/40 hover:bg-zinc-900" type="button" @click="$emit('quick-prompt', starter.prompt)">
           <div class="mb-2 flex items-center gap-2 text-primary-300">
             <Icon :name="starter.icon" class="h-4 w-4 transition-transform group-hover:scale-110" />
             <span class="text-sm font-semibold">{{ starter.title }}</span>

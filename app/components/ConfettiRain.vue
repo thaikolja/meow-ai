@@ -18,10 +18,7 @@
 <template>
   <div v-if="visible" class="pointer-events-none fixed inset-0 z-[120] overflow-hidden">
     <span
-        v-for="piece in pieces"
-        :key="piece.id"
-        class="confetti-piece absolute top-[-12vh] block opacity-0"
-        :style="{
+        v-for="piece in pieces" :key="piece.id" :style="{
           left: `${piece.left}%`,
           width: `${piece.width}px`,
           height: `${piece.height}px`,
@@ -31,7 +28,7 @@
           animationDuration: `${piece.duration}ms`,
           '--drift': `${piece.drift}px`,
           '--spin': `${piece.spin}deg`
-        }" />
+        }" class="confetti-piece absolute top-[-12vh] block opacity-0" />
   </div>
 </template>
 
@@ -101,10 +98,10 @@
 <style scoped>
   .confetti-piece {
     animation-name:            confetti-fall;
-    animation-fill-mode:       forwards;
-    animation-iteration-count: 1;
     animation-timing-function: linear;
+    animation-iteration-count: 1;
     box-shadow:                0 0 12px rgb(255 255 255 / 0.18);
+    animation-fill-mode:       forwards;
   }
 
   @keyframes confetti-fall {

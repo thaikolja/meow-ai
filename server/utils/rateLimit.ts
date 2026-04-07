@@ -42,7 +42,7 @@ let redisClient: {
 } | null = null
 
 async function getRedisClient() {
-  if (redisClient !== null) return redisClient
+  if (redisClient!==null) return redisClient
 
   const redisUrl = process.env['NUXT_REDIS_URL']
   if (!redisUrl) return null
@@ -72,9 +72,9 @@ async function getRedisClient() {
  * Returns whether the request is allowed and remaining quota.
  */
 export async function checkRateLimit(
-  key: string,
-  maxAttempts: number,
-  windowMs: number
+    key: string,
+    maxAttempts: number,
+    windowMs: number
 ): Promise<RateLimitResult> {
   const now = Date.now()
   const resetAt = now + windowMs
@@ -134,7 +134,7 @@ export async function checkRateLimit(
 
   // Cleanup old entries periodically (every 100 checks)
   if (memoryStore.size > 100 && Math.random() < 0.01) {
-    for (const [k, v] of memoryStore) {
+    for (const [ k, v ] of memoryStore) {
       if (v.resetAt <= now) {
         memoryStore.delete(k)
       }

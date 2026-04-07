@@ -36,7 +36,7 @@
       </p>
 
       <div class="mt-6 flex justify-center">
-        <ThinkingCat compact :label="label" />
+        <ThinkingCat :label="label" compact />
       </div>
     </div>
   </div>

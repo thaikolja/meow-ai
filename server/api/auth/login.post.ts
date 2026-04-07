@@ -24,10 +24,10 @@ import {
   AUTH_DISPLAY_NAME_MAX_LENGTH,
   isValidAuthUsername,
   normalizeAuthUsername
-} from '#shared/utils/authProof'
+}                                         from '#shared/utils/authProof'
 import { consumeLoginChallenge, verifyLoginProof } from '../../utils/authChallenge'
-import { getAuthSecret, setAuthCookies } from '../../utils/authSession'
-import { validateCsrf } from '../../utils/csrf'
+import { getAuthSecret, setAuthCookies }  from '../../utils/authSession'
+import { validateCsrf }                   from '../../utils/csrf'
 import { checkRateLimit, resetRateLimit } from '../../utils/rateLimit'
 
 const LOGIN_WINDOW_MS    = 15 * 60 * 1000
@@ -54,12 +54,12 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 429,
       message:    'Too many failed login attempts. Please wait a few minutes and try again.'
-      })
+    })
   }
 
-  const username    = typeof body?.username === 'string' ? normalizeAuthUsername(body.username) : ''
-  const challengeId = typeof body?.challengeId === 'string' ? body.challengeId.trim() : ''
-  const proof       = typeof body?.proof === 'string' ? body.proof.trim() : ''
+  const username    = typeof body?.username==='string' ? normalizeAuthUsername(body.username): ''
+  const challengeId = typeof body?.challengeId==='string' ? body.challengeId.trim(): ''
+  const proof       = typeof body?.proof==='string' ? body.proof.trim(): ''
 
   /**
    * Validation Guard: Ensure challenge flow parameters exist.

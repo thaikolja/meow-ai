@@ -53,7 +53,7 @@ export function useAuthSession() {
 
     verifyPromise = (async () => {
       try {
-        const headers = import.meta.server ? useRequestHeaders([ 'cookie' ]) : undefined
+        const headers = import.meta.server ? useRequestHeaders([ 'cookie' ]): undefined
         const session = await $fetch<{ authenticated: boolean; username: string | null }>('/api/auth/session', {
           headers
         })

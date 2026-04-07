@@ -32,15 +32,15 @@ export default defineEventHandler(async (event) => {
   requireAuthenticatedSession(event)
 
   // Extract provider connection details from the request body
-  const body              = await readBody(event)
-  const { providerId }    = body
-  const runtimeConfig     = useRuntimeConfig(event)
-  const secret            = getAuthSecret(event)
+  const body           = await readBody(event)
+  const { providerId } = body
+  const runtimeConfig  = useRuntimeConfig(event)
+  const secret         = getAuthSecret(event)
 
   /**
    * Validation Guard: Ensure provider ID is provided.
    */
-  if (!providerId || typeof providerId !== 'string' || !providerId.trim()) {
+  if (!providerId || typeof providerId!=='string' || !providerId.trim()) {
     throw createError({ statusCode: 400, message: 'Missing required field: providerId' })
   }
 

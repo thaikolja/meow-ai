@@ -20,6 +20,11 @@
  * Keeps session state warm and retires the old /login route.
  */
 export default defineNuxtRouteMiddleware(async (to) => {
+  // Skip internal Nuxt paths (build assets, image proxy, etc.)
+  if (to.path.startsWith('/_') || to.path.startsWith('/__')) {
+    return
+  }
+
   if (to.path==='/login') {
     return navigateTo('/', { replace: true })
   }

@@ -5,13 +5,13 @@
   "type": "module",
   "description": "Cat-themed Nuxt chat interface for focused AI-powered German practice.",
   "scripts": {
-    "build": "bun --env-file=./.env nuxt build",
-    "dev": "bun --env-file=./.env nuxt dev",
-    "generate": "bun --env-file=./.env nuxt generate",
-    "preview": "bun --env-file=./.env nuxt preview",
+    "build":     "nuxt build",
+    "dev":       "nuxt dev",
+    "generate":  "nuxt generate",
+    "preview":   "nuxt preview",
     "postinstall": "nuxt prepare",
     "test": "bun test",
-    "typecheck": "bun --env-file=./.env nuxt typecheck"
+    "typecheck": "nuxt typecheck"
   },
   "dependencies": {
     "@nuxt/fonts": "0.14.0",

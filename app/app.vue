@@ -18,10 +18,7 @@
 <template>
   <UApp>
     <CatLoadingState
-        v-if="!authState.checked"
-        full-screen
-        subtitle="Meow is checking the cushions, polishing the cat flap, and waking up your session."
-        title="Waking up the cat lounge..." />
+        v-if="!authState.checked" full-screen subtitle="Meow is checking the cushions, polishing the cat flap, and waking up your session." title="Waking up the cat lounge..." />
 
     <AuthGate v-else-if="!authState.authenticated" />
 

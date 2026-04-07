@@ -21,7 +21,7 @@
 
 import { updateProvider } from '../../utils/providersStorage'
 import { getAuthSecret, requireAuthenticatedSession } from '../../utils/authSession'
-import { validateCsrf } from '../../utils/csrf'
+import { validateCsrf }   from '../../utils/csrf'
 
 export default defineEventHandler(async (event) => {
   // CSRF protection
@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
   const secret = getAuthSecret(event)
 
   // Validate base URL if provided
-  if (body.baseUrl !== undefined) {
+  if (body.baseUrl!==undefined) {
     try {
       const url = new URL(body.baseUrl.trim())
       if (!url.protocol.startsWith('http')) {

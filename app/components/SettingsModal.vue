@@ -119,8 +119,8 @@
 // Modal visibility bound to parent state
   const open = defineModel<boolean>('open', { required: true })
 
-  const { addProvider } = useProviders()
-  const { clearAllChats }            = useChats()
+  const { addProvider }   = useProviders()
+  const { clearAllChats } = useChats()
   const {
           defaultSystemPrompt,
           systemPromptOverride,
@@ -128,7 +128,7 @@
           maxContextMessages,
           setSystemPromptOverride,
           resetSystemPromptOverride
-        }                            = useSettings()
+        }                 = useSettings()
 
   const systemPromptEditor = computed({
     get: () => systemPromptOverride.value ?? defaultSystemPrompt.value,

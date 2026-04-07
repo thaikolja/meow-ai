@@ -40,12 +40,9 @@
 
       <!-- Authentication secret -->
       <div>
-        <label class="block text-xs font-medium text-neutral-400 mb-1.5">
-          API Key
-          <span v-if="isEditing" class="text-neutral-600">(leave blank to keep existing)</span>
-        </label>
-        <input
-          v-model="form.apiKey" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-200 placeholder-neutral-500 outline-none focus:border-primary-500 transition-colors font-mono" :placeholder="isEditing ? 'Leave blank to keep current key' : 'sk-...'" type="password" />
+        <label class="block text-xs font-medium text-neutral-400 mb-1.5"> API Key
+          <span v-if="isEditing" class="text-neutral-600">(leave blank to keep existing)</span> </label> <input
+          v-model="form.apiKey" :placeholder="isEditing ? 'Leave blank to keep current key' : 'sk-...'" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-200 placeholder-neutral-500 outline-none focus:border-primary-500 transition-colors font-mono" type="password" />
       </div>
     </div>
 
@@ -110,7 +107,7 @@
     const hasBaseUrl = form.baseUrl.trim().length > 0
     // When creating new provider, API key is required
     // When editing, API key is optional (user can leave blank to keep existing)
-    const hasApiKey = isEditing.value ? true : form.apiKey.trim().length > 0
+    const hasApiKey = isEditing.value ? true: form.apiKey.trim().length > 0
     return hasName && hasBaseUrl && hasApiKey
   })
 

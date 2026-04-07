@@ -54,12 +54,12 @@ export function useModels() {
 
   /** Get model by ID */
   function getModel(id: string): Model | undefined {
-    return models.value.find(m => m.id === id)
+    return models.value.find(m => m.id===id)
   }
 
   /** Get models for a specific provider */
   function getModelsByProvider(providerId: string): Model[] {
-    return activeModels.value.filter(m => m.providerId === providerId)
+    return activeModels.value.filter(m => m.providerId===providerId)
   }
 
   /** Get human-readable name for a model ID */
@@ -71,7 +71,7 @@ export function useModels() {
   /** Check if a model is a "thinking" model (chain-of-thought) */
   function isThinkingModel(modelId: string): boolean {
     const normalized = modelId.replace(/^models\//, '').toLowerCase()
-    return [/reasoner/, /thinking/, /deepseek-r1/, /r1-distill/].some(pattern => pattern.test(normalized))
+    return [ /reasoner/, /thinking/, /deepseek-r1/, /r1-distill/ ].some(pattern => pattern.test(normalized))
   }
 
   return {

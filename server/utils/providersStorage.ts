@@ -22,7 +22,7 @@
 
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto'
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
-import { join } from 'node:path'
+import { join }                                               from 'node:path'
 
 export type StoredProvider = {
   id: string
@@ -45,9 +45,9 @@ type ProviderWithoutKey = {
   createdAt: number
 }
 
-const ALGORITHM = 'aes-256-gcm'
+const ALGORITHM  = 'aes-256-gcm'
 const KEY_LENGTH = 32
-const IV_LENGTH = 16
+const IV_LENGTH  = 16
 const AUTH_TAG_LENGTH = 16
 
 function getEncryptionKey(secret: string): Buffer {
@@ -82,7 +82,7 @@ function saveProvidersFile(providers: StoredProvider[]): void {
 
 export function encryptApiKey(apiKey: string, secret: string): { encrypted: string; iv: string; authTag: string } {
   const key = getEncryptionKey(secret)
-  const iv = randomBytes(IV_LENGTH)
+  const iv  = randomBytes(IV_LENGTH)
   const cipher = createCipheriv(ALGORITHM, key, iv)
 
   let encrypted = cipher.update(apiKey, 'utf-8', 'base64url')
@@ -99,7 +99,7 @@ export function encryptApiKey(apiKey: string, secret: string): { encrypted: stri
 
 export function decryptApiKey(encrypted: string, iv: string, authTag: string, secret: string): string | null {
   try {
-    const key = getEncryptionKey(secret)
+    const key      = getEncryptionKey(secret)
     const ivBuffer = Buffer.from(iv, 'base64url')
     const authTagBuffer = Buffer.from(authTag, 'base64url')
 
@@ -122,7 +122,7 @@ export function getAllProviders(secret: string): ProviderWithoutKey[] {
 
 export function getProviderWithKey(id: string, secret: string): (ProviderWithoutKey & { apiKey: string }) | null {
   const providers = loadProvidersFile()
-  const provider = providers.find(p => p.id === id)
+  const provider = providers.find(p => p.id===id)
   if (!provider) return null
 
   // Decrypt API key, but allow empty result (fallback to env vars for default providers)
@@ -133,21 +133,21 @@ export function getProviderWithKey(id: string, secret: string): (ProviderWithout
 }
 
 export function addProvider(
-  data: { id: string; name: string; baseUrl: string; apiKey: string; models?: string[] },
-  secret: string
+    data: { id: string; name: string; baseUrl: string; apiKey: string; models?: string[] },
+    secret: string
 ): ProviderWithoutKey {
   const providers = loadProvidersFile()
   const { encrypted, iv, authTag } = encryptApiKey(data.apiKey, secret)
 
   const newProvider: StoredProvider = {
-    id: data.id,
-    name: data.name,
-    baseUrl: data.baseUrl,
+    id:        data.id,
+    name:      data.name,
+    baseUrl:   data.baseUrl,
     encryptedApiKey: encrypted,
     iv,
     authTag,
-    models: data.models || [],
-    isActive: true,
+    models:    data.models || [],
+    isActive:  true,
     createdAt: Date.now()
   }
 
@@ -159,27 +159,27 @@ export function addProvider(
 }
 
 export function updateProvider(
-  id: string,
-  data: Partial<{ name: string; baseUrl: string; apiKey: string; models: string[]; isActive: boolean }>,
-  secret: string
+    id: string,
+    data: Partial<{ name: string; baseUrl: string; apiKey: string; models: string[]; isActive: boolean }>,
+    secret: string
 ): ProviderWithoutKey | null {
   const providers = loadProvidersFile()
-  const index = providers.findIndex(p => p.id === id)
-  if (index === -1) return null
+  const index = providers.findIndex(p => p.id===id)
+  if (index=== -1) return null
 
   const existing = providers[index]!
   const updates: Partial<StoredProvider> = {}
 
-  if (data.name !== undefined) updates.name = data.name
-  if (data.baseUrl !== undefined) updates.baseUrl = data.baseUrl
-  if (data.models !== undefined) updates.models = data.models
-  if (data.isActive !== undefined) updates.isActive = data.isActive
+  if (data.name!==undefined) updates.name = data.name
+  if (data.baseUrl!==undefined) updates.baseUrl = data.baseUrl
+  if (data.models!==undefined) updates.models = data.models
+  if (data.isActive!==undefined) updates.isActive = data.isActive
 
   if (data.apiKey) {
     const { encrypted, iv, authTag } = encryptApiKey(data.apiKey, secret)
     updates.encryptedApiKey = encrypted
-    updates.iv = iv
-    updates.authTag = authTag
+    updates.iv              = iv
+    updates.authTag         = authTag
   }
 
   providers[index] = { ...existing, ...updates } as StoredProvider
@@ -191,8 +191,8 @@ export function updateProvider(
 
 export function deleteProvider(id: string): boolean {
   const providers = loadProvidersFile()
-  const index = providers.findIndex(p => p.id === id)
-  if (index === -1) return false
+  const index = providers.findIndex(p => p.id===id)
+  if (index=== -1) return false
 
   providers.splice(index, 1)
   saveProvidersFile(providers)
@@ -207,15 +207,15 @@ export function initializeDefaultProviders(secret: string): void {
 
   const defaults = [
     {
-      id: 'deepseek-default',
-      name: 'DeepSeek',
+      id:     'deepseek-default',
+      name:   'DeepSeek',
       baseUrl: 'https://api.deepseek.com',
       apiKey: '',
-      models: ['deepseek-chat', 'deepseek-reasoner']
+      models: [ 'deepseek-chat', 'deepseek-reasoner' ]
     },
     {
-      id: 'groq-default',
-      name: 'Groq',
+      id:     'groq-default',
+      name:   'Groq',
       baseUrl: 'https://api.groq.com/openai',
       apiKey: '',
       models: [
@@ -228,25 +228,25 @@ export function initializeDefaultProviders(secret: string): void {
       ]
     },
     {
-      id: 'gemini-default',
-      name: 'Gemini',
+      id:     'gemini-default',
+      name:   'Gemini',
       baseUrl: 'https://generativelanguage.googleapis.com',
       apiKey: '',
-      models: ['models/gemini-3.1-flash-lite-preview', 'models/gemma-4-26b-a4b-it']
+      models: [ 'models/gemini-3.1-flash-lite-preview', 'models/gemma-4-26b-a4b-it' ]
     }
   ]
 
   for (const def of defaults) {
     const { encrypted, iv, authTag } = encryptApiKey(def.apiKey, secret)
     providers.push({
-      id: def.id,
-      name: def.name,
-      baseUrl: def.baseUrl,
+      id:        def.id,
+      name:      def.name,
+      baseUrl:   def.baseUrl,
       encryptedApiKey: encrypted,
       iv,
       authTag,
-      models: def.models,
-      isActive: true,
+      models:    def.models,
+      isActive:  true,
       createdAt: Date.now()
     })
   }

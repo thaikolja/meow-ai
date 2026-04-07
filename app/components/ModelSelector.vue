@@ -39,7 +39,9 @@
         <div v-if="filteredModels.length === 0" class="px-3 py-4 text-center text-zinc-500 text-sm">
           <template v-if="activeModels.length === 0">
             No models configured.
-            <button class="text-primary-400 hover:underline cursor-pointer" type="button" @click="openSettings">Add one 🐾</button>
+            <button class="text-primary-400 hover:underline cursor-pointer" type="button" @click="openSettings">Add one
+              🐾
+            </button>
           </template>
           <template v-else>No meow-dels match your sniff 🐾</template>
         </div>
@@ -75,14 +77,14 @@
 
   const { activeProviders, getProvider } = useProviders()
   const { activeModels, getModel } = useModels()
-  const defaultProvider = useDefaultProvider()
-  const defaultModel = useDefaultModel()
-  const dropdownContainer = ref<HTMLElement | null>(null)
+  const defaultProvider            = useDefaultProvider()
+  const defaultModel               = useDefaultModel()
+  const dropdownContainer          = ref<HTMLElement | null>(null)
 
   // Shared state for the currently active model and provider
   const selectedModel = useState<string>('selected-model', () => defaultModel.value)
   const selectedProvider = useState<string>('selected-provider', () => defaultProvider.value)
-  const settingsOpen = useState('settings-open', () => false)
+  const settingsOpen  = useState('settings-open', () => false)
 
   // Local UI state
   const isOpen = ref(false)
@@ -113,17 +115,17 @@
     const provider = getProvider(selectedProvider.value) || activeProviders.value[0]
     if (!provider) return
 
-    if (provider.id !== selectedProvider.value) {
+    if (provider.id!==selectedProvider.value) {
       selectedProvider.value = provider.id
     }
 
-    const providerModels = activeModels.value.filter(m => m.providerId === provider.id)
-    if (providerModels.length === 0) return
+    const providerModels = activeModels.value.filter(m => m.providerId===provider.id)
+    if (providerModels.length===0) return
 
     const modelIds = providerModels.map(m => m.id)
     if (!modelIds.includes(selectedModel.value)) {
       const defaultExists = modelIds.includes(defaultModel.value)
-      selectedModel.value = defaultExists ? defaultModel.value : providerModels[0]!.id
+      selectedModel.value = defaultExists ? defaultModel.value: providerModels[0]!.id
     }
   })
 
@@ -143,7 +145,7 @@
     if (!q) return activeModels.value
     return activeModels.value.filter(m => {
       const modelName = m.name.toLowerCase()
-      const provider = getProvider(m.providerId)
+      const provider  = getProvider(m.providerId)
       const providerName = provider?.name.toLowerCase() || ''
       return modelName.includes(q) || providerName.includes(q) || m.id.toLowerCase().includes(q)
     })
@@ -157,11 +159,11 @@
     const groups: Record<string, { providerId: string; providerName: string; models: typeof activeModels.value }> = {}
     for (const m of filteredModels.value) {
       if (!groups[m.providerId]) {
-        const provider = getProvider(m.providerId)
-        groups[m.providerId] = { 
-          providerId: m.providerId, 
-          providerName: provider?.name || m.providerId, 
-          models: [] 
+        const provider       = getProvider(m.providerId)
+        groups[m.providerId] = {
+          providerId:   m.providerId,
+          providerName: provider?.name || m.providerId,
+          models:       []
         }
       }
       groups[m.providerId]!.models.push(m)
@@ -171,7 +173,7 @@
 
   /** Helper function to determine if a specific model row is currently active */
   function isSelected(providerId: string, modelId: string) {
-    return selectedProvider.value === providerId && selectedModel.value === modelId
+    return selectedProvider.value===providerId && selectedModel.value===modelId
   }
 
   /**
@@ -180,7 +182,7 @@
   function selectModel(providerId: string, modelId: string) {
     selectedProvider.value = providerId
     selectedModel.value = modelId
-    isOpen.value = false
+    isOpen.value        = false
   }
 
   /**

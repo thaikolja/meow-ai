@@ -71,7 +71,7 @@ export function useChatStream() {
         body:   JSON.stringify({
           messages,
           providerId: config.providerId,
-          model:   config.model
+          model: config.model
         }),
         signal: abortController.signal
       })

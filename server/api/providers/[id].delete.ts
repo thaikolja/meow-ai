@@ -21,7 +21,7 @@
 
 import { deleteProvider } from '../../utils/providersStorage'
 import { requireAuthenticatedSession } from '../../utils/authSession'
-import { validateCsrf } from '../../utils/csrf'
+import { validateCsrf }   from '../../utils/csrf'
 
 export default defineEventHandler((event) => {
   // CSRF protection

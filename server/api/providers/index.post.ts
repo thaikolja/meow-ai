@@ -19,7 +19,7 @@
  * Server-side endpoint to add a new provider.
  */
 
-import { addProvider } from '../../utils/providersStorage'
+import { addProvider }  from '../../utils/providersStorage'
 import { getAuthSecret, requireAuthenticatedSession } from '../../utils/authSession'
 import { validateCsrf } from '../../utils/csrf'
 
@@ -33,19 +33,19 @@ export default defineEventHandler(async (event) => {
 
   requireAuthenticatedSession(event)
 
-  const body = await readBody(event)
+  const body   = await readBody(event)
   const { name, baseUrl, apiKey } = body
   const secret = getAuthSecret(event)
 
-  if (!name || typeof name !== 'string' || !name.trim()) {
+  if (!name || typeof name!=='string' || !name.trim()) {
     throw createError({ statusCode: 400, message: 'Provider name is required' })
   }
 
-  if (!baseUrl || typeof baseUrl !== 'string' || !baseUrl.trim()) {
+  if (!baseUrl || typeof baseUrl!=='string' || !baseUrl.trim()) {
     throw createError({ statusCode: 400, message: 'Base URL is required' })
   }
 
-  if (!apiKey || typeof apiKey !== 'string' || !apiKey.trim()) {
+  if (!apiKey || typeof apiKey!=='string' || !apiKey.trim()) {
     throw createError({ statusCode: 400, message: 'API key is required' })
   }
 
@@ -60,13 +60,13 @@ export default defineEventHandler(async (event) => {
   }
 
   const provider = addProvider(
-    {
-      id: generateId(),
-      name: name.trim(),
-      baseUrl: baseUrl.trim().replace(/\/+$/, ''),
-      apiKey: apiKey.trim()
-    },
-    secret
+      {
+        id:      generateId(),
+        name:    name.trim(),
+        baseUrl: baseUrl.trim().replace(/\/+$/, ''),
+        apiKey:  apiKey.trim()
+      },
+      secret
   )
 
   return { provider }
