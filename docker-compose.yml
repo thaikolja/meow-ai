@@ -1,0 +1,43 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: meow-ai:latest
+    container_name: meow-ai
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # Required: set a strong password for the login page.
+      NUXT_APP_PASSWORD: "${NUXT_APP_PASSWORD:-changeme}"
+      # Recommended: separate secret for signing session cookies.
+      # Falls back to NUXT_APP_PASSWORD when not set.
+      NUXT_SESSION_SECRET: "${NUXT_SESSION_SECRET:-}"
+      # AI provider API keys (leave empty to configure via the UI instead).
+      NUXT_DEEPSEEK_API_KEY: "${NUXT_DEEPSEEK_API_KEY:-}"
+      NUXT_GROQ_API_KEY: "${NUXT_GROQ_API_KEY:-}"
+      NUXT_GOOGLE_API_KEY: "${NUXT_GOOGLE_API_KEY:-}"
+      # Default provider/model shown in the UI on first load.
+      NUXT_PUBLIC_DEFAULT_PROVIDER: "${NUXT_PUBLIC_DEFAULT_PROVIDER:-gemini-default}"
+      NUXT_PUBLIC_DEFAULT_MODEL: "${NUXT_PUBLIC_DEFAULT_MODEL:-models/gemini-3.1-flash-lite-preview}"
+      # Optional Redis URL for distributed login rate-limiting.
+      # Example: redis://redis:6379
+      NUXT_REDIS_URL: "${NUXT_REDIS_URL:-}"
+      # Set to "true" only if you need private/internal provider endpoints.
+      NUXT_ALLOW_PRIVATE_PROVIDER_URLS: "${NUXT_ALLOW_PRIVATE_PROVIDER_URLS:-false}"
+      # Override the data directory path inside the container.
+      NUXT_DATA_DIR: /app/.data
+    volumes:
+      # Persist encrypted provider keys and model catalog across restarts.
+      - meow-data:/app/.data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/auth/session').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+
+volumes:
+  meow-data:
+    driver: local

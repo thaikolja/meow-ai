@@ -37,7 +37,7 @@ const memoryStore = new Map<string, RateLimitEntry>()
 // Redis connection (lazy-loaded)
 let redisClient: {
   get: (key: string) => Promise<string | null>
-  set: (key: string, value: string, mode: string, duration: number) => Promise<unknown>
+  set: (key: string, value: string, options: { PX: number }) => Promise<unknown>
   del: (key: string) => Promise<unknown>
 } | null = null
 
@@ -105,7 +105,7 @@ export async function checkRateLimit(
 
       // Increment and store
       entry.count += 1
-      await redis.set(key, JSON.stringify(entry), 'PX', windowMs)
+      await redis.set(key, JSON.stringify(entry), { PX: windowMs })
 
       return { allowed: true, remaining: maxAttempts - entry.count, resetAt: entry.resetAt }
     } catch (error) {

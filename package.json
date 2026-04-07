@@ -5,10 +5,10 @@
   "type": "module",
   "description": "Cat-themed Nuxt chat interface for focused AI-powered German practice.",
   "scripts": {
-    "build":     "nuxt build",
-    "dev":       "nuxt dev",
-    "generate":  "nuxt generate",
-    "preview":   "nuxt preview",
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "test": "bun test",
     "typecheck": "nuxt typecheck"
@@ -35,5 +35,8 @@
     "@vue/language-core": "^3.2.6",
     "bun-types": "^1.3.11",
     "typescript": "^6.0"
+  },
+  "optionalDependencies": {
+    "redis": "^5.11.0"
   }
 }
