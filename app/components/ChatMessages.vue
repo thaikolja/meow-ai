@@ -17,7 +17,7 @@
 
 <template>
   <div ref="container" class="flex-1 w-full overflow-y-auto overflow-x-hidden" @scroll="handleScroll">
-    <div class="mx-auto w-full max-w-4xl min-w-0 px-3 py-4 sm:px-4 sm:py-6 space-y-5 sm:space-y-6">
+    <div ref="messageList" class="mx-auto w-full max-w-4xl min-w-0 px-3 py-4 sm:px-4 sm:py-6 space-y-5 sm:space-y-6">
       <ChatEmptyState v-if="messages.length === 0 && !isStreaming" @quick-prompt="handleQuickPrompt" />
 
       <template v-else>
@@ -77,6 +77,7 @@
 
   // UI and scroll management states
   const container        = ref<HTMLElement>()
+  const messageList      = ref<HTMLElement>()
   const showScrollButton = ref(false)
   const isAutoScrolling  = ref(true)
   // Tracks the last message id we saw so we can detect a freshly appended
@@ -95,6 +96,17 @@
       behavior: smooth ? 'smooth': 'instant'
     })
     isAutoScrolling.value = true
+  }
+
+  function scrollToLastMessage() {
+    if (!container.value || !messageList.value) return
+    const children = messageList.value.children
+    if (children.length < 2) return
+    const target = children[children.length - 2]
+    if (!target) return
+    const offset = target.getBoundingClientRect().top - container.value.getBoundingClientRect().top + container.value.scrollTop - 16
+    container.value.scrollTo({ top: offset, behavior: 'instant' })
+    isAutoScrolling.value = false
   }
 
   /**
@@ -132,7 +144,14 @@
 
         if (currentLastId && currentLastId!==lastSeenMessageId) {
           lastSeenMessageId = currentLastId
-          nextTick(() => scrollToBottom(false))
+          const lastMsg = props.messages[props.messages.length - 1]
+          nextTick(() => {
+            if (lastMsg?.role === 'assistant') {
+              scrollToLastMessage()
+            } else {
+              scrollToBottom(false)
+            }
+          })
           return
         }
 
