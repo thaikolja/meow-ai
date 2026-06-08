@@ -20,7 +20,7 @@
     <ClientOnly>
       <!-- Messages Area: Scrollable feed of previous and current interactions -->
       <ChatMessages
-          :is-streaming="isStreaming" :is-thinking="isThinking" :messages="currentMessages" :streaming-content="streamingContent" @regenerate="handleRegenerate" @quick-prompt="handleSend" />
+          ref="chatMessagesRef" :is-streaming="isStreaming" :is-thinking="isThinking" :messages="currentMessages" :streaming-content="streamingContent" @regenerate="handleRegenerate" @quick-prompt="handleSend" />
 
       <!-- Input Area: Sticky footer for user text entry and stream control -->
       <ChatInput
@@ -53,6 +53,7 @@
   const defaultProvider                                                                = useDefaultProvider()
   const defaultModel                                                                   = useDefaultModel()
   let streamingUpdateFrame: number | null                                              = null
+  const chatMessagesRef = ref<any>()
 
   function scheduleStreamingUpdate(chatId: string, messageId: string) {
     if (streamingUpdateFrame!==null || import.meta.server) {
@@ -188,6 +189,10 @@
       model:      selectedModel.value,
       providerId: selectedProvider.value
     })
+
+    // Scroll to the top of the assistant response so the user can read from the start
+    await nextTick()
+    chatMessagesRef.value?.scrollToLastMessage()
 
     // Start the actual streaming fetch (API key retrieved server-side)
     await streamMessage(

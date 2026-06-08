@@ -23,7 +23,7 @@
       <template v-else>
         <!-- Render the current chat thread -->
         <ChatMessage
-            v-for="(message, index) in messages" :key="message.id" :is-last="index === messages.length - 1" :is-streaming="isStreaming && index === messages.length - 1 && message.role === 'assistant'" :is-thinking="isThinking" :message="message" :streaming-content="isStreaming && index === messages.length - 1 ? streamingContent : undefined" @regenerate="$emit('regenerate')" @quick-prompt="handleQuickPrompt" />
+            v-for="(message, index) in messages" :key="message.id" :data-message-id="message.id" :is-last="index === messages.length - 1" :is-streaming="isStreaming && index === messages.length - 1 && message.role === 'assistant'" :is-thinking="isThinking" :message="message" :streaming-content="isStreaming && index === messages.length - 1 ? streamingContent : undefined" @regenerate="$emit('regenerate')" @quick-prompt="handleQuickPrompt" />
 
         <!-- Streaming indicator (visible before assistant message exists in history) -->
         <div v-if="isStreaming && (messages.length === 0 || messages[messages.length - 1]?.role === 'user')" class="flex gap-4 message-enter px-4">
@@ -100,14 +100,21 @@
 
   function scrollToLastMessage() {
     if (!container.value || !messageList.value) return
-    const children = messageList.value.children
-    if (children.length < 2) return
-    const target = children[children.length - 2]
-    if (!target) return
-    const offset = target.getBoundingClientRect().top - container.value.getBoundingClientRect().top + container.value.scrollTop - 16
-    container.value.scrollTo({ top: offset, behavior: 'instant' })
-    isAutoScrolling.value = false
+    requestAnimationFrame(() => {
+      const children = messageList.value!.children
+      for (let i = children.length - 1; i >= 0; i--) {
+        const el = children[i] as HTMLElement
+        if (el.dataset?.messageId) {
+          const offset = el.getBoundingClientRect().top - container.value!.getBoundingClientRect().top + container.value!.scrollTop - 16
+          container.value!.scrollTo({ top: Math.max(0, offset), behavior: 'instant' })
+          break
+        }
+      }
+      isAutoScrolling.value = false
+    })
   }
+
+  defineExpose({ scrollToLastMessage })
 
   /**
    * Updates UI state based on current scroll position.
@@ -144,14 +151,7 @@
 
         if (currentLastId && currentLastId!==lastSeenMessageId) {
           lastSeenMessageId = currentLastId
-          const lastMsg = props.messages[props.messages.length - 1]
-          nextTick(() => {
-            if (lastMsg?.role === 'assistant') {
-              scrollToLastMessage()
-            } else {
-              scrollToBottom(false)
-            }
-          })
+          nextTick(() => scrollToBottom(false))
           return
         }
 
