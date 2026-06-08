@@ -106,7 +106,7 @@ export function useProviders() {
   /** Check if provider has an API key configured (server-side check) */
   function hasApiKey(providerId: string): boolean {
     // Default providers may use env secrets, always return true
-    const defaultIds = [ 'deepseek-default', 'groq-default', 'google-default', 'gemini-default' ]
+    const defaultIds = [ 'deepseek-default', 'google-default', 'gemini-default', 'opencode-default' ]
     if (defaultIds.includes(providerId)) return true
     // For custom providers, we assume they have a key if they exist
     // The actual validation happens server-side
@@ -128,5 +128,5 @@ export function useProviders() {
 /** Identifies model IDs that expose chain-of-thought / reasoning style output. */
 export function isThinkingModel(modelId: string): boolean {
   const normalized = modelId.replace(/^models\//, '').toLowerCase()
-  return [ /reasoner/, /thinking/, /deepseek-r1/, /r1-distill/ ].some(pattern => pattern.test(normalized))
+  return [ /reasoner/, /thinking/, /deepseek-r1/, /r1-distill/, /minimax/, /mimo/, /hy3/ ].some(pattern => pattern.test(normalized))
 }

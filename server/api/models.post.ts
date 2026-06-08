@@ -61,8 +61,8 @@ export default defineEventHandler(async (event) => {
     clientApiKey: provider.apiKey,
     secrets:      {
       deepseekApiKey: runtimeConfig.deepseekApiKey,
-      groqApiKey:     runtimeConfig.groqApiKey,
-      googleApiKey:   runtimeConfig.googleApiKey
+      googleApiKey:   runtimeConfig.googleApiKey,
+      opencodeApiKey: runtimeConfig.opencodeApiKey
     }
   })
 

@@ -1,116 +1,50 @@
 [
   {
-    "id": "models/gemini-2.5-flash",
-    "name": "Gemini 2.5 Flash",
-    "providerId": "gemini-default",
-    "isActive": true
-  },
-  {
-    "id": "models/gemini-2.5-flash-lite",
+    "id":   "models/gemini-2.5-flash-lite",
     "name": "Gemini 2.5 Flash Lite",
     "providerId": "gemini-default",
     "isActive": true
   },
   {
-    "id": "models/gemini-3-flash-preview",
-    "name": "Gemini 3 Flash Preview",
+    "id":   "models/gemini-3.5-flash",
+    "name": "Gemini 3.5 Flash",
     "providerId": "gemini-default",
     "isActive": true
   },
   {
-    "id": "models/gemini-3.1-flash-lite-preview",
-    "name": "Gemini 3.1 Flash Lite Preview",
+    "id":   "models/gemini-3.1-flash-lite-preview",
+    "name": "Gemini 3.1 Flash",
     "providerId": "gemini-default",
     "isActive": true
   },
   {
-    "id": "models/gemma-3-12b-it",
-    "name": "Gemma 3 12B",
+    "id":   "models/gemini-2.5-flash",
+    "name": "Gemini 2.5 Flash",
     "providerId": "gemini-default",
     "isActive": true
   },
   {
-    "id": "models/gemma-3-1b-it",
-    "name": "Gemma 3 1B",
-    "providerId": "gemini-default",
-    "isActive": true
-  },
-  {
-    "id": "models/gemma-3-27b-it",
-    "name": "Gemma 3 27B",
-    "providerId": "gemini-default",
-    "isActive": true
-  },
-  {
-    "id": "models/gemma-3-4b-it",
-    "name": "Gemma 3 4B",
-    "providerId": "gemini-default",
-    "isActive": true
-  },
-  {
-    "id": "models/gemma-4-26b-a4b-it",
-    "name": "Gemma 4 26B A4B",
-    "providerId": "gemini-default",
-    "isActive": true
-  },
-  {
-    "id": "models/gemma-4-31b-it",
-    "name": "Gemma 4 31B",
-    "providerId": "gemini-default",
-    "isActive": true
-  },
-  {
-    "id": "llama-3.1-8b-instant",
-    "name": "Llama 3.1 8B Instant",
-    "providerId": "groq-default",
-    "isActive": true
-  },
-  {
-    "id": "llama-3.3-70b-versatile",
-    "name": "Llama 3.3 70B Versatile",
-    "providerId": "groq-default",
-    "isActive": true
-  },
-  {
-    "id": "meta-llama/llama-4-scout-17b-16e-instruct",
-    "name": "Llama 4 Scout 17B",
-    "providerId": "groq-default",
-    "isActive": true
-  },
-  {
-    "id": "moonshotai/kimi-k2-instruct",
-    "name": "Kimi K2 Instruct",
-    "providerId": "groq-default",
-    "isActive": true
-  },
-  {
-    "id": "openai/gpt-oss-120b",
-    "name": "GPT OSS 120B",
-    "providerId": "groq-default",
-    "isActive": true
-  },
-  {
-    "id": "openai/gpt-oss-20b",
-    "name": "GPT OSS 20B",
-    "providerId": "groq-default",
-    "isActive": true
-  },
-  {
-    "id": "qwen/qwen3-32b",
-    "name": "Qwen 3 32B",
-    "providerId": "groq-default",
-    "isActive": true
-  },
-  {
-    "id": "deepseek-chat",
-    "name": "DeepSeek Chat",
+    "id":         "deepseek-v4-flash",
+    "name":       "DeepSeek V4 Flash",
     "providerId": "deepseek-default",
-    "isActive": true
+    "isActive":   true
   },
   {
-    "id": "deepseek-reasoner",
-    "name": "DeepSeek Reasoner",
-    "providerId": "deepseek-default",
-    "isActive": true
+    "id":         "qwen3.6-plus",
+    "name":       "Qwen 3.6 Plus",
+    "providerId": "opencode-default",
+    "isActive":   true
+  },
+  {
+    "id":         "minimax-m2.5",
+    "name":       "MiniMax M2.5",
+    "providerId": "opencode-default",
+    "isActive":   true
+  },
+  {
+    "id":         "mimo-v2.5",
+    "name":       "MiMo V2.5",
+    "providerId": "opencode-default",
+    "isActive":   true
   }
 ]

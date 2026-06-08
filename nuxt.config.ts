@@ -101,10 +101,10 @@ export default defineNuxtConfig({
      * Controlled via NUXT_ALLOW_PRIVATE_PROVIDER_URLS environment variable.
      */
     allowPrivateProviderUrls:                                                     process.env['NUXT_ALLOW_PRIVATE_PROVIDER_URLS']==='true', // boolean flag
-    /** Server-only: absolute path to the persistent data directory */ dataDir: process.env['NUXT_DATA_DIR']?.trim() || join(process.cwd(), '.data'),
+    /** Server-only: absolute path to the persistent data directory */ dataDir:   process.env['NUXT_DATA_DIR']?.trim() || join(process.cwd(), '.data'),
     /** Server-only: DeepSeek API key (trimmed, default empty) */ deepseekApiKey: process.env['NUXT_DEEPSEEK_API_KEY']?.trim() || '',
-    /** Server-only: Groq API key (trimmed, default empty) */ groqApiKey:         process.env['NUXT_GROQ_API_KEY']?.trim() || '',
     /** Server-only: Google API key (trimmed, default empty) */ googleApiKey:     process.env['NUXT_GOOGLE_API_KEY']?.trim() || '',
+    /** Server-only: OpenCode API key (trimmed, default empty) */ opencodeApiKey: process.env['NUXT_OPENCODE_API_KEY']?.trim() || '',
     /**
      * Public runtime config accessible by the client.
      *
@@ -112,7 +112,7 @@ export default defineNuxtConfig({
      */
     public: {
       /** Public default provider ID used when no selection exists */ defaultProvider:      process.env['NUXT_PUBLIC_DEFAULT_PROVIDER']?.trim() || 'gemini-default',
-      /** Public default model ID used for new chats and initial selection */ defaultModel: process.env['NUXT_PUBLIC_DEFAULT_MODEL']?.trim() || 'models/gemini-3.1-flash-lite-preview'
+      /** Public default model ID used for new chats and initial selection */ defaultModel: process.env['NUXT_PUBLIC_DEFAULT_MODEL']?.trim() || 'models/gemini-3.5-flash'
     }
   },
 
@@ -237,7 +237,22 @@ export default defineNuxtConfig({
       include: [
         'marked', // markdown parser used by chat rendering
         'sanitize-html', // sanitization library for HTML output
-        'highlight.js/lib/core' // syntax highlighting core to reduce bundle size
+        'highlight.js/lib/core', // syntax highlighting core to reduce bundle size
+        'highlight.js/lib/languages/javascript',
+        'highlight.js/lib/languages/typescript',
+        'highlight.js/lib/languages/python',
+        'highlight.js/lib/languages/bash',
+        'highlight.js/lib/languages/json',
+        'highlight.js/lib/languages/css',
+        'highlight.js/lib/languages/xml',
+        'highlight.js/lib/languages/sql',
+        'highlight.js/lib/languages/markdown',
+        'highlight.js/lib/languages/yaml',
+        'highlight.js/lib/languages/go',
+        'highlight.js/lib/languages/rust',
+        'highlight.js/lib/languages/java',
+        'highlight.js/lib/languages/php',
+        'highlight.js/lib/languages/csharp'
       ]
     }
   }

@@ -16,7 +16,7 @@
  */
 
 export const DEFAULT_PROVIDER_ID = 'gemini-default'
-export const DEFAULT_MODEL_ID    = 'models/gemini-3.1-flash-lite-preview'
+export const DEFAULT_MODEL_ID = 'models/gemini-3.5-flash'
 
 export function resolveDefaultProvider(defaultProvider?: string): string {
   return defaultProvider || DEFAULT_PROVIDER_ID

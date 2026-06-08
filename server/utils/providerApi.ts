@@ -26,8 +26,8 @@ export type ChatMessageInput = {
 
 export type ProviderSecrets = {
   deepseekApiKey?: string
-  groqApiKey?: string
   googleApiKey?: string
+  opencodeApiKey?: string
 }
 
 export type ProviderChatRequest = {
@@ -167,13 +167,6 @@ function isDeepSeekProvider(baseUrl: string): boolean {
   }
 }
 
-function isGroqProvider(baseUrl: string): boolean {
-  try {
-    return ensureUrl(baseUrl).hostname.includes('groq.com')
-  } catch {
-    return false
-  }
-}
 
 export function normalizeGoogleModel(model: string): string {
   return model.startsWith('models/') ? model: `models/${model}`
@@ -191,12 +184,13 @@ export function resolveProviderApiKey(params: {
     return params.secrets.googleApiKey?.trim() || fallbackKey
   }
 
-  if (params.providerId==='groq-default') {
-    return params.secrets.groqApiKey?.trim() || fallbackKey
-  }
 
   if (params.providerId==='deepseek-default') {
     return params.secrets.deepseekApiKey?.trim() || fallbackKey
+  }
+
+  if (params.providerId==='opencode-default') {
+    return params.secrets.opencodeApiKey?.trim() || fallbackKey
   }
 
   if (fallbackKey) {
@@ -207,9 +201,6 @@ export function resolveProviderApiKey(params: {
     return params.secrets.googleApiKey?.trim() || ''
   }
 
-  if (isGroqProvider(params.baseUrl)) {
-    return params.secrets.groqApiKey?.trim() || ''
-  }
 
   if (isDeepSeekProvider(params.baseUrl)) {
     return params.secrets.deepseekApiKey?.trim() || ''

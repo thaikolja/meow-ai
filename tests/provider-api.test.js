@@ -96,11 +96,11 @@ describe('providerApi', () => {
   });
 
   test('keeps OpenAI-compatible providers on the existing models path', () => {
-    const request = buildModelsRequest('https://api.groq.com/openai', 'test-key');
+    const request = buildModelsRequest('https://api.openai.com', 'test-key');
 
     expect(request).toEqual({
       kind:    'openai',
-      apiUrl:  'https://api.groq.com/openai/v1/models',
+      apiUrl: 'https://api.openai.com/v1/models',
       headers: {
         Authorization: 'Bearer test-key',
       },
@@ -119,16 +119,12 @@ describe('providerApi', () => {
   test('resolves env-backed keys for the known default providers and keeps custom keys intact', () => {
     const secrets = {
       deepseekApiKey: 'deepseek-env-key',
-      groqApiKey:     'groq-env-key',
       googleApiKey:   'google-env-key',
     };
 
     expect(resolveProviderApiKey(
         {providerId: 'deepseek-default', baseUrl: 'https://api.deepseek.com', clientApiKey: '', secrets})).
         toBe('deepseek-env-key');
-    expect(resolveProviderApiKey(
-        {providerId: 'groq-default', baseUrl: 'https://api.groq.com/openai', clientApiKey: '', secrets})).
-        toBe('groq-env-key');
     expect(resolveProviderApiKey({
       providerId:   'google-default',
       baseUrl:      'https://generativelanguage.googleapis.com',
@@ -154,11 +150,11 @@ describe('providerApi', () => {
       secrets,
     })).toBe('google-env-key');
     expect(resolveProviderApiKey({
-      providerId:   'custom-groq-provider',
-      baseUrl:      'https://api.groq.com/openai',
+      providerId: 'custom-openai-provider',
+      baseUrl:    'https://api.openai.com',
       clientApiKey: '',
       secrets,
-    })).toBe('groq-env-key');
+    })).toBe('');
   });
 
   test('flags thinking/reasoning models for the compact loader', () => {
@@ -169,8 +165,8 @@ describe('providerApi', () => {
   test('resolves env-backed default provider and model values', () => {
     expect(resolveDefaultProvider('gemini-default')).toBe('gemini-default');
     expect(resolveDefaultProvider('')).toBe('gemini-default');
-    expect(resolveDefaultModel('models/gemini-3.1-flash-lite-preview')).toBe('models/gemini-3.1-flash-lite-preview');
-    expect(resolveDefaultModel('')).toBe('models/gemini-3.1-flash-lite-preview');
+    expect(resolveDefaultModel('models/gemini-3.5-flash')).toBe('models/gemini-3.5-flash');
+    expect(resolveDefaultModel('')).toBe('models/gemini-3.5-flash');
   });
 
   test('extracts streamed text from Google SSE payloads', () => {

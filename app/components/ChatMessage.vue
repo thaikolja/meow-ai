@@ -165,8 +165,9 @@
 
   const displayContent = computed(() => {
     if (props.isThinking && props.isStreaming) return ''
-    if (props.isStreaming && props.streamingContent!==undefined) return props.streamingContent
-    return props.message.content
+    const raw = props.isStreaming && props.streamingContent!==undefined ? props.streamingContent: props.message.content
+    if (props.isThinking) return raw.replace(/<think\b[^>]*>[\s\S]*?<\/think>/g, '').trim()
+    return raw
   })
 
   async function copyContent() {

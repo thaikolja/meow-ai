@@ -28,10 +28,6 @@ import {
 import { consumeLoginChallenge, verifyLoginProof } from '../../utils/authChallenge'
 import { getAuthSecret, setAuthCookies }  from '../../utils/authSession'
 import { validateCsrf }                   from '../../utils/csrf'
-import { checkRateLimit, resetRateLimit } from '../../utils/rateLimit'
-
-const LOGIN_WINDOW_MS    = 15 * 60 * 1000
-const MAX_LOGIN_ATTEMPTS = 5
 
 export default defineEventHandler(async (event) => {
   // CSRF protection
@@ -44,18 +40,8 @@ export default defineEventHandler(async (event) => {
   // Extract body contents from the POST request
   const body = await readBody(event)
   // Access global app settings (including the password secret)
-  const config       = useRuntimeConfig(event)
-  const ipAddress    = getRequestIP(event, { xForwardedFor: true }) || 'unknown'
-  const rateLimitKey = `login:${ipAddress}`
-
-  // Check rate limit
-  const rateLimit = await checkRateLimit(rateLimitKey, MAX_LOGIN_ATTEMPTS, LOGIN_WINDOW_MS)
-  if (!rateLimit.allowed) {
-    throw createError({
-      statusCode: 429,
-      message:    'Too many failed login attempts. Please wait a few minutes and try again.'
-    })
-  }
+  const config    = useRuntimeConfig(event)
+  const ipAddress = getRequestIP(event, { xForwardedFor: true }) || 'unknown'
 
   const username    = typeof body?.username==='string' ? normalizeAuthUsername(body.username): ''
   const challengeId = typeof body?.challengeId==='string' ? body.challengeId.trim(): ''
@@ -111,9 +97,6 @@ export default defineEventHandler(async (event) => {
       message:    'The house secret did not match that paw-print.'
     })
   }
-
-  // Reset rate limit on successful login
-  await resetRateLimit(rateLimitKey)
 
   /**
    * Persistence: Create a login session valid for 7 days.

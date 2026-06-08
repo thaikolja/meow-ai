@@ -208,29 +208,31 @@ export function initializeDefaultProviders(secret: string): void {
       id:     'deepseek-default',
       name:   'DeepSeek',
       baseUrl: 'https://api.deepseek.com',
-      apiKey: '',
-      models: [ 'deepseek-chat', 'deepseek-reasoner' ]
-    },
-    {
-      id:     'groq-default',
-      name:   'Groq',
-      baseUrl: 'https://api.groq.com/openai',
-      apiKey: '',
-      models: [
-        'llama-3.3-70b-versatile',
-        'llama-3.1-8b-instant',
-        'mixtral-8x7b-32768',
-        'gemma2-9b-it',
-        'deepseek-r1-distill-llama-70b',
-        'deepseek-r1-distill-qwen-32b'
-      ]
+      apiKey: 'REDACTED',
+      models: [ 'deepseek-v4-flash', 'deepseek-v4-pro' ]
     },
     {
       id:     'gemini-default',
       name:   'Gemini',
       baseUrl: 'https://generativelanguage.googleapis.com',
       apiKey: '',
-      models: [ 'models/gemini-3.1-flash-lite-preview', 'models/gemma-4-26b-a4b-it' ]
+      models: [
+        'models/gemini-2.5-flash',
+        'models/gemini-2.5-flash-lite',
+        'models/gemini-3.1-flash-lite-preview',
+        'models/gemini-3.5-flash'
+      ]
+    },
+    {
+      id:      'opencode-default',
+      name:    'OpenCode AI',
+      baseUrl: 'https://opencode.ai/zen/go',
+      apiKey:  '',
+      models:  [
+        'qwen3.6-plus',
+        'minimax-m2.5',
+        'mimo-v2.5'
+      ]
     }
   ]
 
