@@ -212,18 +212,6 @@ export function initializeDefaultProviders(secret: string): void {
       models: [ 'deepseek-v4-flash', 'deepseek-v4-pro' ]
     },
     {
-      id:     'gemini-default',
-      name:   'Gemini',
-      baseUrl: 'https://generativelanguage.googleapis.com',
-      apiKey: '',
-      models: [
-        'models/gemini-2.5-flash',
-        'models/gemini-2.5-flash-lite',
-        'models/gemini-3.1-flash-lite-preview',
-        'models/gemini-3.5-flash'
-      ]
-    },
-    {
       id:      'opencode-default',
       name:    'OpenCode AI',
       baseUrl: 'https://opencode.ai/zen/go',

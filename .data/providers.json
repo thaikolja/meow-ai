@@ -14,22 +14,6 @@
     "createdAt":       1780937586126
   },
   {
-    "id":              "gemini-default",
-    "name":            "Gemini",
-    "baseUrl":         "https://generativelanguage.googleapis.com",
-    "encryptedApiKey": "",
-    "iv":              "9y8T050zXPZ3D1nZY2UN6A",
-    "authTag":         "_y_HRYLgkUKmlWbpJm7IpA",
-    "models":          [
-      "models/gemini-2.5-flash",
-      "models/gemini-2.5-flash-lite",
-      "models/gemini-3.1-flash-lite-preview",
-      "models/gemini-3.5-flash"
-    ],
-    "isActive":        true,
-    "createdAt":       1780937586126
-  },
-  {
     "id":              "opencode-default",
     "name":            "OpenCode AI",
     "baseUrl":         "https://opencode.ai/zen/go",
