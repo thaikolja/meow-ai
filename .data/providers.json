@@ -37,9 +37,24 @@
     "iv":              "ofT8-coFI62AelZHdni7Bg",
     "authTag":         "Os3YPGUG_syPGL0HIXFb2Q",
     "models":          [
-      "qwen3.6-plus",
       "minimax-m2.5",
       "mimo-v2.5"
+    ],
+    "isActive":  true,
+    "createdAt": 1780937586126
+  },
+  {
+    "id":              "openrouter-default",
+    "name":            "OpenRouter",
+    "baseUrl":         "https://openrouter.ai/api",
+    "encryptedApiKey": "",
+    "iv":              "",
+    "authTag":         "",
+    "models":          [
+      "google/gemini-3-flash-preview",
+      "google/gemini-3.1-flash-lite-preview",
+      "google/gemini-2.5-flash",
+      "google/gemini-3.5-flash"
     ],
     "isActive":        true,
     "createdAt":       1780937586126

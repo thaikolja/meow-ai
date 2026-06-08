@@ -79,6 +79,10 @@
   const container        = ref<HTMLElement>()
   const showScrollButton = ref(false)
   const isAutoScrolling  = ref(true)
+  // Tracks the last message id we saw so we can detect a freshly appended
+  // message (new user prompt, new assistant response, or chat switch) and
+  // force-scroll to it, even if the user had scrolled up to read history.
+  let lastSeenMessageId: string | undefined
 
   /**
    * Scrolls the message container to the very bottom.
@@ -110,11 +114,28 @@
 
   /**
    * Watcher for incoming chat history changes and stream updates.
-   * Automatically scrolls to bottom if auto-scrolling is enabled.
+   *
+   * Two cases:
+   * 1. The last message id changed (a new message was appended, or the user
+   *    switched chats) - force-scroll to the bottom regardless of where the
+   *    user was reading. The user just asked for a response, or opened a
+   *    chat; we always want to bring the latest content into view. This is
+   *    the key fix for mobile, where a new assistant response can otherwise
+   *    be created off-screen if the user was reading history.
+   * 2. Streaming content updates within the same message - only auto-scroll
+   *    if the user is already near the bottom (respect manual scroll-up).
    */
   watch(
-      () => [ props.messages.length, props.streamingContent ],
+      () => [ props.messages.length, props.streamingContent ] as const,
       () => {
+        const currentLastId = props.messages[props.messages.length - 1]?.id
+
+        if (currentLastId && currentLastId!==lastSeenMessageId) {
+          lastSeenMessageId = currentLastId
+          nextTick(() => scrollToBottom(false))
+          return
+        }
+
         if (isAutoScrolling.value) {
           nextTick(() => scrollToBottom(false))
         }
@@ -124,6 +145,9 @@
 
   // Initial scroll positioning on component mount
   onMounted(() => {
-    nextTick(() => scrollToBottom(false))
+    nextTick(() => {
+      lastSeenMessageId = props.messages[props.messages.length - 1]?.id
+      scrollToBottom(false)
+    })
   })
 </script>

@@ -105,14 +105,15 @@ export default defineNuxtConfig({
     /** Server-only: DeepSeek API key (trimmed, default empty) */ deepseekApiKey: process.env['NUXT_DEEPSEEK_API_KEY']?.trim() || '',
     /** Server-only: Google API key (trimmed, default empty) */ googleApiKey:     process.env['NUXT_GOOGLE_API_KEY']?.trim() || '',
     /** Server-only: OpenCode API key (trimmed, default empty) */ opencodeApiKey: process.env['NUXT_OPENCODE_API_KEY']?.trim() || '',
+    /** Server-only: OpenRouter API key (trimmed, default empty) */ openrouterApiKey: process.env['NUXT_OPENROUTER_API_KEY']?.trim() || '',
     /**
      * Public runtime config accessible by the client.
      *
      * Contains default provider/model selection used by composables and the UI.
      */
     public: {
-      /** Public default provider ID used when no selection exists */ defaultProvider:      process.env['NUXT_PUBLIC_DEFAULT_PROVIDER']?.trim() || 'gemini-default',
-      /** Public default model ID used for new chats and initial selection */ defaultModel: process.env['NUXT_PUBLIC_DEFAULT_MODEL']?.trim() || 'models/gemini-3.5-flash'
+      /** Public default provider ID used when no selection exists */ defaultProvider:      process.env['NUXT_PUBLIC_DEFAULT_PROVIDER']?.trim() || 'openrouter-default',
+      /** Public default model ID used for new chats and initial selection */ defaultModel: process.env['NUXT_PUBLIC_DEFAULT_MODEL']?.trim() || 'google/gemini-3-flash-preview'
     }
   },
 

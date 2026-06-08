@@ -62,7 +62,8 @@ export default defineEventHandler(async (event) => {
     secrets:      {
       deepseekApiKey: runtimeConfig.deepseekApiKey,
       googleApiKey:   runtimeConfig.googleApiKey,
-      opencodeApiKey: runtimeConfig.opencodeApiKey
+      opencodeApiKey:   runtimeConfig.opencodeApiKey,
+      openrouterApiKey: runtimeConfig.openrouterApiKey
     }
   })
 

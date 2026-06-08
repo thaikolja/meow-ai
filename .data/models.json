@@ -30,12 +30,6 @@
     "isActive":   true
   },
   {
-    "id":         "qwen3.6-plus",
-    "name":       "Qwen 3.6 Plus",
-    "providerId": "opencode-default",
-    "isActive":   true
-  },
-  {
     "id":         "minimax-m2.5",
     "name":       "MiniMax M2.5",
     "providerId": "opencode-default",
@@ -45,6 +39,30 @@
     "id":         "mimo-v2.5",
     "name":       "MiMo V2.5",
     "providerId": "opencode-default",
+    "isActive":   true
+  },
+  {
+    "id":         "google/gemini-3-flash-preview",
+    "name":       "Gemini 3 Flash",
+    "providerId": "openrouter-default",
+    "isActive":   true
+  },
+  {
+    "id":         "google/gemini-3.1-flash-lite-preview",
+    "name":       "Gemini 3.1 Flash Lite",
+    "providerId": "openrouter-default",
+    "isActive":   true
+  },
+  {
+    "id":         "google/gemini-2.5-flash",
+    "name":       "Gemini 2.5 Flash",
+    "providerId": "openrouter-default",
+    "isActive":   true
+  },
+  {
+    "id":         "google/gemini-3.5-flash",
+    "name":       "Gemini 3.5 Flash",
+    "providerId": "openrouter-default",
     "isActive":   true
   }
 ]

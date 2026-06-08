@@ -107,7 +107,7 @@ export function useProviders() {
   /** Check if provider has an API key configured (server-side check) */
   function hasApiKey(providerId: string): boolean {
     // Default providers may use env secrets, always return true
-    const defaultIds = [ 'deepseek-default', 'google-default', 'gemini-default', 'opencode-default' ]
+    const defaultIds = [ 'deepseek-default', 'google-default', 'gemini-default', 'opencode-default', 'openrouter-default' ]
     if (defaultIds.includes(providerId)) return true
     // For custom providers, we assume they have a key if they exist
     // The actual validation happens server-side

@@ -28,6 +28,7 @@ export type ProviderSecrets = {
   deepseekApiKey?: string
   googleApiKey?: string
   opencodeApiKey?: string
+  openrouterApiKey?: string
 }
 
 export type ProviderChatRequest = {
@@ -167,6 +168,14 @@ function isDeepSeekProvider(baseUrl: string): boolean {
   }
 }
 
+export function isOpenRouterProvider(baseUrl: string): boolean {
+  try {
+    return ensureUrl(baseUrl).hostname.endsWith('openrouter.ai')
+  } catch {
+    return false
+  }
+}
+
 export function normalizeGoogleModel(model: string): string {
   return model.startsWith('models/') ? model: `models/${model}`
 }
@@ -191,6 +200,10 @@ export function resolveProviderApiKey(params: {
     return params.secrets.opencodeApiKey?.trim() || fallbackKey
   }
 
+  if (params.providerId==='openrouter-default') {
+    return params.secrets.openrouterApiKey?.trim() || fallbackKey
+  }
+
   if (fallbackKey) {
     return fallbackKey
   }
@@ -201,6 +214,10 @@ export function resolveProviderApiKey(params: {
 
   if (isDeepSeekProvider(params.baseUrl)) {
     return params.secrets.deepseekApiKey?.trim() || ''
+  }
+
+  if (isOpenRouterProvider(params.baseUrl)) {
+    return params.secrets.openrouterApiKey?.trim() || ''
   }
 
   return ''
