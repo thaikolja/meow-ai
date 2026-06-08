@@ -24,13 +24,13 @@
 
     <div class="relative z-10 mx-auto flex min-h-screen max-w-6xl items-center justify-center">
       <div class="grid w-full max-w-3xl gap-6 lg:grid-cols-[1.15fr,0.85fr]">
-        <section class="rounded-[2rem] border border-zinc-800/80 bg-zinc-950/60 p-8 shadow-2xl shadow-primary-900/10 backdrop-blur-xl sm:p-10">
+        <section class="flex flex-col items-center justify-center rounded-[2rem] border border-zinc-800/80 bg-zinc-950/60 p-8 shadow-2xl shadow-primary-900/10 backdrop-blur-xl sm:p-10">
           <div class="inline-flex items-center gap-2 rounded-full border border-primary-500/20 bg-primary-500/10 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-primary-300">
             <Icon class="h-4 w-4" name="mdi:paw" />
             Cat Flap Access
           </div>
 
-          <div class="mt-8 flex items-start gap-4">
+          <div class="mt-8 flex items-center gap-4">
             <div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-zinc-800 bg-zinc-900 shadow-inner">
               <Icon class="h-10 w-10 text-primary-400" name="mdi:cat" />
             </div>
@@ -43,8 +43,8 @@
             </div>
           </div>
 
-          <div class="mt-8 rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4">
-            <div class="mb-2 flex items-center gap-2 text-primary-300">
+          <div class="mt-8 w-full rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4 text-center">
+            <div class="mb-2 flex items-center justify-center gap-2 text-primary-300">
               <Icon class="h-4 w-4" name="lucide:shield-check" />
               <span class="text-sm font-semibold">Safer paw-print proof</span>
             </div>
