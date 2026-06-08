@@ -117,6 +117,7 @@ export default defineNuxtConfig({
     }
   },
 
+
   /**
    * Global CSS files included in every page.
    *
@@ -234,6 +235,9 @@ export default defineNuxtConfig({
    * optimizeDeps.include lists modules to pre-bundle to avoid transformation issues.
    */
   vite: {
+    server: {
+      allowedHosts: [ 'analyze-sun-humanity-nail.trycloudflare.com' ] // allow Cloudflare Tunnel host during development
+    },
     optimizeDeps: {
       include: [
         'marked', // markdown parser used by chat rendering

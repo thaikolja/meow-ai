@@ -205,6 +205,18 @@ export function initializeDefaultProviders(secret: string): void {
 
   const defaults = [
     {
+      id:      'openrouter-default',
+      name:    'OpenRouter',
+      baseUrl: 'https://openrouter.ai/api',
+      apiKey:  '',
+      models:  [
+        'google/gemini-3-flash-preview',
+        'google/gemini-3.1-flash-lite-preview',
+        'google/gemini-2.5-flash',
+        'google/gemini-3.5-flash'
+      ]
+    },
+    {
       id:     'deepseek-default',
       name:   'DeepSeek',
       baseUrl: 'https://api.deepseek.com',
@@ -219,18 +231,6 @@ export function initializeDefaultProviders(secret: string): void {
       models:  [
         'minimax-m2.5',
         'mimo-v2.5'
-      ]
-    },
-    {
-      id:      'openrouter-default',
-      name:    'OpenRouter',
-      baseUrl: 'https://openrouter.ai/api',
-      apiKey:  '',
-      models:  [
-        'google/gemini-3-flash-preview',
-        'google/gemini-3.1-flash-lite-preview',
-        'google/gemini-2.5-flash',
-        'google/gemini-3.5-flash'
       ]
     }
   ]

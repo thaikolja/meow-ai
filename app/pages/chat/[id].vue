@@ -240,6 +240,9 @@
     if (lowMsg.includes('429') || lowMsg.includes('rate limit')) {
       return 'Meow is out of breath! 😿 Too many meows at once. Please wait a moment.'
     }
+    if (lowMsg.includes('limit exceeded') || lowMsg.includes('quota') || lowMsg.includes('insufficient credit') || lowMsg.includes('out of credit')) {
+      return 'Meow is out of treats! 🍪 The provider key is out of credit. Please top it up on the provider\'s dashboard and try again.'
+    }
     if (lowMsg.includes('404') || lowMsg.includes('model_not_found') || lowMsg.includes('not found')) {
       return 'Meow can\'t find that meow-del! 🐾 It might have wandered off or isn\'t available for your key.'
     }

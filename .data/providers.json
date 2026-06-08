@@ -1,11 +1,27 @@
 [
   {
+    "id":              "openrouter-default",
+    "name":            "OpenRouter",
+    "baseUrl":         "https://openrouter.ai/api",
+    "encryptedApiKey": "",
+    "iv":              "",
+    "authTag":         "",
+    "models":          [
+      "google/gemini-3-flash-preview",
+      "google/gemini-3.1-flash-lite-preview",
+      "google/gemini-2.5-flash",
+      "google/gemini-3.5-flash"
+    ],
+    "isActive":        true,
+    "createdAt":       1780937586126
+  },
+  {
     "id":              "deepseek-default",
     "name":            "DeepSeek",
     "baseUrl":         "https://api.deepseek.com",
-    "encryptedApiKey": "m35i-xu6i9xy8A4N64Rvycje7sjpyeAkDMfgzxr7gDN4DZo",
-    "iv":              "6pOwIsK-NsEZ0_Gf_GlSHg",
-    "authTag":         "Fhq3hvgbLa_3hKFgFfWTxA",
+    "encryptedApiKey": "",
+    "iv":              "",
+    "authTag":         "",
     "models":          [
       "deepseek-v4-flash",
       "deepseek-v4-pro"
@@ -18,27 +34,11 @@
     "name":            "OpenCode AI",
     "baseUrl":         "https://opencode.ai/zen/go",
     "encryptedApiKey": "",
-    "iv":              "ofT8-coFI62AelZHdni7Bg",
-    "authTag":         "Os3YPGUG_syPGL0HIXFb2Q",
+    "iv":      "",
+    "authTag": "",
     "models":          [
       "minimax-m2.5",
       "mimo-v2.5"
-    ],
-    "isActive":  true,
-    "createdAt": 1780937586126
-  },
-  {
-    "id":              "openrouter-default",
-    "name":            "OpenRouter",
-    "baseUrl":         "https://openrouter.ai/api",
-    "encryptedApiKey": "",
-    "iv":              "",
-    "authTag":         "",
-    "models":          [
-      "google/gemini-3-flash-preview",
-      "google/gemini-3.1-flash-lite-preview",
-      "google/gemini-2.5-flash",
-      "google/gemini-3.5-flash"
     ],
     "isActive":        true,
     "createdAt":       1780937586126
