@@ -167,7 +167,6 @@ function isDeepSeekProvider(baseUrl: string): boolean {
   }
 }
 
-
 export function normalizeGoogleModel(model: string): string {
   return model.startsWith('models/') ? model: `models/${model}`
 }
@@ -184,7 +183,6 @@ export function resolveProviderApiKey(params: {
     return params.secrets.googleApiKey?.trim() || fallbackKey
   }
 
-
   if (params.providerId==='deepseek-default') {
     return params.secrets.deepseekApiKey?.trim() || fallbackKey
   }
@@ -200,7 +198,6 @@ export function resolveProviderApiKey(params: {
   if (isGoogleProvider(params.baseUrl)) {
     return params.secrets.googleApiKey?.trim() || ''
   }
-
 
   if (isDeepSeekProvider(params.baseUrl)) {
     return params.secrets.deepseekApiKey?.trim() || ''

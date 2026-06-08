@@ -208,7 +208,7 @@ export function initializeDefaultProviders(secret: string): void {
       id:     'deepseek-default',
       name:   'DeepSeek',
       baseUrl: 'https://api.deepseek.com',
-      apiKey: 'REDACTED',
+      apiKey: '',
       models: [ 'deepseek-v4-flash', 'deepseek-v4-pro' ]
     },
     {

@@ -19,6 +19,12 @@
  * Server-side login handler for the Meow application.
  * Verifies a one-time challenge response against the shared environment secret
  * and sets a persistent session cookie upon success.
+ *
+ * Note: brute-force throttling was previously provided by server/utils/rateLimit.ts
+ * (Redis with in-memory fallback). It was removed in favor of relying on the
+ * single-use, IP-bound, 5-minute challenge + HMAC proof. If a future deployment
+ * needs stricter throttling, prefer a lightweight in-memory limiter scoped to
+ * this endpoint over re-introducing the Redis dependency.
  */
 import {
   AUTH_DISPLAY_NAME_MAX_LENGTH,

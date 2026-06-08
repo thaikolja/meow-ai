@@ -16,6 +16,7 @@
  */
 
 import type { LLMProvider } from '~/types'
+import { THINKING_MODEL_PATTERNS } from '#shared/utils/models'
 
 /**
  * Provider type without sensitive API key - safe for client-side storage.
@@ -128,5 +129,5 @@ export function useProviders() {
 /** Identifies model IDs that expose chain-of-thought / reasoning style output. */
 export function isThinkingModel(modelId: string): boolean {
   const normalized = modelId.replace(/^models\//, '').toLowerCase()
-  return [ /reasoner/, /thinking/, /deepseek-r1/, /r1-distill/, /minimax/, /mimo/, /hy3/ ].some(pattern => pattern.test(normalized))
+  return THINKING_MODEL_PATTERNS.some(pattern => pattern.test(normalized))
 }

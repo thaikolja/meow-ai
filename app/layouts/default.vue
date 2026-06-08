@@ -117,7 +117,7 @@
             Meow 🐾
           </div>
           <!-- Repository links: GitLab and GitHub (open in new tab) -->
-          <div class="hidden sm:flex items-center gap-4 ms-3">
+          <div class="hidden sm:flex items-center gap-8 ms-3">
             <a aria-label="View on GitLab" class="text-zinc-400 hover:text-zinc-200 transition-colors" href="https://gitlab.com/thaikolja/meow-ai" rel="noopener noreferrer" target="_blank">
               <Icon class="w-4 h-4" name="mdi:gitlab" />
             </a>

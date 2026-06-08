@@ -150,6 +150,7 @@
    */
 
   import type { ChatMessage } from '~/types'
+  import { stripThinkBlocks } from '#shared/utils/models'
 
   const { getModelName } = useModels()
   const props = defineProps<{
@@ -166,8 +167,7 @@
   const displayContent = computed(() => {
     if (props.isThinking && props.isStreaming) return ''
     const raw = props.isStreaming && props.streamingContent!==undefined ? props.streamingContent: props.message.content
-    if (props.isThinking) return raw.replace(/<think\b[^>]*>[\s\S]*?<\/think>/g, '').trim()
-    return raw
+    return stripThinkBlocks(raw)
   })
 
   async function copyContent() {
