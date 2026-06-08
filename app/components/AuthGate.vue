@@ -16,15 +16,15 @@
   -->
 
 <template>
-  <div class="relative min-h-screen overflow-hidden bg-zinc-900 px-4 lg:px-0 text-zinc-100">
+  <div class="relative h-screen overflow-hidden bg-zinc-900 px-4 lg:px-0 text-zinc-100">
     <div class="pointer-events-none absolute inset-0">
       <div class="absolute -top-40 left-0 h-96 w-96 rounded-full bg-primary-600/10 blur-3xl"></div>
       <div class="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl"></div>
     </div>
 
-    <div class="relative z-10 mx-auto flex min-h-screen max-w-6xl items-center justify-center">
+    <div class="relative z-10 mx-auto flex h-full max-w-6xl items-center justify-center">
       <div class="grid w-full max-w-3xl gap-6 lg:grid-cols-[1.15fr,0.85fr]">
-        <section class="flex flex-col items-center justify-center rounded-[2rem] border border-zinc-800/80 bg-zinc-950/60 p-8 sm:p-10 lg:p-0 shadow-2xl shadow-primary-900/10 backdrop-blur-xl">
+        <section class="flex flex-col items-center justify-center rounded-[2rem] border border-zinc-800/80 bg-zinc-950/60 p-8 sm:p-10 shadow-2xl shadow-primary-900/10 backdrop-blur-xl">
           <div class="inline-flex items-center gap-2 rounded-full border border-primary-500/20 bg-primary-500/10 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-primary-300">
             <Icon class="h-4 w-4" name="mdi:paw" />
             Cat Flap Access
@@ -55,7 +55,7 @@
           </div>
         </section>
 
-        <section class="rounded-[2rem] border border-zinc-800/80 bg-zinc-950/80 p-8 sm:p-9 lg:p-0 shadow-2xl shadow-primary-900/10 backdrop-blur-xl">
+        <section class="rounded-[2rem] border border-zinc-800/80 bg-zinc-950/80 p-8 sm:p-9 shadow-2xl shadow-primary-900/10 backdrop-blur-xl">
           <div class="mb-6 flex items-center gap-3">
             <div class="flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900">
               <Icon class="h-6 w-6 text-primary-400" name="mdi:paw" />
