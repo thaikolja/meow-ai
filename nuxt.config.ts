@@ -193,7 +193,6 @@ export default defineNuxtConfig({
    */
   nitro: {
     minify:               true, // enable Nitro minification for server output
-    sourceMap:            true, // emit source maps for server bundles
     compressPublicAssets: true, // gzip/brotli public assets when possible
     /**
      * routeRules define per-path headers used by the server.
@@ -217,14 +216,6 @@ export default defineNuxtConfig({
         headers: {
           'Cache-Control': 'public, max-age=604800, stale-while-revalidate=86400' // weekly cache with revalidation window
         }
-      },
-      '/**':          {
-        headers: {
-          'X-Content-Type-Options': 'nosniff', // prevent MIME-based attacks
-          'X-Frame-Options':        'DENY', // clickjacking protection
-          'Referrer-Policy':        'strict-origin-when-cross-origin', // conservative referrer policy
-          'Permissions-Policy':     'camera=(), microphone=(), geolocation=()' // deny sensitive APIs by default
-        }
       }
     }
   },
@@ -236,7 +227,10 @@ export default defineNuxtConfig({
    */
   vite: {
     server: {
-      allowedHosts: [ 'analyze-sun-humanity-nail.trycloudflare.com' ] // allow Cloudflare Tunnel host during development
+      allowedHosts: [ 'analyze-sun-humanity-nail.trycloudflare.com', 'meow.yanawa.io', 'yanawa.io' ] // allow Cloudflare
+      // Tunnel
+      // host during
+      // development
     },
     optimizeDeps: {
       include: [
