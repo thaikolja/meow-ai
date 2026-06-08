@@ -23,7 +23,7 @@
     </div>
 
     <div class="relative z-10 mx-auto flex min-h-screen max-w-6xl items-center justify-center">
-      <div class="grid w-full max-w-5xl gap-6 lg:grid-cols-[1.15fr,0.85fr]">
+      <div class="grid w-full max-w-3xl gap-6 lg:grid-cols-[1.15fr,0.85fr]">
         <section class="rounded-[2rem] border border-zinc-800/80 bg-zinc-950/60 p-8 shadow-2xl shadow-primary-900/10 backdrop-blur-xl sm:p-10">
           <div class="inline-flex items-center gap-2 rounded-full border border-primary-500/20 bg-primary-500/10 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-primary-300">
             <Icon class="h-4 w-4" name="mdi:paw" />
@@ -39,35 +39,19 @@
               <h1 class="text-4xl font-black tracking-tight text-zinc-50 sm:text-5xl">
                 Meow 🐾
               </h1>
-              <p class="mt-3 max-w-xl text-base leading-relaxed text-zinc-400 sm:text-lg">
-                The cats moved the old login door. Whisper the house secret here and step straight into the learning
-                lounge.
-              </p>
+
             </div>
           </div>
 
-          <div class="mt-8 grid gap-3 sm:grid-cols-2">
-            <div class="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4">
-              <div class="mb-2 flex items-center gap-2 text-primary-300">
-                <Icon class="h-4 w-4" name="lucide:shield-check" />
-                <span class="text-sm font-semibold">Safer paw-print proof</span>
-              </div>
-              <p class="text-sm leading-relaxed text-zinc-400">
-                The shared secret stays in the browser. The server sees only a one-time paw-print proof tied to a
-                short-lived challenge.
-              </p>
+          <div class="mt-8 rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4">
+            <div class="mb-2 flex items-center gap-2 text-primary-300">
+              <Icon class="h-4 w-4" name="lucide:shield-check" />
+              <span class="text-sm font-semibold">Safer paw-print proof</span>
             </div>
-
-            <div class="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4">
-              <div class="mb-2 flex items-center gap-2 text-blue-300">
-                <Icon class="h-4 w-4" name="lucide:sparkles" />
-                <span class="text-sm font-semibold">No more `/login` routine</span>
-              </div>
-              <p class="text-sm leading-relaxed text-zinc-400">
-                Access now lives inside the app itself, so the experience feels like a cozy cat lounge instead of a
-                generic sign-in page.
-              </p>
-            </div>
+            <p class="text-sm leading-relaxed text-zinc-400">
+              The shared secret stays in the browser. The server sees only a one-time paw-print proof tied to a
+              short-lived challenge.
+            </p>
           </div>
         </section>
 
