@@ -193,31 +193,7 @@ export default defineNuxtConfig({
    */
   nitro: {
     minify:               true, // enable Nitro minification for server output
-    compressPublicAssets: true, // gzip/brotli public assets when possible
-    /**
-     * routeRules define per-path headers used by the server.
-     *
-     * - long cache for _nuxt assets (immutable)
-     * - shorter cache for favicons with stale-while-revalidate
-     * - security headers for all other routes
-     */
-    routeRules: {
-      '/_nuxt/**':    {
-        headers: {
-          'Cache-Control': 'public, max-age=31536000, immutable' // long lived cache for build assets
-        }
-      },
-      '/favicon.svg': {
-        headers: {
-          'Cache-Control': 'public, max-age=604800, stale-while-revalidate=86400' // weekly cache with revalidation window
-        }
-      },
-      '/favicon.ico': {
-        headers: {
-          'Cache-Control': 'public, max-age=604800, stale-while-revalidate=86400' // weekly cache with revalidation window
-        }
-      }
-    }
+    compressPublicAssets: true // gzip/brotli public assets when possible
   },
 
   /**
