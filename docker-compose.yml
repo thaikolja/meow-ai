@@ -18,6 +18,8 @@ services:
       NUXT_DEEPSEEK_API_KEY: "${NUXT_DEEPSEEK_API_KEY:-}"
       NUXT_GROQ_API_KEY: "${NUXT_GROQ_API_KEY:-}"
       NUXT_GOOGLE_API_KEY: "${NUXT_GOOGLE_API_KEY:-}"
+      NUXT_OPENCODE_API_KEY: "${NUXT_OPENCODE_API_KEY:-}"
+      NUXT_OPENROUTER_API_KEY: "${NUXT_OPENROUTER_API_KEY:-}"
       # Default provider/model shown in the UI on first load.
       NUXT_PUBLIC_DEFAULT_PROVIDER: "${NUXT_PUBLIC_DEFAULT_PROVIDER:-gemini-default}"
       NUXT_PUBLIC_DEFAULT_MODEL: "${NUXT_PUBLIC_DEFAULT_MODEL:-models/gemini-3.1-flash-lite-preview}"
@@ -32,7 +34,7 @@ services:
       # Persist encrypted provider keys and model catalog across restarts.
       - meow-data:/app/.data
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/auth/session').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      test: [ "CMD", "node", "-e", "fetch('http://localhost:3000/api/auth/session').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))" ]
       interval: 30s
       timeout: 5s
       start_period: 15s
