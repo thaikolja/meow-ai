@@ -34,9 +34,8 @@ ENV NODE_ENV=production \
 # Only copy the self-contained Nitro output — no outer node_modules needed.
 COPY --from=build --chown=node:node /app/.output ./.output
 
-# Persist provider and model data outside the container layer.
-VOLUME ["/app/.data"]
-
+# Create the persistent data directory with correct ownership.
+# The actual volume mount is declared in docker-compose.yml.
 RUN mkdir -p /app/.data && chown node:node /app/.data
 
 USER node
