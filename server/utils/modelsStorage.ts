@@ -17,7 +17,7 @@
 
 /**
  * Server-side file-backed catalog of available models with human-readable names.
- * Mirrors the providersStorage pattern: read from .data/models.json, seed
+ * Mirrors the file-backed storage pattern: read from .data/models.json, seed
  * defaults when the file is empty or missing.
  */
 
@@ -68,27 +68,15 @@ export function initializeDefaultModels(): void {
       isActive:   true
     },
     {
-      id:         'google/gemini-2.5-flash',
-      name:       'Gemini 2.5 Flash',
+      id:         'google/gemini-3.5-flash',
+      name:       'Gemini 3.5 Flash',
       providerId: 'openrouter-default',
       isActive:   true
     },
     {
-      id:         'deepseek-v4-flash',
-      name:       'DeepSeek V4 Flash',
-      providerId: 'deepseek-default',
-      isActive:   true
-    },
-    {
-      id:         'minimax-m2.5',
-      name:       'MiniMax M2.5',
-      providerId: 'opencode-default',
-      isActive:   true
-    },
-    {
-      id:         'mimo-v2.5',
-      name:       'MiMo V2.5',
-      providerId: 'opencode-default',
+      id:         'google/gemini-2.5-flash',
+      name:       'Gemini 2.5 Flash',
+      providerId: 'openrouter-default',
       isActive:   true
     }
   ]

@@ -20,8 +20,10 @@
  * Models are stored in .data/models.json with human-readable names.
  */
 
-import { THINKING_MODEL_PATTERNS } from '#shared/utils/models'
-import type { Model }              from '#shared/types/model'
+import { isThinkingModel } from '#shared/utils/models'
+import type { Model }        from '#shared/types/model'
+
+export { isThinkingModel }
 
 export function useModels() {
   const models = useState<Model[]>('models', () => [])
@@ -62,12 +64,6 @@ export function useModels() {
   function getModelName(modelId: string): string {
     const model = getModel(modelId)
     return model?.name || modelId
-  }
-
-  /** Check if a model is a "thinking" model (chain-of-thought) */
-  function isThinkingModel(modelId: string): boolean {
-    const normalized = modelId.replace(/^models\//, '').toLowerCase()
-    return THINKING_MODEL_PATTERNS.some(pattern => pattern.test(normalized))
   }
 
   return {

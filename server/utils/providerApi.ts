@@ -17,22 +17,12 @@
 
 import { isIP } from 'node:net'
 
-export type ProviderKind = 'google' | 'openai'
-
 export type ChatMessageInput = {
   role: string
   content: string
 }
 
-export type ProviderSecrets = {
-  deepseekApiKey?: string
-  googleApiKey?: string
-  opencodeApiKey?: string
-  openrouterApiKey?: string
-}
-
-export type ProviderChatRequest = {
-  kind: ProviderKind
+export type ChatRequest = {
   apiUrl: string
   headers: Record<string, string>
   body: Record<string, any>
@@ -127,19 +117,6 @@ function trimTrailingSlashes(value: string): string {
   return value.replace(/\/+$/, '')
 }
 
-function detectGoogleVersion(pathname: string): string {
-  const match = pathname.match(/\/(v\d+(?:beta\d*|alpha\d*)?)(?:\/|$)/i)
-  return match?.[1] || 'v1beta'
-}
-
-function getGoogleOriginAndVersion(baseUrl: string) {
-  const url = ensureUrl(baseUrl)
-  return {
-    origin:  url.origin,
-    version: detectGoogleVersion(url.pathname)
-  }
-}
-
 function normalizeOpenAIBaseUrl(baseUrl: string): string {
   const normalized = trimTrailingSlashes(baseUrl)
   .replace(/\/models(?:\/.*)?$/i, '')
@@ -152,90 +129,9 @@ function normalizeOpenAIBaseUrl(baseUrl: string): string {
   return `${normalized}/v1`
 }
 
-export function isGoogleProvider(baseUrl: string): boolean {
-  try {
-    return ensureUrl(baseUrl).hostname==='generativelanguage.googleapis.com'
-  } catch {
-    return false
-  }
-}
-
-function isDeepSeekProvider(baseUrl: string): boolean {
-  try {
-    return ensureUrl(baseUrl).hostname.includes('deepseek.com')
-  } catch {
-    return false
-  }
-}
-
-export function isOpenRouterProvider(baseUrl: string): boolean {
-  try {
-    return ensureUrl(baseUrl).hostname.endsWith('openrouter.ai')
-  } catch {
-    return false
-  }
-}
-
-export function normalizeGoogleModel(model: string): string {
-  return model.startsWith('models/') ? model: `models/${model}`
-}
-
-export function resolveProviderApiKey(params: {
-  providerId?: string
-  baseUrl: string
-  clientApiKey?: string
-  secrets: ProviderSecrets
-}): string {
-  const fallbackKey = params.clientApiKey?.trim() || ''
-
-  if (params.providerId==='google-default' || params.providerId==='gemini-default') {
-    return params.secrets.googleApiKey?.trim() || fallbackKey
-  }
-
-  if (params.providerId==='deepseek-default') {
-    return params.secrets.deepseekApiKey?.trim() || fallbackKey
-  }
-
-  if (params.providerId==='opencode-default') {
-    return params.secrets.opencodeApiKey?.trim() || fallbackKey
-  }
-
-  if (params.providerId==='openrouter-default') {
-    return params.secrets.openrouterApiKey?.trim() || fallbackKey
-  }
-
-  if (fallbackKey) {
-    return fallbackKey
-  }
-
-  if (isGoogleProvider(params.baseUrl)) {
-    return params.secrets.googleApiKey?.trim() || ''
-  }
-
-  if (isDeepSeekProvider(params.baseUrl)) {
-    return params.secrets.deepseekApiKey?.trim() || ''
-  }
-
-  if (isOpenRouterProvider(params.baseUrl)) {
-    return params.secrets.openrouterApiKey?.trim() || ''
-  }
-
-  return ''
-}
-
-export function buildModelsRequest(baseUrl: string, apiKey: string): { kind: ProviderKind; apiUrl: string; headers: Record<string, string> } {
-  if (isGoogleProvider(baseUrl)) {
-    const { origin, version } = getGoogleOriginAndVersion(baseUrl)
-    return {
-      kind:    'google',
-      apiUrl:  `${origin}/${version}/models?key=${encodeURIComponent(apiKey)}`,
-      headers: {}
-    }
-  }
-
+export function buildModelsRequest(baseUrl: string, apiKey: string): { apiUrl: string; headers: Record<string, string> } {
   const normalizedBaseUrl = normalizeOpenAIBaseUrl(baseUrl)
   return {
-    kind:    'openai',
     apiUrl:  `${normalizedBaseUrl}/models`,
     headers: {
       Authorization: `Bearer ${apiKey}`
@@ -243,61 +139,9 @@ export function buildModelsRequest(baseUrl: string, apiKey: string): { kind: Pro
   }
 }
 
-export function extractModelIds(kind: ProviderKind, payload: any): string[] {
-  if (kind==='google') {
-    return (payload.models || [])
-    .filter((model: any) => {
-      const methods = model.supportedGenerationMethods || []
-      return methods.includes('generateContent') || methods.includes('streamGenerateContent')
-    })
-    .map((model: any) => model.name)
-    .filter(Boolean)
-    .sort()
-  }
-
-  return (payload.data || [])
-  .map((model: any) => model.id)
-  .filter(Boolean)
-  .sort()
-}
-
-export function buildChatRequest(baseUrl: string, apiKey: string, model: string, messages: ChatMessageInput[]): ProviderChatRequest {
-  if (isGoogleProvider(baseUrl)) {
-    const { origin, version }   = getGoogleOriginAndVersion(baseUrl)
-    const systemInstructionText = messages
-    .filter(message => message.role==='system' && message.content.trim())
-    .map(message => message.content.trim())
-    .join('\n\n')
-
-    const contents = messages
-    .filter(message => (message.role==='user' || message.role==='assistant') && message.content.trim())
-    .map(message => ({
-      role:  message.role==='assistant' ? 'model': 'user',
-      parts: [ { text: message.content } ]
-    }))
-
-    return {
-      kind:    'google' as const,
-      apiUrl:  `${origin}/${version}/${normalizeGoogleModel(model)}:streamGenerateContent?alt=sse&key=${encodeURIComponent(apiKey)}`,
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body:    {
-        contents,
-        ...(systemInstructionText
-            ? {
-              systemInstruction: {
-                parts: [ { text: systemInstructionText } ]
-              }
-            }
-            : {})
-      }
-    }
-  }
-
+export function buildChatRequest(baseUrl: string, apiKey: string, model: string, messages: ChatMessageInput[]): ChatRequest {
   const normalizedBaseUrl = normalizeOpenAIBaseUrl(baseUrl)
   return {
-    kind:    'openai' as const,
     apiUrl:  `${normalizedBaseUrl}/chat/completions`,
     headers: {
       'Content-Type': 'application/json',
@@ -310,13 +154,3 @@ export function buildChatRequest(baseUrl: string, apiKey: string, model: string,
     }
   }
 }
-
-export function extractGoogleStreamText(payload: any): string {
-  const candidate = payload?.candidates?.[0]
-  const parts     = candidate?.content?.parts || []
-
-  return parts
-  .map((part: any) => part?.text || '')
-  .join('')
-}
-

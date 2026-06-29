@@ -102,9 +102,6 @@ export default defineNuxtConfig({
      */
     allowPrivateProviderUrls:                                                         process.env['NUXT_ALLOW_PRIVATE_PROVIDER_URLS']==='true', // boolean flag
     /** Server-only: absolute path to the persistent data directory */ dataDir:       process.env['NUXT_DATA_DIR']?.trim() || join(process.cwd(), '.data'),
-    /** Server-only: DeepSeek API key (trimmed, default empty) */ deepseekApiKey:     process.env['NUXT_DEEPSEEK_API_KEY']?.trim() || '',
-    /** Server-only: Google API key (trimmed, default empty) */ googleApiKey:         process.env['NUXT_GOOGLE_API_KEY']?.trim() || '',
-    /** Server-only: OpenCode API key (trimmed, default empty) */ opencodeApiKey:     process.env['NUXT_OPENCODE_API_KEY']?.trim() || '',
     /** Server-only: OpenRouter API key (trimmed, default empty) */ openrouterApiKey: process.env['NUXT_OPENROUTER_API_KEY']?.trim() || '',
     /**
      * Public runtime config accessible by the client.
@@ -113,7 +110,7 @@ export default defineNuxtConfig({
      */
     public: {
       /** Public default provider ID used when no selection exists */ defaultProvider:      process.env['NUXT_PUBLIC_DEFAULT_PROVIDER']?.trim() || 'openrouter-default',
-      /** Public default model ID used for new chats and initial selection */ defaultModel: process.env['NUXT_PUBLIC_DEFAULT_MODEL']?.trim() || 'google/gemini-3-flash-preview'
+      /** Public default model ID used for new chats and initial selection */ defaultModel: process.env['NUXT_PUBLIC_DEFAULT_MODEL']?.trim() || 'google/gemini-2.5-flash'
     }
   },
 

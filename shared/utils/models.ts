@@ -43,3 +43,12 @@ const THINK_BLOCK_PATTERN = /<think\b[^>]*>[\s\S]*?<\/think>/g
 export function stripThinkBlocks(content: string): string {
   return content.replace(THINK_BLOCK_PATTERN, '').trim()
 }
+
+/**
+ * Identifies model IDs that expose chain-of-thought / reasoning style output.
+ * Matches against the lowercased model ID with any leading "models/" prefix stripped.
+ */
+export function isThinkingModel(modelId: string): boolean {
+  const normalized = modelId.replace(/^models\//, '').toLowerCase()
+  return THINKING_MODEL_PATTERNS.some(pattern => pattern.test(normalized))
+}

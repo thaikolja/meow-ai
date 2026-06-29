@@ -77,25 +77,6 @@
           </div>
         </div>
 
-        <!-- LLM Provider Management -->
-        <div>
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-semibold text-neutral-300 uppercase tracking-wider italic">Meow-del Feeders 🐾</h3>
-            <button
-                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-600/20 text-primary-400 hover:bg-primary-600/30 transition-colors text-sm" @click="showAddForm = true">
-              <Icon class="w-3.5 h-3.5" name="lucide:plus" />
-              <span>Add Provider</span>
-            </button>
-          </div>
-
-          <!-- Add Provider UI Logic Toggle -->
-          <ProviderForm
-              v-if="showAddForm" class="mb-4" @cancel="showAddForm = false" @save="handleAddProvider" />
-
-          <!-- List of active providers and their respective settings -->
-          <ProviderList />
-        </div>
-
         <!-- Irreversible Actions Section -->
         <div class="border-t border-neutral-800 pt-4">
           <h3 class="text-sm font-semibold text-red-400 uppercase tracking-wider mb-3 italic">Danger Zone 🐾</h3>
@@ -113,13 +94,11 @@
 <script lang="ts" setup>
   /**
    * Main settings modal providing access to global app configurations.
-   * Handles system prompts, context management, provider lists, and state cleanup.
+   * Handles system prompts, context management, and state cleanup.
    */
 
-// Modal visibility bound to parent state
   const open = defineModel<boolean>('open', { required: true })
 
-  const { addProvider }   = useProviders()
   const { clearAllChats } = useChats()
   const {
           defaultSystemPrompt,
@@ -136,22 +115,6 @@
       setSystemPromptOverride(value)
     }
   })
-
-  // UI Toggle state for adding new providers
-  const showAddForm = ref(false)
-
-  /**
-   * Handles the creation of a new provider entry.
-   */
-  async function handleAddProvider(data: { name: string; baseUrl: string; apiKey: string }) {
-    try {
-      await addProvider(data)
-      showAddForm.value = false
-    } catch (error: any) {
-      console.error('Failed to add provider:', error)
-      // Could show error to user here
-    }
-  }
 
   /**
    * Deletes all local chat history across all threads.

@@ -16,7 +16,7 @@
  */
 
 export const DEFAULT_PROVIDER_ID = 'openrouter-default'
-export const DEFAULT_MODEL_ID    = 'google/gemini-3-flash-preview'
+export const DEFAULT_MODEL_ID    = 'google/gemini-2.5-flash'
 
 export function resolveDefaultProvider(defaultProvider?: string): string {
   return defaultProvider || DEFAULT_PROVIDER_ID

@@ -46,7 +46,6 @@
 
   // Composable integrations for chat logic and global configurations
   const { getChat, addMessage, updateMessage, persist, removeLastMessage }             = useChats()
-  const { getProvider }                                                                = useProviders()
   const { isThinkingModel }                                                            = useModels()
   const { effectiveSystemPrompt, maxContextMessages, ensureDefaultSystemPromptLoaded } = useSettings()
   const { isStreaming, streamingContent, streamMessage, stopStreaming }                = useChatStream()
@@ -155,16 +154,6 @@
     const currentChatId = chatId.value
     await ensureDefaultSystemPromptLoaded()
 
-    // Ensure a valid provider is currently selected
-    const provider = getProvider(selectedProvider.value)
-    if (!provider) {
-      addMessage(currentChatId, {
-        role:    'assistant',
-        content: '⚠️ No provider configured. Please go to Settings and add an LLM provider.'
-      })
-      return
-    }
-
     // Filter messages for industry-standard API format (no UI-only fields)
     const chat      = getChat(currentChatId)
     let apiMessages = (chat?.messages || [])
@@ -198,7 +187,7 @@
     await streamMessage(
         apiMessages,
         {
-          providerId: provider.id,
+          providerId: defaultProvider.value,
           model: selectedModel.value
         },
         // Progress callback (runs per chunk)

@@ -21,12 +21,9 @@ layer.
 | `app/composables/useChats.ts` | Stores chat threads and messages in browser localStorage |
 | `app/composables/useChatStream.ts` | Consumes SSE responses from `/api/chat` |
 | `app/composables/useAuthSession.ts` | Tracks authenticated state, session checks, and logout |
-| `server/api/chat.post.ts` | Validates auth + CSRF, resolves the provider, and proxies streamed completions |
+| `server/api/chat.post.ts` | Validates auth + CSRF and proxies streamed completions to OpenRouter |
 | `server/api/auth/*` | Challenge, login, logout, and session endpoints for the shared-password flow |
-| `server/api/providers/*` | CRUD for providers without exposing API keys to the client |
 | `server/api/models/index.get.ts` | Reads the curated model catalog from `.data/models.json` |
-| `server/api/models.post.ts` | Syncs live model IDs into provider storage |
-| `.data/providers.json` | Encrypted provider definitions and cached provider model IDs |
 | `.data/models.json` | Human-managed model metadata used by the selector UI |
 
 ## Auth flow

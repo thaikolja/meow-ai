@@ -14,14 +14,11 @@ services:
       # Recommended: separate secret for signing session cookies.
       # Falls back to NUXT_APP_PASSWORD when not set.
       NUXT_SESSION_SECRET: "${NUXT_SESSION_SECRET:-}"
-      # AI provider API keys (leave empty to configure via the UI instead).
-      NUXT_DEEPSEEK_API_KEY: "${NUXT_DEEPSEEK_API_KEY:-}"
-      NUXT_GROQ_API_KEY: "${NUXT_GROQ_API_KEY:-}"
-      NUXT_GOOGLE_API_KEY: "${NUXT_GOOGLE_API_KEY:-}"
+      # OpenRouter API key. Required - the app only supports OpenRouter.
       NUXT_OPENROUTER_API_KEY: "${NUXT_OPENROUTER_API_KEY:-}"
       # Default provider/model shown in the UI on first load.
-      NUXT_PUBLIC_DEFAULT_PROVIDER: "${NUXT_PUBLIC_DEFAULT_PROVIDER:-gemini-default}"
-      NUXT_PUBLIC_DEFAULT_MODEL: "${NUXT_PUBLIC_DEFAULT_MODEL:-models/gemini-3.1-flash-lite-preview}"
+      NUXT_PUBLIC_DEFAULT_PROVIDER: "${NUXT_PUBLIC_DEFAULT_PROVIDER:-openrouter-default}"
+      NUXT_PUBLIC_DEFAULT_MODEL: "${NUXT_PUBLIC_DEFAULT_MODEL:-google/gemini-2.5-flash}"
       # Optional Redis URL for distributed login rate-limiting.
       # Example: redis://redis:6379
       NUXT_REDIS_URL: "${NUXT_REDIS_URL:-}"
@@ -30,7 +27,7 @@ services:
       # Override the data directory path inside the container.
       NUXT_DATA_DIR: /app/.data
     volumes:
-      # Persist encrypted provider keys and model catalog across restarts.
+      # Persist the models catalog across restarts.
       - meow-data:/app/.data
     healthcheck:
       test: [ "CMD", "node", "-e", "fetch('http://localhost:3000/api/auth/session').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))" ]
