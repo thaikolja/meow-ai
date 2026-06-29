@@ -95,6 +95,17 @@
   })
 
   /**
+   * Resolves the model to use for this chat session.
+   * Priority: chat's stored model > global selected model > default.
+   * Existing conversations remember which model they were created with.
+   */
+  function resolveChatModel(): string {
+    const chat = getChat(chatId.value)
+    if (chat?.model) return chat.model
+    return selectedModel.value
+  }
+
+  /**
    * Navigation and state lifecycle hooks.
    * Redirects invalid chat IDs and handles intra-page stream handoffs.
    */
@@ -149,6 +160,7 @@
    * Prepares the conversation context and executes the AI request.
    * Handles system prompt insertion, context window capping, and result streaming.
    * API keys are retrieved server-side from encrypted storage.
+   * Uses the chat's stored model so existing conversations remember which model they used.
    */
   async function triggerCompletion() {
     const currentChatId = chatId.value
@@ -171,12 +183,15 @@
       apiMessages.unshift({ role: 'system', content: systemPrompt })
     }
 
+    // Use the chat's stored model so existing conversations remember which model they used
+    const chatModel = resolveChatModel()
+
     // Create an empty shell for the upcoming AI response
     const assistantMsg = addMessage(currentChatId, {
       role:       'assistant',
       content:    '',
-      model:      selectedModel.value,
-      providerId: selectedProvider.value
+      model:      chatModel,
+      providerId: defaultProvider.value
     })
 
     // Scroll to the top of the assistant response so the user can read from the start
@@ -188,7 +203,7 @@
         apiMessages,
         {
           providerId: defaultProvider.value,
-          model: selectedModel.value
+          model: chatModel
         },
         // Progress callback (runs per chunk)
         (_chunk: string) => {

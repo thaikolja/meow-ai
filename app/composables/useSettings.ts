@@ -18,6 +18,7 @@
 const SYSTEM_PROMPT_OVERRIDE_STORAGE_KEY = 'chat-yanawa-system-prompt-override'
 const LEGACY_SYSTEM_PROMPT_STORAGE_KEY = 'chat-yanawa-system-prompt'
 const MAX_CONTEXT_STORAGE_KEY          = 'chat-yanawa-max-context'
+const SELECTED_MODEL_STORAGE_KEY       = 'chat-yanawa-selected-model'
 
 const DEFAULT_SYSTEM_PROMPT_FALLBACK = `You are Meow, a helpful and friendly German language tutor.
 
@@ -36,7 +37,7 @@ let defaultPromptLoadPromise: Promise<string> | null = null
 
 /**
  * Composable for managing user-defined application settings.
- * Handles persistence of system prompts and token limitation logic.
+ * Handles persistence of system prompts, token limitation logic, and model selection.
  */
 export function useSettings() {
   /** Immutable prompt shipped with the app and loaded from /public/system-prompt.md */
@@ -45,6 +46,8 @@ export function useSettings() {
   const systemPromptOverride = useState<string | null>('system-prompt-override', () => null)
   /** Maximum number of previous messages sent in the AI request context */
   const maxContextMessages  = useState('max-context-messages', () => 25)
+  /** User's preferred default model (persisted in localStorage) */
+  const selectedModel       = useState<string>('settings-selected-model', () => '')
   /** Tracks if settings have been successfully re-hydrated from browser storage */
   const isLoaded            = useState('settings-loaded', () => false)
   /** Prevent duplicate persistence watchers across multiple composable consumers */
@@ -101,6 +104,13 @@ export function useSettings() {
     systemPromptOverride.value = null
   }
 
+  /**
+   * Sets the user's preferred default model and persists it to localStorage.
+   */
+  function setSelectedModel(modelId: string) {
+    selectedModel.value = modelId?.trim() || ''
+  }
+
   // Initialize and load persistent configurations on the client-side
   if (import.meta.client && !isLoaded.value) {
     const storedOverride = localStorage.getItem(SYSTEM_PROMPT_OVERRIDE_STORAGE_KEY)
@@ -122,6 +132,12 @@ export function useSettings() {
       }
     }
 
+    // Load persisted model selection
+    const storedModel = localStorage.getItem(SELECTED_MODEL_STORAGE_KEY)
+    if (storedModel) {
+      selectedModel.value = storedModel
+    }
+
     isLoaded.value = true
     void ensureDefaultSystemPromptLoaded().then(() => {
       systemPromptOverride.value = normalizeOverride(systemPromptOverride.value)
@@ -139,6 +155,12 @@ export function useSettings() {
 
       localStorage.removeItem(LEGACY_SYSTEM_PROMPT_STORAGE_KEY)
       localStorage.setItem(MAX_CONTEXT_STORAGE_KEY, Math.max(0, maxContextMessages.value).toString())
+
+      if (selectedModel.value) {
+        localStorage.setItem(SELECTED_MODEL_STORAGE_KEY, selectedModel.value)
+      } else {
+        localStorage.removeItem(SELECTED_MODEL_STORAGE_KEY)
+      }
     }
   }
 
@@ -147,7 +169,7 @@ export function useSettings() {
    * Ensures settings are always synced without manual 'Save' button.
    */
   if (!persistenceBound.value) {
-    watch([ systemPromptOverride, maxContextMessages ], () => {
+    watch([ systemPromptOverride, maxContextMessages, selectedModel ], () => {
       saveSettings()
     })
 
@@ -160,6 +182,8 @@ export function useSettings() {
     effectiveSystemPrompt,
     isUsingCustomSystemPrompt,
     maxContextMessages,
+    selectedModel,
+    setSelectedModel,
     ensureDefaultSystemPromptLoaded,
     setSystemPromptOverride,
     resetSystemPromptOverride,

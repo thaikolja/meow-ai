@@ -64,18 +64,20 @@
   /**
    * Component for selecting the active AI model from the catalog.
    * Includes search functionality. All models are routed through OpenRouter.
+   * The selected model is persisted to localStorage via useSettings.
    */
 
   import { onMounted, onUnmounted, ref, computed, watchEffect } from 'vue'
 
   const { activeModels, getModel, loadModels } = useModels()
+  const { selectedModel: persistedModel, setSelectedModel } = useSettings()
   const defaultProvider                        = useDefaultProvider()
   const defaultModel                           = useDefaultModel()
   const dropdownContainer                      = ref<HTMLElement | null>(null)
 
-  // Shared state for the currently active model and provider
-  const selectedModel    = useState<string>('selected-model', () => defaultModel.value)
-  const selectedProvider = useState<string>('selected-provider', () => defaultProvider.value)
+  // Shared state for the currently active model — initialized from persisted value, falls back to default
+  const selectedModel = useState<string>('selected-model', () => persistedModel.value || defaultModel.value)
+  const settingsOpen  = useState('settings-open', () => false)
 
   // Local UI state
   const isOpen = ref(false)
@@ -96,14 +98,21 @@
     window.removeEventListener('click', handleClickOutside)
   })
 
+  // When the catalog finishes loading, make sure the selected model still exists;
+  // otherwise fall back to the persisted preference, then the env default, then the first model.
   watchEffect(() => {
     if (activeModels.value.length===0) return
 
     const modelIds = activeModels.value.map(m => m.id)
-    if (!modelIds.includes(selectedModel.value)) {
-      const defaultExists = modelIds.includes(defaultModel.value)
-      selectedModel.value = defaultExists ? defaultModel.value: modelIds[0]!
+    if (modelIds.includes(selectedModel.value)) return
+
+    if (persistedModel.value && modelIds.includes(persistedModel.value)) {
+      selectedModel.value = persistedModel.value
+      return
     }
+
+    const defaultExists = modelIds.includes(defaultModel.value)
+    selectedModel.value = defaultExists ? defaultModel.value: modelIds[0]!
   })
 
   const displayLabel = computed(() => {
@@ -126,8 +135,8 @@
   }
 
   function selectModel(modelId: string) {
-    selectedModel.value   = modelId
-    selectedProvider.value = defaultProvider.value
-    isOpen.value          = false
+    selectedModel.value = modelId
+    setSelectedModel(modelId)
+    isOpen.value       = false
   }
 </script>

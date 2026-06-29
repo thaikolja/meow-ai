@@ -61,6 +61,30 @@
           </div>
         </div>
 
+        <!-- Default Model Selector -->
+        <div>
+          <h3 class="text-sm font-semibold text-neutral-300 uppercase tracking-wider mb-4 italic">Default Meow-del 🐾
+          </h3>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1.5">Preferred
+                Model</label>
+              <select
+                  v-model="defaultModelSelection" class="w-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 outline-none focus:border-primary-500 transition-colors">
+                <option v-if="activeModels.length===0" disabled value="">No models available</option>
+                <option
+                    v-for="model in activeModels" :key="model.id" :value="model.id">
+                  {{ model.name }} ({{ model.id }})
+                </option>
+              </select>
+              <p class="text-xs text-neutral-500 mt-1">
+                This is the model new chats will use by default. You can also switch models from the header at any
+                time.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <!-- Token Handling & Context Limits -->
         <div>
           <h3 class="text-sm font-semibold text-neutral-300 uppercase tracking-wider mb-4 italic">Paw-token Handling 🐾
@@ -94,25 +118,45 @@
 <script lang="ts" setup>
   /**
    * Main settings modal providing access to global app configurations.
-   * Handles system prompts, context management, and state cleanup.
+   * Handles system prompts, default model selection, context management, and state cleanup.
    */
 
   const open = defineModel<boolean>('open', { required: true })
 
   const { clearAllChats } = useChats()
+  const { activeModels, loadModels } = useModels()
   const {
           defaultSystemPrompt,
           systemPromptOverride,
           isUsingCustomSystemPrompt,
           maxContextMessages,
+          selectedModel: persistedModel,
+          setSelectedModel,
           setSystemPromptOverride,
           resetSystemPromptOverride
         }                 = useSettings()
+  const defaultProvider = useDefaultProvider()
+  const defaultModel    = useDefaultModel()
+  const selectedModel   = useState<string>('selected-model', () => persistedModel.value || defaultModel.value)
+
+  // Make sure the model catalog is loaded so the dropdown has options
+  onMounted(() => {
+    void loadModels()
+  })
 
   const systemPromptEditor = computed({
     get: () => systemPromptOverride.value ?? defaultSystemPrompt.value,
     set: (value: string) => {
       setSystemPromptOverride(value)
+    }
+  })
+
+  // Two-way binding for the default model dropdown — keeps header selector and settings in sync
+  const defaultModelSelection = computed({
+    get: () => selectedModel.value,
+    set: (value: string) => {
+      selectedModel.value = value
+      setSelectedModel(value)
     }
   })
 
