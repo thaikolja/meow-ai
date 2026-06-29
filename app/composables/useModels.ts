@@ -21,13 +21,7 @@
  */
 
 import { THINKING_MODEL_PATTERNS } from '#shared/utils/models'
-
-export type Model = {
-  id: string
-  name: string
-  providerId: string
-  isActive: boolean
-}
+import type { Model }              from '#shared/types/model'
 
 export function useModels() {
   const models = useState<Model[]>('models', () => [])

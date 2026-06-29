@@ -16,14 +16,12 @@
  */
 
 /**
- * Server-side endpoint to list available models from .data/models.json.
- * Seeds the default catalog when the file is empty or missing.
+ * Shared model type used by both server and client.
+ * Represents a single entry in the .data/models.json catalog.
  */
-
-import { getAllModels, initializeDefaultModels } from '../../utils/modelsStorage'
-
-export default defineEventHandler((event) => {
-  initializeDefaultModels()
-  const models = getAllModels()
-  return { models }
-})
+export type Model = {
+  id: string
+  name: string
+  providerId: string
+  isActive: boolean
+}
