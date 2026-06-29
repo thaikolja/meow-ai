@@ -1,0 +1,46 @@
+[
+  {
+    "id":              "openrouter-default",
+    "name":            "OpenRouter",
+    "baseUrl":         "https://openrouter.ai/api",
+    "encryptedApiKey": "",
+    "iv":              "",
+    "authTag":         "",
+    "models":          [
+      "google/gemini-3-flash-preview",
+      "google/gemini-3.1-flash-lite-preview",
+      "google/gemini-2.5-flash",
+      "google/gemini-3.5-flash"
+    ],
+    "isActive":        true,
+    "createdAt":       1780937586126
+  },
+  {
+    "id":              "deepseek-default",
+    "name":            "DeepSeek",
+    "baseUrl":         "https://api.deepseek.com",
+    "encryptedApiKey": "",
+    "iv":              "",
+    "authTag":         "",
+    "models":          [
+      "deepseek-v4-flash",
+      "deepseek-v4-pro"
+    ],
+    "isActive":        true,
+    "createdAt":       1780937586126
+  },
+  {
+    "id":              "opencode-default",
+    "name":            "OpenCode AI",
+    "baseUrl":         "https://opencode.ai/zen/go",
+    "encryptedApiKey": "",
+    "iv":              "",
+    "authTag":         "",
+    "models":          [
+      "minimax-m2.5",
+      "mimo-v2.5"
+    ],
+    "isActive":        true,
+    "createdAt":       1780937586126
+  }
+]
