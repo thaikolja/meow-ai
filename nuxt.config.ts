@@ -100,11 +100,11 @@ export default defineNuxtConfig({
      *
      * Controlled via NUXT_ALLOW_PRIVATE_PROVIDER_URLS environment variable.
      */
-    allowPrivateProviderUrls:                                                     process.env['NUXT_ALLOW_PRIVATE_PROVIDER_URLS']==='true', // boolean flag
-    /** Server-only: absolute path to the persistent data directory */ dataDir:   process.env['NUXT_DATA_DIR']?.trim() || join(process.cwd(), '.data'),
-    /** Server-only: DeepSeek API key (trimmed, default empty) */ deepseekApiKey: process.env['NUXT_DEEPSEEK_API_KEY']?.trim() || '',
-    /** Server-only: Google API key (trimmed, default empty) */ googleApiKey:     process.env['NUXT_GOOGLE_API_KEY']?.trim() || '',
-    /** Server-only: OpenCode API key (trimmed, default empty) */ opencodeApiKey: process.env['NUXT_OPENCODE_API_KEY']?.trim() || '',
+    allowPrivateProviderUrls:                                                         process.env['NUXT_ALLOW_PRIVATE_PROVIDER_URLS']==='true', // boolean flag
+    /** Server-only: absolute path to the persistent data directory */ dataDir:       process.env['NUXT_DATA_DIR']?.trim() || join(process.cwd(), '.data'),
+    /** Server-only: DeepSeek API key (trimmed, default empty) */ deepseekApiKey:     process.env['NUXT_DEEPSEEK_API_KEY']?.trim() || '',
+    /** Server-only: Google API key (trimmed, default empty) */ googleApiKey:         process.env['NUXT_GOOGLE_API_KEY']?.trim() || '',
+    /** Server-only: OpenCode API key (trimmed, default empty) */ opencodeApiKey:     process.env['NUXT_OPENCODE_API_KEY']?.trim() || '',
     /** Server-only: OpenRouter API key (trimmed, default empty) */ openrouterApiKey: process.env['NUXT_OPENROUTER_API_KEY']?.trim() || '',
     /**
      * Public runtime config accessible by the client.
@@ -202,7 +202,7 @@ export default defineNuxtConfig({
    * optimizeDeps.include lists modules to pre-bundle to avoid transformation issues.
    */
   vite: {
-    server: {
+    server:       {
       allowedHosts: [ 'analyze-sun-humanity-nail.trycloudflare.com', 'meow.yanawa.io', 'yanawa.io' ] // allow Cloudflare
       // Tunnel
       // host during
