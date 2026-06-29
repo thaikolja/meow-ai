@@ -37,6 +37,8 @@ COPY --from=build --chown=node:node /app/.output ./.output
 # Persist provider and model data outside the container layer.
 VOLUME ["/app/.data"]
 
+RUN mkdir -p /app/.data && chown node:node /app/.data
+
 USER node
 
 EXPOSE 3000
