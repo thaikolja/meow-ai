@@ -67,7 +67,7 @@
    * The selected model is persisted to localStorage via useSettings.
    */
 
-  import { onMounted, onUnmounted, ref, computed, watchEffect } from 'vue'
+  import { onMounted, onUnmounted, ref, computed, watchEffect, watch } from 'vue'
 
   const { activeModels, getModel, loadModels } = useModels()
   const { selectedModel: persistedModel, setSelectedModel } = useSettings()
@@ -114,6 +114,15 @@
     const defaultExists = modelIds.includes(defaultModel.value)
     selectedModel.value = defaultExists ? defaultModel.value: modelIds[0]!
   })
+
+  // Sync selectedModel with the persisted value when settings finish loading from localStorage.
+  // Handles the SSR → client hydration race where selectedModel was initialized with the default
+  // before the user's saved preference became available.
+  watch(persistedModel, (newValue) => {
+    if (newValue && activeModels.value.some(m => m.id===newValue)) {
+      selectedModel.value = newValue
+    }
+  }, {immediate: true})
 
   const displayLabel = computed(() => {
     if (!selectedModel.value) return 'Pick a Meow-del 🐾'
