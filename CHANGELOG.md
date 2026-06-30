@@ -2,6 +2,36 @@
 
 All notable changes to this project are documented here.
 
+## v1.2.0 — 2026-06-30
+
+### Added
+
+- Auto-seeding of the model catalog — `.data/models.json` is populated with 4 default Gemini models on first request when the file is empty or missing
+- Shared `Model` type in `shared/types/model.ts` as the single source of truth for both server and client
+- `tests/models-storage.test.js` covering the seeding behavior (missing file, empty array, corrupt JSON, existing models, disk persistence)
+- Persisted model selection in `localStorage` under `chat-yanawa-selected-model`
+- "Default Meow-del" dropdown in `SettingsModal` for setting the user's preferred default model
+- Per-chat model memory — each chat remembers which model it was created with, so existing conversations don't change when the default is switched
+
+### Changed
+
+- Simplified the app to use OpenRouter only — all chats are routed through `https://openrouter.ai/api`
+- Default model is now `google/gemini-2.5-flash`
+- Curated catalog of 4 Gemini models: `google/gemini-3-flash-preview`, `google/gemini-3.1-flash-lite-preview`, `google/gemini-3.5-flash`, `google/gemini-2.5-flash`
+- Removed all multi-provider infrastructure: provider CRUD endpoints, encrypted provider storage, provider management UI, `ProviderList.vue`, `ProviderForm.vue`, `useProviders.ts`, and the Google/DeepSeek/Groq-specific code paths in `providerApi.ts`
+- `server/api/chat.post.ts` now hardcodes the OpenRouter base URL and reads the API key from `NUXT_OPENROUTER_API_KEY`; provider lookup is no longer needed
+- `ModelSelector.vue` simplified to a flat list (no provider grouping) and syncs with the persisted preference via a `watchEffect` that handles the SSR → client hydration race
+- `isThinkingModel` moved to `shared/utils/models.ts` and imported directly by both server and client
+- `.env`, `.env.example`, `docker-compose.yml`, and `nuxt.config.ts` simplified to only require `NUXT_OPENROUTER_API_KEY` (DeepSeek, OpenCode, Groq, and Google env vars removed)
+- README and AGENTS docs rewritten to reflect the single-provider architecture
+
+### Fixed
+
+- Docker: `/app/.data` is now created with `node:node` ownership in the image so the mounted volume doesn't start with root permissions and cause `EACCES` errors
+- Model dropdown showing only the env default on first load when the catalog was empty — the auto-seeding fills the catalog on first request
+- Model selection no longer resets to the default on page refresh — the persisted value is restored once both the localStorage entry and the model catalog are available
+- `docker build` now uses a clean Dockerfile without the `VOLUME` directive (which was discarding subsequent `chown` instructions)
+
 ## v1.1.0 — 2026-04-07
 
 ### Added

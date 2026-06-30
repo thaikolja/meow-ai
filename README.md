@@ -10,6 +10,7 @@ small Nuxt API layer.
 - **Signed sessions + logout** with `chat_session` and `chat_username` cookies
 - **OpenRouter-only** with a curated catalog of 4 Gemini models in `.data/models.json`
 - **Persisted model selection** in the browser so your preferred model survives reloads
+- **Per-chat model memory** — existing conversations keep the model they were created with
 - **Streaming chat UX** with OpenAI-compatible request/response handling
 - **Cat-themed polish** including cold-start loading, a richer new-chat empty state, login confetti, random thinking messages, and theme-aware favicons with an `.ico` fallback
 
@@ -22,10 +23,11 @@ small Nuxt API layer.
 | `app/composables/useChatStream.ts` | Consumes SSE responses from `/api/chat` |
 | `app/composables/useAuthSession.ts` | Tracks authenticated state, session checks, and logout |
 | `app/composables/useSettings.ts` | System prompt, max context, and persisted model selection |
+| `app/composables/useModels.ts` | File-backed model catalog (loads from `/api/models`) |
 | `server/api/chat.post.ts` | Validates auth + CSRF and proxies streamed completions to OpenRouter |
 | `server/api/auth/*` | Challenge, login, logout, and session endpoints for the shared-password flow |
 | `server/api/models/index.get.ts` | Reads the curated model catalog from `.data/models.json` |
-| `.data/models.json` | Auto-seeded on first request; not edited directly |
+| `.data/models.json` | Auto-seeded on first request with 4 default Gemini models |
 
 ## Auth flow
 
@@ -43,7 +45,7 @@ The shared password still lives in `.env`, but it is no longer posted directly t
 ## Chat flow
 
 1. The landing page creates a new local chat thread.
-2. The first prompt is passed to`/chat/[id]` via `sessionStorage`.
+2. The first prompt is passed to `/chat/[id]` via `sessionStorage`.
 3. `useChatStream()` posts messages to `/api/chat`.
 4. The server uses the OpenRouter API key from runtime config, forwards the request upstream, and returns SSE chunks.
 5. The client parses those chunks and keeps the prompt focused so the next message can be drafted immediately.
@@ -51,6 +53,7 @@ The shared password still lives in `.env`, but it is no longer posted directly t
 ## Model selection
 
 - The default model is `google/gemini-2.5-flash` (override via `NUXT_PUBLIC_DEFAULT_MODEL`)
+- The catalog contains 4 Gemini models, all routed through OpenRouter: Gemini 3 Flash, Gemini 3.1 Flash Lite, Gemini 3.5 Flash, and Gemini 2.5 Flash
 - The header `ModelSelector` and the "Default Meow-del" dropdown in Settings stay in sync
 - Your preferred model is saved to `localStorage` under `chat-yanawa-selected-model` and persists across reloads
 - Each chat remembers which model it was created with, so existing conversations don't change when you switch the default
