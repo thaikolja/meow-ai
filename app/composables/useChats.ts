@@ -228,20 +228,6 @@ export function useChats() {
     flushSaveChats(chats.value)
   }
 
-  /** Switches the AI model configuration for a specific chat */
-  function updateChatModel(chatId: string, providerId: string, model: string) {
-    const chatIndex = chats.value.findIndex(c => c.id===chatId)
-    if (chatIndex!== -1 && chats.value[chatIndex]) {
-      const updatedChat: Chat = { ...chats.value[chatIndex] as Chat, providerId, model } as Chat
-      chats.value = [
-        ...chats.value.slice(0, chatIndex),
-        updatedChat,
-        ...chats.value.slice(chatIndex + 1)
-      ] as Chat[]
-      flushSaveChats(chats.value)
-    }
-  }
-
   /** Wipes all chat history from memory and storage */
   function clearAllChats() {
     chats.value = []
@@ -263,7 +249,6 @@ export function useChats() {
     addMessage,
     updateMessage,
     removeLastMessage,
-    updateChatModel,
     clearAllChats,
     persist
   }

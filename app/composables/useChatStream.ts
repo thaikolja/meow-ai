@@ -43,10 +43,10 @@ export function useChatStream() {
   /**
    * Initiates a POST request to the chat API and begins processing the SSE stream.
    * Parses incoming JSON chunks and facilitates callback triggers.
-   * API keys are retrieved server-side from encrypted storage.
+   * API keys are retrieved server-side from runtime config.
    *
    * @param messages - Ordered history of dialogue sent as context
-   * @param config - Provider and model selection (providerId required, apiKey no longer needed)
+   * @param config - Model selection (model required, providerId for routing)
    * @param onChunk - Callback executed every time a new text fragment arrives
    * @param onDone - Callback executed when the stream completes successfully
    * @param onError - Callback for handling network or API failures

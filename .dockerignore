@@ -11,5 +11,5 @@ build/
 coverage/
 tests/
 .copilot/
-.data/providers.json
-.data/providers.json.*
+.data/
+.data/.*

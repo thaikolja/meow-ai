@@ -129,16 +129,6 @@ function normalizeOpenAIBaseUrl(baseUrl: string): string {
   return `${normalized}/v1`
 }
 
-export function buildModelsRequest(baseUrl: string, apiKey: string): { apiUrl: string; headers: Record<string, string> } {
-  const normalizedBaseUrl = normalizeOpenAIBaseUrl(baseUrl)
-  return {
-    apiUrl:  `${normalizedBaseUrl}/models`,
-    headers: {
-      Authorization: `Bearer ${apiKey}`
-    }
-  }
-}
-
 export function buildChatRequest(baseUrl: string, apiKey: string, model: string, messages: ChatMessageInput[]): ChatRequest {
   const normalizedBaseUrl = normalizeOpenAIBaseUrl(baseUrl)
   return {

@@ -15,6 +15,8 @@
  * @website   https://meow.yanawa.io
  */
 
+import { join } from 'node:path'
+
 /**
  * Runtime configuration entrypoint for Nuxt.
  *
@@ -229,5 +231,3 @@ export default defineNuxtConfig({
     }
   }
 })
-
-import { join } from 'node:path'

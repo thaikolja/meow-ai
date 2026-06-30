@@ -135,7 +135,6 @@
           setSystemPromptOverride,
           resetSystemPromptOverride
         }                 = useSettings()
-  const defaultProvider = useDefaultProvider()
   const defaultModel    = useDefaultModel()
   const selectedModel   = useState<string>('selected-model', () => persistedModel.value || defaultModel.value)
 

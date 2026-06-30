@@ -67,17 +67,15 @@
    * The selected model is persisted to localStorage via useSettings.
    */
 
-  import { onMounted, onUnmounted, ref, computed, watchEffect, watch } from 'vue'
+  import { onMounted, onUnmounted, ref, computed, watchEffect } from 'vue'
 
   const { activeModels, getModel, loadModels } = useModels()
   const { selectedModel: persistedModel, setSelectedModel } = useSettings()
-  const defaultProvider                        = useDefaultProvider()
   const defaultModel                           = useDefaultModel()
   const dropdownContainer                      = ref<HTMLElement | null>(null)
 
   // Shared state for the currently active model — initialized from persisted value, falls back to default
   const selectedModel = useState<string>('selected-model', () => persistedModel.value || defaultModel.value)
-  const settingsOpen  = useState('settings-open', () => false)
 
   // Local UI state
   const isOpen = ref(false)
@@ -98,31 +96,26 @@
     window.removeEventListener('click', handleClickOutside)
   })
 
-  // When the catalog finishes loading, make sure the selected model still exists;
-  // otherwise fall back to the persisted preference, then the env default, then the first model.
+  // Ensure the selected model stays valid as the catalog and persisted settings load.
+  // Priority: persisted preference (from localStorage) > env default > first available model.
+  // This handles the SSR → client hydration race by re-running whenever either input changes.
   watchEffect(() => {
     if (activeModels.value.length===0) return
 
     const modelIds = activeModels.value.map(m => m.id)
-    if (modelIds.includes(selectedModel.value)) return
 
     if (persistedModel.value && modelIds.includes(persistedModel.value)) {
-      selectedModel.value = persistedModel.value
+      if (selectedModel.value!==persistedModel.value) {
+        selectedModel.value = persistedModel.value
+      }
       return
     }
 
-    const defaultExists = modelIds.includes(defaultModel.value)
-    selectedModel.value = defaultExists ? defaultModel.value: modelIds[0]!
-  })
-
-  // Sync selectedModel with the persisted value when settings finish loading from localStorage.
-  // Tracks both persistedModel and activeModels so it fires whenever EITHER becomes available,
-  // regardless of which one loads first. Handles the SSR → client hydration race.
-  watch([persistedModel, activeModels], () => {
-    if (persistedModel.value && activeModels.value.some(m => m.id===persistedModel.value)) {
-      selectedModel.value = persistedModel.value
+    if (!modelIds.includes(selectedModel.value)) {
+      const defaultExists = modelIds.includes(defaultModel.value)
+      selectedModel.value = defaultExists ? defaultModel.value: modelIds[0]!
     }
-  }, {immediate: true})
+  })
 
   const displayLabel = computed(() => {
     if (!selectedModel.value) return 'Pick a Meow-del 🐾'

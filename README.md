@@ -1,16 +1,16 @@
 # Meow AI 🐾
 
-**Meow AI** is a kitten-themed Nuxt 4 chat interface for focused German practice with your own LLM providers. It keeps
-provider secrets on the server, stores chats in the browser, and streams model responses back through a small Nuxt API
-layer.
+**Meow AI** is a kitten-themed Nuxt 4 chat interface for focused German practice. All requests are routed through
+OpenRouter, secrets stay server-side, chats are stored in the browser, and model responses stream back through a
+small Nuxt API layer.
 
 ## Highlights
 
 - **Safer shared-password access** via an in-app auth gate, a short-lived server challenge, and a client-side proof derived from `NUXT_APP_PASSWORD`
 - **Signed sessions + logout** with `chat_session` and `chat_username` cookies
-- **Server-side provider storage** with AES-256-GCM encrypted API keys in `.data/providers.json`
-- **Separate model catalog** in `.data/models.json` for curated model labels and availability
-- **Streaming chat UX** with OpenAI-compatible and Google/Gemini normalization
+- **OpenRouter-only** with a curated catalog of 4 Gemini models in `.data/models.json`
+- **Persisted model selection** in the browser so your preferred model survives reloads
+- **Streaming chat UX** with OpenAI-compatible request/response handling
 - **Cat-themed polish** including cold-start loading, a richer new-chat empty state, login confetti, random thinking messages, and theme-aware favicons with an `.ico` fallback
 
 ## Architecture overview
@@ -21,10 +21,11 @@ layer.
 | `app/composables/useChats.ts` | Stores chat threads and messages in browser localStorage |
 | `app/composables/useChatStream.ts` | Consumes SSE responses from `/api/chat` |
 | `app/composables/useAuthSession.ts` | Tracks authenticated state, session checks, and logout |
+| `app/composables/useSettings.ts` | System prompt, max context, and persisted model selection |
 | `server/api/chat.post.ts` | Validates auth + CSRF and proxies streamed completions to OpenRouter |
 | `server/api/auth/*` | Challenge, login, logout, and session endpoints for the shared-password flow |
 | `server/api/models/index.get.ts` | Reads the curated model catalog from `.data/models.json` |
-| `.data/models.json` | Human-managed model metadata used by the selector UI |
+| `.data/models.json` | Auto-seeded on first request; not edited directly |
 
 ## Auth flow
 
@@ -44,8 +45,15 @@ The shared password still lives in `.env`, but it is no longer posted directly t
 1. The landing page creates a new local chat thread.
 2. The first prompt is passed to`/chat/[id]` via `sessionStorage`.
 3. `useChatStream()` posts messages to `/api/chat`.
-4. The server resolves the provider key, forwards the request upstream, and returns SSE chunks.
+4. The server uses the OpenRouter API key from runtime config, forwards the request upstream, and returns SSE chunks.
 5. The client parses those chunks and keeps the prompt focused so the next message can be drafted immediately.
+
+## Model selection
+
+- The default model is `google/gemini-2.5-flash` (override via `NUXT_PUBLIC_DEFAULT_MODEL`)
+- The header `ModelSelector` and the "Default Meow-del" dropdown in Settings stay in sync
+- Your preferred model is saved to `localStorage` under `chat-yanawa-selected-model` and persists across reloads
+- Each chat remembers which model it was created with, so existing conversations don't change when you switch the default
 
 ## Setup
 
@@ -65,16 +73,20 @@ image.
 
 ## Docker
 
-The Docker setup is multi-stage: Bun builds the app, a dedicated production-deps stage keeps only runtime packages, and
-the final image runs Nitro on Node as a non-root user. It intentionally excludes `.env` and `.data/providers.json` from
-the build context, so pass secrets at runtime instead:
+The Docker setup is multi-stage: Bun builds the app, and the final image runs Nitro on Node as a non-root user. It
+intentionally excludes `.env` and `.data/` from the build context, so pass secrets at runtime instead:
 
 ```bash
-docker build -t meow .
-docker run --rm -p 3000:3000 \
-  -e NUXT_APP_PASSWORD='replace-me' \
-  -e NUXT_SESSION_SECRET='replace-me-too' \
-  meow
+docker compose build
+docker compose up -d
+```
+
+Secrets go in `.env` (or a runtime-injected equivalent):
+
+```bash
+NUXT_APP_PASSWORD=replace-me
+NUXT_SESSION_SECRET=replace-me-too
+NUXT_OPENROUTER_API_KEY=sk-or-v1-...
 ```
 
 ## Available scripts
@@ -93,27 +105,25 @@ docker run --rm -p 3000:3000 \
 | Variable | Purpose |
 | --- | --- |
 | `NUXT_APP_PASSWORD` | Shared house secret used for login; required in production |
-| `NUXT_SESSION_SECRET` | Signs session cookies and derives the provider-encryption key; defaults to `NUXT_APP_PASSWORD` |
-| `NUXT_PUBLIC_DEFAULT_PROVIDER` | Default provider ID for first load and new chats |
-| `NUXT_PUBLIC_DEFAULT_MODEL` | Default model ID for first load and new chats |
-| `NUXT_DEEPSEEK_API_KEY` | Optional server-side key for the DeepSeek default provider |
-| `NUXT_GROQ_API_KEY` | Optional server-side key for the Groq default provider |
-| `NUXT_GOOGLE_API_KEY` | Optional server-side key for the Gemini default provider |
+| `NUXT_SESSION_SECRET` | Signs session cookies; defaults to `NUXT_APP_PASSWORD` |
+| `NUXT_PUBLIC_DEFAULT_PROVIDER` | Default provider ID for first load and new chats (default: `openrouter-default`) |
+| `NUXT_PUBLIC_DEFAULT_MODEL` | Default model ID for first load and new chats (default: `google/gemini-2.5-flash`) |
+| `NUXT_OPENROUTER_API_KEY` | OpenRouter API key; required for chat to work |
 | `NUXT_REDIS_URL` | Enables Redis-backed login rate limiting |
 | `NUXT_ALLOW_PRIVATE_PROVIDER_URLS` | Allows private/internal provider hosts when set to `true` |
 | `NUXT_DATA_DIR` | Overrides the default `.data/` directory |
 
 ## Notes
 
-- Provider API keys never reach the client.
-- Chats, prompt overrides, and context settings stay in browser storage.
+- The OpenRouter API key never reaches the client.
+- Chats, prompt overrides, context settings, and model selection stay in browser storage.
 - `chat_username` is UI-only; auth decisions rely on the signed session cookie and `/api/auth/session`.
 - The SVG favicon switches paw color based on `prefers-color-scheme`, and `favicon.ico` is kept as a fallback.
-- Production containers should inject `NUXT_APP_PASSWORD` and any provider keys at runtime, not during image build.
+- Production containers should inject `NUXT_APP_PASSWORD` and the OpenRouter key at runtime, not during image build.
 
 ## Testing
 
-The project currently uses Bun tests plus Nuxt typechecking:
+The project uses Bun tests plus Nuxt typechecking:
 
 ```bash
 bun run typecheck

@@ -20,10 +20,9 @@
  * Receives the conversation history and model ID, uses the OpenRouter API key
  * from runtime config, and streams the response back via SSE.
  */
-import { requireAuthenticatedSession }                  from '../utils/authSession'
-import { getAuthSecret }                                from '../utils/authSession'
-import { assertProviderBaseUrl, buildChatRequest }      from '../utils/providerApi'
-import { validateCsrf }                                 from '../utils/csrf'
+import { requireAuthenticatedSession }             from '../utils/authSession'
+import { assertProviderBaseUrl, buildChatRequest } from '../utils/providerApi'
+import { validateCsrf }                            from '../utils/csrf'
 
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api'
 
@@ -32,11 +31,10 @@ export default defineEventHandler(async (event) => {
 
   requireAuthenticatedSession(event)
 
-  const body                                   = await readBody(event)
-  const { messages, model }                    = body
-  const runtimeConfig                          = useRuntimeConfig(event)
-  const secret                                 = getAuthSecret(event)
-  const openrouterApiKey                       = runtimeConfig.openrouterApiKey?.trim() || ''
+  const body             = await readBody(event)
+  const { messages, model } = body
+  const runtimeConfig    = useRuntimeConfig(event)
+  const openrouterApiKey = runtimeConfig.openrouterApiKey?.trim() || ''
 
   if (!model || !Array.isArray(messages)) {
     throw createError({ statusCode: 400, message: 'Missing required fields: model, messages' })

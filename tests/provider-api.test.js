@@ -19,8 +19,7 @@ import {describe, expect, test} from 'bun:test';
 
 import {
   assertProviderBaseUrl,
-  buildChatRequest,
-  buildModelsRequest
+  buildChatRequest
 }                                          from '../server/utils/providerApi';
 import {isThinkingModel}                   from '../shared/utils/models';
 import {resolveDefaultModel, resolveDefaultProvider} from '../app/composables/useDefaultModel';
@@ -37,16 +36,6 @@ describe('providerApi', () => {
     expect(request.headers.Authorization).toBe('Bearer test-key');
     expect(request.body.model).toBe('google/gemini-3-flash-preview');
     expect(request.body.stream).toBe(true);
-  })
-
-  test('builds OpenRouter models list requests', () => {
-    const request = buildModelsRequest('https://openrouter.ai/api', 'test-key');
-    expect(request).toEqual({
-      apiUrl:  'https://openrouter.ai/api/v1/models',
-      headers: {
-        Authorization: 'Bearer test-key',
-      },
-    })
   })
 
   test('rejects insecure or private provider URLs unless they are explicitly allowed', () => {
