@@ -116,11 +116,11 @@
   })
 
   // Sync selectedModel with the persisted value when settings finish loading from localStorage.
-  // Handles the SSR → client hydration race where selectedModel was initialized with the default
-  // before the user's saved preference became available.
-  watch(persistedModel, (newValue) => {
-    if (newValue && activeModels.value.some(m => m.id===newValue)) {
-      selectedModel.value = newValue
+  // Tracks both persistedModel and activeModels so it fires whenever EITHER becomes available,
+  // regardless of which one loads first. Handles the SSR → client hydration race.
+  watch([persistedModel, activeModels], () => {
+    if (persistedModel.value && activeModels.value.some(m => m.id===persistedModel.value)) {
+      selectedModel.value = persistedModel.value
     }
   }, {immediate: true})
 
