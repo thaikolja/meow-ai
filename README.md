@@ -92,6 +92,32 @@ NUXT_SESSION_SECRET=replace-me-too
 NUXT_OPENROUTER_API_KEY=sk-or-v1-...
 ```
 
+## Deployment
+
+Every push to `main` triggers a GitLab CI pipeline that redeploys the production container on the live server:
+
+1. `lint` — `bun install` + typecheck
+2. `build` — `bun install` + `bun run build` (artifacts)
+3. `deploy` — SSHes into the server and runs `scripts/deploy.sh`, which:
+   - Pulls the latest code from `origin/main`
+   - Stops and removes the running container
+   - Removes the old image and prunes the build cache
+   - Rebuilds the image from scratch
+   - Starts the new container and tails recent logs
+
+You can also run the deploy script manually on the server for emergency redeploys:
+
+```bash
+./scripts/deploy.sh
+```
+
+The CI job requires these CI/CD variables to be set in GitLab (Settings > CI/CD > Variables):
+
+- `SSH_DEPLOY_KEY` — private SSH key authorized on the server
+- `SSH_DEPLOY_USER` — SSH username on the server (e.g. `root`)
+- `SSH_DEPLOY_HOST` — hostname or IP of the production server
+- `SSH_DEPLOY_PORT` — (optional) SSH port, defaults to `22`
+
 ## Available scripts
 
 | Command             | Purpose                                                                  |

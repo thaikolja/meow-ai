@@ -12,6 +12,7 @@ All notable changes to this project are documented here.
 - Persisted model selection in `localStorage` under `chat-yanawa-selected-model`
 - "Default Meow-del" dropdown in `SettingsModal` for setting the user's preferred default model
 - Per-chat model memory — each chat remembers which model it was created with, so existing conversations don't change when the default is switched
+- Automatic deployment on push to `main` — `.gitlab-ci.yml` now SSHes into the production server and runs `scripts/deploy.sh` to pull, stop, rebuild, and restart the container
 
 ### Changed
 
