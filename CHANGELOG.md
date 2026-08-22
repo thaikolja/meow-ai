@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here.
 
+## Unreleased
+
+### Changed
+
+- GitLab `deploy_production` logs into the server as `root` with `SSH_DEPLOY_PASSWORD` (`sshpass`) instead of
+  `SSH_DEPLOY_KEY` / `ssh-add`. `SSH_DEPLOY_USER` still defaults to `root`.
+
+### Fixed
+
+- Deploy no longer fails with `Error loading key "(stdin)": error in libcrypto` from a malformed or File-type SSH key.
+
 ## v1.2.0 — 2026-06-30
 
 ### Added

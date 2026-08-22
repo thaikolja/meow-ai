@@ -113,10 +113,12 @@ You can also run the deploy script manually on the server for emergency redeploy
 
 The CI job requires these CI/CD variables to be set in GitLab (Settings > CI/CD > Variables):
 
-- `SSH_DEPLOY_KEY` — private SSH key authorized on the server
-- `SSH_DEPLOY_USER` — SSH username on the server (e.g. `root`)
+- `SSH_DEPLOY_PASSWORD` — root password (Type: Variable; enable Mask and Protect; no quotes)
 - `SSH_DEPLOY_HOST` — hostname or IP of the production server
+- `SSH_DEPLOY_USER` — (optional) SSH username, defaults to `root`
 - `SSH_DEPLOY_PORT` — (optional) SSH port, defaults to `22`
+
+The production host must allow password SSH for that user (`PasswordAuthentication yes` and, for root, `PermitRootLogin yes`).
 
 ## Available scripts
 
