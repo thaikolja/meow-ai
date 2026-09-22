@@ -35,7 +35,6 @@ lint_code:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_COMMIT_BRANCH == 'main'
-    - if: $CI_COMMIT_BRANCH == 'release'
 
 build_app:
   stage: build
@@ -48,7 +47,6 @@ build_app:
     expire_in: 1 week
   rules:
     - if: $CI_COMMIT_BRANCH == 'main'
-    - if: $CI_COMMIT_BRANCH == 'release'
 
 deploy:
   stage: deploy
@@ -57,7 +55,6 @@ deploy:
     - build_app
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
-    - if: $CI_COMMIT_BRANCH == "release"
   before_script:
     - apk add --no-cache openssh-client sshpass
     - test -n "$SSH_DEPLOY_PASSWORD" || { echo "SSH_DEPLOY_PASSWORD is empty"; exit 1; }
