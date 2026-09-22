@@ -5,8 +5,8 @@
   "type":            "module",
   "description":     "Cat-themed Nuxt chat interface for focused AI-powered German practice.",
   "scripts":         {
-    "build":     "TMPDIR=/tmp/meow-sockets nuxt build",
-    "dev":       "TMPDIR=/tmp/meow-sockets nuxt dev",
+    "build": "mkdir -p /tmp/meow-sockets && TMPDIR=/tmp/meow-sockets nuxt build",
+    "dev":   "mkdir -p /tmp/meow-sockets && TMPDIR=/tmp/meow-sockets nuxt dev",
     "generate":  "nuxt generate",
     "preview":   "nuxt preview",
     "postinstall": "nuxt prepare",

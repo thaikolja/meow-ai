@@ -11,7 +11,8 @@
 #   - Running from the project root (cd /var/www/vhosts/yanawa.io/meow.yanawa.io)
 #   - Docker + docker compose available on PATH
 #   - The .env file is present and contains NUXT_APP_PASSWORD,
-#     NUXT_SESSION_SECRET, and NUXT_OPENROUTER_API_KEY
+#     NUXT_OPENROUTER_API_KEY, and NUXT_DEEPSEEK_API_KEY
+#   - Optional NUXT_SESSION_SECRET (falls back to NUXT_APP_PASSWORD)
 #
 # Exit codes:
 #   0 - success
@@ -35,17 +36,18 @@ readonly NC='\033[0m' # No Color
 readonly COMPOSE_FILE="docker-compose.yml"
 readonly CONTAINER_NAME="meow-ai"
 readonly IMAGE_NAME="meow-ai:latest"
+readonly DEPLOY_PATH="${DEPLOY_PATH:-/var/www/vhosts/yanawa.io/meow.yanawa.io}"
 
 # Volume name is derived from the docker compose project name
 # which defaults to the directory basename with non-alphanumeric chars replaced.
 # /var/www/vhosts/yanawa.io/meow.yanawa.io -> meow_yanawa_io_meow-data
 readonly VOLUME_NAME="meow_yanawa_io_meow-data"
 
-log()    { printf "${CYAN}[meow-deploy]${NC} %s\n" "$*"; }
-purr()   { printf "${PURPLE}[meow-deploy]${NC} 🐾 %s\n" "$*"; }
-warn()   { printf "${YELLOW}[meow-deploy]${NC} ⚠️  %s\n" "$*" >&2; }
-fail()   { printf "${RED}[meow-deploy]${NC} ❌ %s\n"    "$*" >&2; }
-ok()     { printf "${GREEN}[meow-deploy]${NC} ✅ %s\n"   "$*"; }
+log() { printf "${CYAN}[meow-deploy]${NC} %s\n" "$*"; }
+purr() { printf "${PURPLE}[meow-deploy]${NC} 🐾 %s\n" "$*"; }
+warn() { printf "${YELLOW}[meow-deploy]${NC} ⚠️  %s\n" "$*" >&2; }
+fail() { printf "${RED}[meow-deploy]${NC} ❌ %s\n" "$*" >&2; }
+ok() { printf "${GREEN}[meow-deploy]${NC} ✅ %s\n" "$*"; }
 
 require_cmd() {
   if ! command -v "$1" >/dev/null 2>&1; then
@@ -54,17 +56,46 @@ require_cmd() {
   fi
 }
 
+# Fail when a required .env key is missing or empty. Never print the value.
+require_env() {
+  local key="$1"
+  local line value
+
+  if [ ! -f .env ]; then
+    fail ".env is missing in ${DEPLOY_PATH}"
+    exit 1
+  fi
+
+  line="$(grep -E "^${key}=" .env | head -n 1 || true)"
+  value="${line#${key}=}"
+  value="${value%\"}"
+  value="${value#\"}"
+  value="${value%\'}"
+  value="${value#\'}"
+
+  if [ -z "$value" ]; then
+    fail ".env must set ${key}"
+    exit 1
+  fi
+}
+
 # Resolve the volume name from the directory by asking docker compose
 resolve_volume() {
-  docker compose -f "$COMPOSE_FILE" config --volumes 2>/dev/null \
-    | head -n 1 \
-    || echo "$VOLUME_NAME"
+  docker compose -f "$COMPOSE_FILE" config --volumes 2>/dev/null |
+    head -n 1 ||
+    echo "$VOLUME_NAME"
 }
 
 main() {
   log "Paws and check the prerequisites..."
   require_cmd git
   require_cmd docker
+
+  if [ ! -d "$DEPLOY_PATH" ]; then
+    fail "Deploy directory not found: ${DEPLOY_PATH}"
+    exit 1
+  fi
+  cd "$DEPLOY_PATH"
 
   if ! docker compose version >/dev/null 2>&1; then
     fail "docker compose plugin is required"
@@ -83,6 +114,14 @@ main() {
     exit 3
   fi
   ok "Code is up to date (HEAD: $(git rev-parse --short HEAD))"
+
+  require_env NUXT_APP_PASSWORD
+  require_env NUXT_OPENROUTER_API_KEY
+  require_env NUXT_DEEPSEEK_API_KEY
+  if [ ! -f .data/models.json ]; then
+    fail ".data/models.json is missing. The catalog bind-mount needs this file."
+    exit 1
+  fi
 
   purr "Putting the old container to sleep..."
   if ! docker compose -f "$COMPOSE_FILE" down; then

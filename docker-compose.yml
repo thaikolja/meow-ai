@@ -17,6 +17,7 @@ services:
       # OpenRouter API key. Used for every model except DeepSeek.
       NUXT_OPENROUTER_API_KEY: "${NUXT_OPENROUTER_API_KEY:-}"
       # DeepSeek API key. Official endpoint https://api.deepseek.com/chat/completions.
+      # Must be set in the server .env. An empty value makes DeepSeek chats fail at runtime.
       NUXT_DEEPSEEK_API_KEY: "${NUXT_DEEPSEEK_API_KEY:-}"
       # Default provider/model shown in the UI on first load.
       NUXT_PUBLIC_DEFAULT_PROVIDER: "${NUXT_PUBLIC_DEFAULT_PROVIDER:-openrouter-default}"
@@ -29,8 +30,10 @@ services:
       # Override the data directory path inside the container.
       NUXT_DATA_DIR: /app/.data
     volumes:
-      # Persist the models catalog across restarts.
+      # Persist runtime data. The catalog itself comes from the repo file below,
+      # so a deploy picks up model changes instead of keeping the first seeded copy.
       - meow-data:/app/.data
+      - ./.data/models.json:/app/.data/models.json:ro
     healthcheck:
       test: [ "CMD", "node", "-e", "fetch('http://localhost:3000/api/auth/session').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))" ]
       interval: 30s
