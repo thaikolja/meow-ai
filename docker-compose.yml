@@ -14,8 +14,10 @@ services:
       # Recommended: separate secret for signing session cookies.
       # Falls back to NUXT_APP_PASSWORD when not set.
       NUXT_SESSION_SECRET: "${NUXT_SESSION_SECRET:-}"
-      # OpenRouter API key. Required - the app only supports OpenRouter.
+      # OpenRouter API key. Used for every model except DeepSeek.
       NUXT_OPENROUTER_API_KEY: "${NUXT_OPENROUTER_API_KEY:-}"
+      # DeepSeek API key. Official endpoint https://api.deepseek.com/chat/completions.
+      NUXT_DEEPSEEK_API_KEY: "${NUXT_DEEPSEEK_API_KEY:-}"
       # Default provider/model shown in the UI on first load.
       NUXT_PUBLIC_DEFAULT_PROVIDER: "${NUXT_PUBLIC_DEFAULT_PROVIDER:-openrouter-default}"
       NUXT_PUBLIC_DEFAULT_MODEL: "${NUXT_PUBLIC_DEFAULT_MODEL:-google/gemini-2.5-flash}"

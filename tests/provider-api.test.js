@@ -19,12 +19,30 @@ import {describe, expect, test} from 'bun:test';
 
 import {
   assertProviderBaseUrl,
-  buildChatRequest
+    buildChatRequest,
+    buildDeepSeekRequest,
+    DEEPSEEK_CHAT_URL
 }                                          from '../server/utils/providerApi';
 import {isThinkingModel}                   from '../shared/utils/models';
 import {resolveDefaultModel, resolveDefaultProvider} from '../app/composables/useDefaultModel';
 
 describe('providerApi', () => {
+    test('sends DeepSeek Flash to the official DeepSeek endpoint', () => {
+        const request = buildDeepSeekRequest(
+                'ds-test-key',
+                'deepseek-flash',
+                [ { role: 'user', content: 'hi' } ]
+        )
+        expect(request.apiUrl).toBe(DEEPSEEK_CHAT_URL)
+        expect(request.apiUrl).toBe('https://api.deepseek.com/chat/completions')
+        expect(request.headers.Authorization).toBe('Bearer ds-test-key')
+        expect(request.body.model).toBe('deepseek-flash')
+        expect(request.body.thinking).toEqual({ type: 'disabled' })
+
+        const legacy = buildDeepSeekRequest('ds-test-key', 'deepseek-v4-flash', [ { role: 'user', content: 'hi' } ])
+        expect(legacy.body.model).toBe('deepseek-flash')
+    })
+
   test('builds OpenRouter chat requests via the OpenAI-compatible path', () => {
     const request = buildChatRequest(
         'https://openrouter.ai/api',

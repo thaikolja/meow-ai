@@ -78,7 +78,7 @@
   // Global model selection state (shared with ModelSelector component)
   const selectedModel    = useState<string>('selected-model', () => defaultModel.value)
   const selectedProvider = useState<string>('selected-provider', () => defaultProvider.value)
-  const isThinking       = computed(() => isThinkingModel(selectedModel.value))
+  const isThinking = computed(() => isThinkingModel(resolveChatModel()))
 
   /**
    * Extracts the unique chat ID from the route parameters.
@@ -95,14 +95,13 @@
   })
 
   /**
-   * Resolves the model to use for this chat session.
-   * Priority: chat's stored model > global selected model > default.
-   * Existing conversations remember which model they were created with.
+   * Model for this chat. The header picker writes chat.model without
+   * changing the default used for new chats.
    */
   function resolveChatModel(): string {
     const chat = getChat(chatId.value)
-    if (chat?.model) return chat.model
-    return selectedModel.value
+    if (chat?.model?.trim()) return chat.model
+    return selectedModel.value || defaultModel.value
   }
 
   /**
@@ -112,13 +111,14 @@
   onMounted(() => {
     void ensureDefaultSystemPromptLoaded()
 
-    if (chatId.value && !getChat(chatId.value)) {
+    const openedChat = chatId.value ? getChat(chatId.value) : undefined
+    if (chatId.value && !openedChat) {
       router.push('/')
       return
     }
 
-    // Detect and trigger pending streams (e.g., from index page redirection)
-    if (sessionStorage.getItem('pending-stream')===chatId.value) {
+    // pending-stream stores the chat id, which stays put when the address becomes a slug.
+    if (openedChat && sessionStorage.getItem('pending-stream') === openedChat.id) {
       sessionStorage.removeItem('pending-stream')
       triggerCompletion()
     }
@@ -149,7 +149,7 @@
     addMessage(currentChatId, {
       role:       'user',
       content,
-      model:      selectedModel.value,
+      model: resolveChatModel(),
       providerId: selectedProvider.value
     })
 
@@ -276,8 +276,7 @@
   }
 
   /**
-   * Retries the last AI response.
-   * Completely removes the current (likely errored or unsatisfactory) last message before re-triggering completion.
+   * Replaces the last assistant reply using the model selected for this chat.
    */
   async function handleRegenerate() {
     if (isStreaming.value) return // Block simultaneous streams in one thread

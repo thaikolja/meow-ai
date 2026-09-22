@@ -62,20 +62,37 @@
 
 <script lang="ts" setup>
   /**
-   * Component for selecting the active AI model from the catalog.
-   * Includes search functionality. All models are routed through OpenRouter.
-   * The selected model is persisted to localStorage via useSettings.
+   * Searchable model picker. All models are routed through OpenRouter.
+   * Inside a chat, the pick is stored on that chat only.
+   * On the landing page it updates the default used for new chats.
    */
 
   import { onMounted, onUnmounted, ref, computed, watchEffect } from 'vue'
+  import { applyModelPick, displayedModelId, isChatSessionPath } from '#shared/utils/sessionModel'
 
+  const route                     = useRoute()
+  const { getChat, setChatModel } = useChats()
   const { activeModels, getModel, loadModels } = useModels()
   const { selectedModel: persistedModel, setSelectedModel } = useSettings()
   const defaultModel                           = useDefaultModel()
   const dropdownContainer                      = ref<HTMLElement | null>(null)
 
-  // Shared state for the currently active model — initialized from persisted value, falls back to default
+  // Global default for new chats. A chat session does not write this.
   const selectedModel = useState<string>('selected-model', () => persistedModel.value || defaultModel.value)
+
+  const globalModel = computed(() => selectedModel.value || persistedModel.value || defaultModel.value)
+
+  const openChat = computed(() => {
+    if (!isChatSessionPath(route.path)) return undefined
+    const id = typeof route.params.id === 'string' ? route.params.id : ''
+    return id ? getChat(id) : undefined
+  })
+
+  const displayedModel = computed(() => displayedModelId({
+    path:        route.path,
+    chatModel:   openChat.value?.model,
+    globalModel: globalModel.value
+  }))
 
   // Local UI state
   const isOpen = ref(false)
@@ -118,9 +135,9 @@
   })
 
   const displayLabel = computed(() => {
-    if (!selectedModel.value) return 'Pick a Meow-del 🐾'
-    const model = getModel(selectedModel.value)
-    return model?.name || selectedModel.value
+    if (!displayedModel.value) return 'Pick a Meow-del 🐾'
+    const model = getModel(displayedModel.value)
+    return model?.name || displayedModel.value
   })
 
   const filteredModels = computed(() => {
@@ -133,12 +150,24 @@
   })
 
   function isSelected(modelId: string) {
-    return selectedModel.value===modelId
+    return displayedModel.value === modelId
   }
 
   function selectModel(modelId: string) {
-    selectedModel.value = modelId
-    setSelectedModel(modelId)
-    isOpen.value       = false
+    const pick = applyModelPick({
+      path:        route.path,
+      pickedModel: modelId,
+      globalModel: globalModel.value
+    })
+
+    if (pick.sessionModel) {
+      const id = typeof route.params.id === 'string' ? route.params.id : ''
+      if (id) setChatModel(id, pick.sessionModel)
+    } else {
+      selectedModel.value = pick.globalModel
+      setSelectedModel(pick.globalModel)
+    }
+
+    isOpen.value = false
   }
 </script>

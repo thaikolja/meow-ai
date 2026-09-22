@@ -2,8 +2,8 @@
 #
 # Pipeline overview:
 #   lint    - bun install + typecheck (soft-fail)
-#   build   - bun install + nuxt build (artifacts)
-#   deploy  - SSHes into the production server and runs scripts/deploy.sh
+#   build   - bun install + bun run build (artifacts)
+#   deploy  - SSHes as root with SSH_DEPLOY_PASSWORD (sshpass) and runs scripts/deploy.sh
 #
 # Required CI/CD variables (Settings > CI/CD > Variables):
 #   SSH_DEPLOY_PASSWORD - root password for the production server

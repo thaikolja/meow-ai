@@ -78,4 +78,6 @@ export interface Chat {
   providerId?: string
   /** Default model identifier for the thread session */
   model?: string
+  /** Public cat-sentence address. Absent on chats created before slugs existed. */
+  slug?: string
 }

@@ -17,14 +17,28 @@
 
 <template>
   <UApp>
-    <CatLoadingState
-        v-if="!authState.checked" full-screen subtitle="Meow is checking the cushions, polishing the cat flap, and waking up your session." title="Waking up the cat lounge..." />
+    <div
+        v-show="appReady"
+        class="contents"
+    >
+      <NuxtLayout>
+        <NuxtPage />
+      </NuxtLayout>
+    </div>
 
-    <AuthGate v-else-if="!authState.authenticated" />
+    <div
+        v-if="!appReady"
+        class="fixed inset-0 z-[100] bg-zinc-900"
+    >
+      <CatLoadingState
+          v-if="!authState.checked"
+          full-screen
+          subtitle="Meow is checking the cushions, polishing the cat flap, and waking up your session."
+          title="Waking up the cat lounge..."
+      />
 
-    <NuxtLayout v-else>
-      <NuxtPage />
-    </NuxtLayout>
+      <AuthGate v-else />
+    </div>
 
     <ConfettiRain :burst-id="celebrationSequence" />
   </UApp>
@@ -33,6 +47,7 @@
 <script lang="ts" setup>
   const { authState, verifySession } = useAuthSession()
   const { celebrationSequence }      = useCelebration()
+  const appReady = computed(() => authState.value.checked && authState.value.authenticated)
 
   if (import.meta.server && !authState.value.checked) {
     await verifySession(true)

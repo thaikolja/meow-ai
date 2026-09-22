@@ -112,6 +112,7 @@
 
   const router                     = useRouter()
   const { createChat, addMessage } = useChats()
+  const { assignChatSlug } = useChatSlug()
   const { authState }              = useAuthSession()
   const defaultProvider            = useDefaultProvider()
   const defaultModel               = useDefaultModel()
@@ -142,6 +143,7 @@
 
     // Handshake mechanism for cross-page stream triggering
     sessionStorage.setItem('pending-stream', newChat.id)
+    assignChatSlug(newChat.id)
     router.push(`/chat/${newChat.id}`)
   }
 

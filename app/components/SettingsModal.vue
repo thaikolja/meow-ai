@@ -78,8 +78,7 @@
                 </option>
               </select>
               <p class="text-xs text-neutral-500 mt-1">
-                This is the model new chats will use by default. You can also switch models from the header at any
-                time.
+                This is the model new chats start with. Choosing another model inside a chat stays in that chat.
               </p>
             </div>
           </div>

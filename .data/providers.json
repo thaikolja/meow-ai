@@ -23,7 +23,7 @@
     "iv":              "",
     "authTag":         "",
     "models":          [
-      "deepseek-v4-flash",
+      "deepseek-flash",
       "deepseek-v4-pro"
     ],
     "isActive":        true,
