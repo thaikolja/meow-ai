@@ -33,7 +33,7 @@ readonly GREEN='\033[0;32m'
 readonly RED='\033[0;31m'
 readonly NC='\033[0m' # No Color
 
-readonly COMPOSE_FILE="docker-compose.yml"
+readonly COMPOSE_FILE="./scripts/docker-compose.yml"
 readonly CONTAINER_NAME="meow-ai"
 readonly IMAGE_NAME="meow-ai:latest"
 readonly DEPLOY_PATH="${DEPLOY_PATH:-/var/www/vhosts/yanawa.io/meow.yanawa.io}"

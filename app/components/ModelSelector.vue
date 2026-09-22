@@ -67,10 +67,11 @@
    */
 
   import { onMounted, onUnmounted, ref, computed, watchEffect } from 'vue'
-  import { applyModelPick, displayedModelId, isChatSessionPath } from '#shared/utils/sessionModel'
+  import { chatSessionKey, displayedModelId } from '#shared/utils/sessionModel'
 
   const route                     = useRoute()
   const { getChat, setChatModel } = useChats()
+  const { rememberSessionModel, recallSessionModel } = useSessionModel()
   const { activeModels, getModel, loadModels } = useModels()
   const { selectedModel: persistedModel, setSelectedModel } = useSettings()
   const defaultModel                           = useDefaultModel()
@@ -82,14 +83,13 @@
   const globalModel = computed(() => selectedModel.value || persistedModel.value || defaultModel.value)
 
   const openChat = computed(() => {
-    if (!isChatSessionPath(route.path)) return undefined
-    const id = typeof route.params.id === 'string' ? route.params.id : ''
-    return id ? getChat(id) : undefined
+    const key = chatSessionKey(route.path)
+    return key ? getChat(key) : undefined
   })
 
   const displayedModel = computed(() => displayedModelId({
     path:        route.path,
-    chatModel:   openChat.value?.model,
+    chatModel: (openChat.value && recallSessionModel(openChat.value.id)) || openChat.value?.model,
     globalModel: globalModel.value
   }))
 
@@ -153,18 +153,13 @@
   }
 
   function selectModel(modelId: string) {
-    const pick = applyModelPick({
-      path:        route.path,
-      pickedModel: modelId,
-      globalModel: globalModel.value
-    })
-
-    if (pick.sessionModel) {
-      const id = typeof route.params.id === 'string' ? route.params.id : ''
-      if (id) setChatModel(id, pick.sessionModel)
-    } else {
-      selectedModel.value = pick.globalModel
-      setSelectedModel(pick.globalModel)
+    const chat = openChat.value
+    if (chat) {
+      setChatModel(chat.id, modelId)
+      rememberSessionModel(chat.id, modelId)
+    } else if (!chatSessionKey(route.path)) {
+      selectedModel.value = modelId
+      setSelectedModel(modelId)
     }
 
     isOpen.value = false

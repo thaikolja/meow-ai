@@ -115,10 +115,10 @@
   const { authState }              = useAuthSession()
   const defaultProvider            = useDefaultProvider()
   const defaultModel               = useDefaultModel()
+  const { selectedModel: savedDefault } = useSettings()
 
   // Shared global state for current AI configuration
   const selectedProvider = useState<string>('selected-provider', () => defaultProvider.value)
-  const selectedModel    = useState<string>('selected-model', () => defaultModel.value)
 
   // Personalized greeting state
   const username    = useCookie('chat_username')
@@ -132,11 +132,12 @@
    * 4. Navigates to the chat view.
    */
   async function handleSend(content: string) {
-    const newChat = createChat(selectedProvider.value, selectedModel.value)
+    const startingModel = savedDefault.value || defaultModel.value
+    const newChat       = createChat(selectedProvider.value, startingModel)
     addMessage(newChat.id, {
       role:       'user',
       content,
-      model:      selectedModel.value,
+      model: startingModel,
       providerId: selectedProvider.value
     })
 

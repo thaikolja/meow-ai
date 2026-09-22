@@ -19,7 +19,18 @@
  * default used for new chats.
  */
 export function isChatSessionPath(path: string): boolean {
-  return /^\/chat\/[^/]+\/?$/.test(path)
+  return chatSessionKey(path) !== ''
+}
+
+/** Chat id or slug from `/chat/<key>`, ignoring the query string. */
+export function chatSessionKey(path: string): string {
+  const match = path.split('?')[0]?.match(/^\/chat\/([^/]+)\/?$/)
+  if (!match?.[1]) return ''
+  try {
+    return decodeURIComponent(match[1])
+  } catch {
+    return match[1]
+  }
 }
 
 export function displayedModelId(input: {

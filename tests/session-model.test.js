@@ -16,7 +16,7 @@
 
 import { describe, expect, test } from 'bun:test'
 
-import { applyModelPick, displayedModelId } from '../shared/utils/sessionModel'
+import { applyModelPick, chatSessionKey, displayedModelId } from '../shared/utils/sessionModel'
 
 const DEFAULT_MODEL = 'google/gemini-2.5-flash'
 const SESSION_MODEL = 'google/gemini-3-flash-preview'
@@ -47,6 +47,12 @@ describe('session model selection', () => {
             sessionModel: SESSION_MODEL,
             globalModel:  DEFAULT_MODEL
         })
+    })
+
+    test('reads the open chat key from a slug address', () => {
+        expect(chatSessionKey('/chat/cat-sits-on-sofa')).toBe('cat-sits-on-sofa')
+        expect(chatSessionKey('/chat/cat-sits-on-sofa?x=1')).toBe('cat-sits-on-sofa')
+        expect(chatSessionKey('/')).toBe('')
     })
 
     test('picking a model outside a chat updates only the global default', () => {

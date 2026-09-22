@@ -53,8 +53,7 @@
                   v-model="systemPromptEditor" class="min-h-52 w-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 text-base sm:text-sm text-neutral-800 dark:text-neutral-200 placeholder-neutral-400 dark:placeholder-neutral-500 outline-none focus:border-primary-500 transition-colors resize-y" placeholder="e.g. You are a helpful assistant..." rows="6" />
 
               <p class="text-xs text-neutral-500 mt-1">
-                The built-in default prompt is loaded from <code>/public/system-prompt.md</code>. Editing here stores
-                only your local override.
+                Edit <code>/public/system-prompt.md</code> to overwrite the default system prompt
               </p>
             </div>
           </div>

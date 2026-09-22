@@ -77,6 +77,7 @@
   // Global model selection state (shared with ModelSelector component)
   const selectedModel    = useState<string>('selected-model', () => defaultModel.value)
   const selectedProvider = useState<string>('selected-provider', () => defaultProvider.value)
+  const { recallSessionModel } = useSessionModel()
   const isThinking = computed(() => isThinkingModel(resolveChatModel()))
 
   /**
@@ -99,6 +100,8 @@
    */
   function resolveChatModel(): string {
     const chat = getChat(chatId.value)
+    const picked = chat ? recallSessionModel(chat.id) : ''
+    if (picked) return picked
     if (chat?.model?.trim()) return chat.model
     return selectedModel.value || defaultModel.value
   }

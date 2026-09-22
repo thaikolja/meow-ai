@@ -172,6 +172,7 @@
   const { authState, logout }                               = useAuthSession()
   const defaultProvider                                     = useDefaultProvider()
   const defaultModel                                        = useDefaultModel()
+  const { selectedModel: savedDefault } = useSettings()
 
   // Global application states
   const sidebarOpen      = useState('sidebar-open', () => true)
@@ -180,7 +181,6 @@
   const searchQuery      = ref('')
   const usernameCookie   = useCookie('chat_username')
   const selectedProvider = useState<string>('selected-provider', () => defaultProvider.value)
-  const selectedModel    = useState<string>('selected-model', () => defaultModel.value)
   const logoutPending    = ref(false)
 
   const displayName = computed(() => authState.value.username || usernameCookie.value || '')
@@ -245,7 +245,7 @@
   }
 
   function handleNewChat() {
-    const chat = createChat(selectedProvider.value, selectedModel.value)
+    const chat = createChat(selectedProvider.value, savedDefault.value || defaultModel.value)
     assignChatSlug(chat.id)
     router.push(`/chat/${chat.id}`)
     if (isMobile.value) sidebarOpen.value = false
