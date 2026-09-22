@@ -9,4 +9,4 @@ Developer: Kolja Nolte
 Contact: kolja.nolte@gmail.com
 
 /* SITE */
-Built with caffeine and existential dread.
+Built for my lovely wife <3

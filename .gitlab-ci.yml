@@ -1,27 +1,24 @@
-# Mew-line CI: The Furry Pipeline for GitLab
+# Meow CI
 #
-# Pipeline overview:
+# Pipeline:
 #   lint    - bun install + typecheck (soft-fail)
-#   build   - bun install + nuxt build (artifacts)
-#   deploy  - SSHes into the production server and runs scripts/deploy.sh
+#   build   - bun install + bun run build (artifacts)
+#   deploy  - push to main → sshpass as root → hard-reset checkout → scripts/deploy.sh
 #
-# Required CI/CD variables (Settings > CI/CD > Variables):
-#   SSH_DEPLOY_PASSWORD - root password for the production server
-#                         Type: Variable. Mask + Protect. Do not wrap in quotes.
-#   SSH_DEPLOY_HOST     - Hostname or IP of the production server
-#   SSH_DEPLOY_USER     - (optional) SSH username, defaults to root
-#   SSH_DEPLOY_PORT     - (optional) SSH port, defaults to 22
+# GitLab CI/CD variables (masked/protected as appropriate):
+#   SSH_DEPLOY_PASSWORD  root password. Type: Variable. Do not wrap it in quotes.
+#   SSH_DEPLOY_HOST      production hostname or IP
+#   SSH_DEPLOY_PORT      optional, default 22
+#   REMOTE_SCRIPT_PATH   optional, default
+#                        /var/www/vhosts/yanawa.io/meow.yanawa.io/scripts/deploy.sh
 #
-# The server must allow password login for that user:
+# The server must allow password login for root:
 #   PasswordAuthentication yes
 #   PermitRootLogin yes
 #
-# To set up the server:
-#   1. Confirm root (or SSH_DEPLOY_USER) can SSH with a password
-#   2. Place a working .env file at $DEPLOY_PATH/.env on the server with
-#      NUXT_APP_PASSWORD, NUXT_SESSION_SECRET, and NUXT_OPENROUTER_API_KEY
-#   3. Ensure Docker and docker compose are installed and the deploy user
-#      can run them without sudo (or adjust the script accordingly)
+# The SSH step hard-resets the host checkout to origin/main (keeps untracked
+# .env), then runs deploy.sh. The server .env must set NUXT_APP_PASSWORD,
+# NUXT_OPENROUTER_API_KEY, and NUXT_DEEPSEEK_API_KEY.
 
 image: oven/bun:latest
 
@@ -30,17 +27,16 @@ stages:
   - build
   - deploy
 
-# Paws-ing for a lint
 lint_code:
   stage: lint
   script:
     - bun install
-    - bun run typecheck || echo "Keep it purring, type-checking is paws-itive but optional for now"
+    - bun run typecheck || echo "Typecheck failed; continuing because this job is optional"
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'release'
 
-# The Big Scratch: Building the App
 build_app:
   stage: build
   script:
@@ -52,26 +48,33 @@ build_app:
     expire_in: 1 week
   rules:
     - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'release'
 
-# Purr-duction: Redeploys the production container on the live server
-deploy_production:
+deploy:
   stage: deploy
-  image: alpine:3.20
+  image: alpine:latest
+  needs:
+    - build_app
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "release"
   before_script:
-    - apk add --no-cache openssh-client bash sshpass
-    - test -n "${SSH_DEPLOY_PASSWORD:-}" || { echo "SSH_DEPLOY_PASSWORD is empty"; exit 1; }
-    - test -n "${SSH_DEPLOY_HOST:-}" || { echo "SSH_DEPLOY_HOST is empty"; exit 1; }
-    - export SSHPASS="$SSH_DEPLOY_PASSWORD"
+    - apk add --no-cache openssh-client sshpass
+    - test -n "$SSH_DEPLOY_PASSWORD" || { echo "SSH_DEPLOY_PASSWORD is empty"; exit 1; }
+    - test -n "$SSH_DEPLOY_HOST" || { echo "SSH_DEPLOY_HOST is empty"; exit 1; }
+    - export SSHPASS="$(printf '%s' "$SSH_DEPLOY_PASSWORD" | tr -d '\r')"
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - ssh-keyscan -p "${SSH_DEPLOY_PORT:-22}" "$SSH_DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+    - ssh-keyscan -p "${SSH_DEPLOY_PORT:-22}" "$SSH_DEPLOY_HOST" >> ~/.ssh/known_hosts
+    - chmod 600 ~/.ssh/known_hosts
   script:
-    - sshpass -e scp -P "${SSH_DEPLOY_PORT:-22}" scripts/deploy.sh "${SSH_DEPLOY_USER:-root}@$SSH_DEPLOY_HOST:/tmp/meow-deploy.sh"
-    - sshpass -e ssh -p "${SSH_DEPLOY_PORT:-22}" "${SSH_DEPLOY_USER:-root}@$SSH_DEPLOY_HOST" "bash /tmp/meow-deploy.sh"
+    - |
+      SSH_OPTS="-o PreferredAuthentications=password -o PubkeyAuthentication=no -o NumberOfPasswordPrompts=1 -o StrictHostKeyChecking=yes"
+      USER_NAME="${SSH_DEPLOY_USER:-root}"
+      sshpass -e scp ${SSH_OPTS} -P "${SSH_DEPLOY_PORT:-22}" scripts/deploy.sh "${USER_NAME}@${SSH_DEPLOY_HOST}:/tmp/meow-deploy.sh"
+      sshpass -e ssh ${SSH_OPTS} -p "${SSH_DEPLOY_PORT:-22}" "${USER_NAME}@${SSH_DEPLOY_HOST}" \
+        "DEPLOY_BRANCH='${CI_COMMIT_BRANCH}' bash /tmp/meow-deploy.sh" \
+        || { echo "SSH failed. sshpass exit 5 means SSH_DEPLOY_PASSWORD was rejected for ${USER_NAME}@${SSH_DEPLOY_HOST}."; exit 5; }
   environment:
     name: production
     url: https://meow.yanawa.io
-  rules:
-    - if: $CI_COMMIT_BRANCH == 'main'
-  needs:
-    - build_app

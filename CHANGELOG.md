@@ -2,16 +2,34 @@
 
 All notable changes to this project are documented here.
 
-## Unreleased
+## v1.3.0 — 2026-08-23
+
+### Added
+
+- Optional image attach on the composer (JPG, JPEG, PNG, WebP, AVIF, max 1 MB). The image is sent once with that prompt
+  as vision input, then dropped. Chat history and the user bubble stay text-only — no preview, no stored bytes. Attach
+  with the image button, drag-and-drop, or Cmd/Ctrl+V.
+- New chats stamp their model from Settings **Default Meow-del**, or from `NUXT_PUBLIC_DEFAULT_MODEL` if Settings has no
+  override. The header model picker retargets the open chat (or the new-chat default on `/`). The sidebar lists which
+  LLM each session uses.
+- Tests for image MIME/magic-byte/size checks, clipboard image picking, session-model resolution, and multimodal
+  last-user-message attach.
 
 ### Changed
 
+- `bun run build`, `bun run dev`, and `bun run generate` set `TMPDIR=/tmp/meow-sockets` so Vite/Nuxt Unix sockets stay
+  on a short path (macOS `sun_path` is 104 bytes).
+- `@nuxt/icon` ships a client bundle (`scan` plus an explicit icon list) so layout and auth icons load without a runtime
+  Iconify fetch.
 - GitLab `deploy_production` logs into the server as `root` with `SSH_DEPLOY_PASSWORD` (`sshpass`) instead of
   `SSH_DEPLOY_KEY` / `ssh-add`. `SSH_DEPLOY_USER` still defaults to `root`.
+- Settings **Default Meow-del** overwrites `.env` (`NUXT_PUBLIC_DEFAULT_MODEL`) for **new** chats only.
 
 ### Fixed
 
 - Deploy no longer fails with `Error loading key "(stdin)": error in libcrypto` from a malformed or File-type SSH key.
+- `[Icon] failed to load` warnings for `mdi:paw`, `mdi:cat`, `mdi:gitlab`, `mdi:github`, `lucide:user`, and
+  `lucide:log-out`.
 
 ## v1.2.0 — 2026-06-30
 

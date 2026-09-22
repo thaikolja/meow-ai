@@ -9,7 +9,6 @@
  * For more information, visit: https://opensource.org/licenses/MIT
  *
  * @author    Kolja Nolte
- * @email     kolja.nolte@gmail.com
  * @license   MIT
  * @date      2026
  * @website   https://meow.yanawa.io
@@ -129,6 +128,28 @@ function normalizeOpenAIBaseUrl(baseUrl: string): string {
   return `${normalized}/v1`
 }
 
+/** Official DeepSeek Chat Completions URL. It does not use an OpenAI `/v1` prefix. */
+export const DEEPSEEK_CHAT_URL = 'https://api.deepseek.com/chat/completions'
+
+export function isDeepSeekModel(modelId: unknown): boolean {
+  if (typeof modelId !== 'string') return false
+  const id = modelId.trim().toLowerCase()
+  return id === 'deepseek-flash'
+      || id === 'deepseek-v4-flash'
+      || id === 'deepseek-v4-pro'
+      || id.startsWith('deepseek/')
+}
+
+/**
+ * DeepSeek's docs name the current Flash model `deepseek-flash`.
+ * Retired ids and OpenRouter slugs are sent as that official name.
+ */
+export function resolveDeepSeekModel(modelId: string): string {
+  const id = modelId.trim().toLowerCase()
+  if (id.includes('v4-pro')) return 'deepseek-v4-pro'
+  return 'deepseek-flash'
+}
+
 export function buildChatRequest(baseUrl: string, apiKey: string, model: string, messages: ChatMessageInput[]): ChatRequest {
   const normalizedBaseUrl = normalizeOpenAIBaseUrl(baseUrl)
   return {
@@ -141,6 +162,23 @@ export function buildChatRequest(baseUrl: string, apiKey: string, model: string,
       model,
       messages,
       stream: true
+    }
+  }
+}
+
+export function buildDeepSeekRequest(apiKey: string, model: string, messages: ChatMessageInput[]): ChatRequest {
+  return {
+    apiUrl:  DEEPSEEK_CHAT_URL,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization:  `Bearer ${apiKey}`
+    },
+    body:    {
+      model:  resolveDeepSeekModel(model),
+      messages,
+      stream: true,
+      // Thinking is on by default and streams as reasoning_content, which this app does not render.
+      thinking: { type: 'disabled' }
     }
   }
 }

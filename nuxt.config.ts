@@ -9,7 +9,6 @@
  * For more information, visit: https://opensource.org/licenses/MIT
  *
  * @author    Kolja Nolte
- * @email     kolja.nolte@gmail.com
  * @license   MIT
  * @date      2026
  * @website   https://meow.yanawa.io
@@ -102,9 +101,10 @@ export default defineNuxtConfig({
      *
      * Controlled via NUXT_ALLOW_PRIVATE_PROVIDER_URLS environment variable.
      */
-    allowPrivateProviderUrls:                                                         process.env['NUXT_ALLOW_PRIVATE_PROVIDER_URLS']==='true', // boolean flag
+    allowPrivateProviderUrls:                                                 process.env['NUXT_ALLOW_PRIVATE_PROVIDER_URLS'] === 'true', // boolean flag
     /** Server-only: absolute path to the persistent data directory */ dataDir:       process.env['NUXT_DATA_DIR']?.trim() || join(process.cwd(), '.data'),
     /** Server-only: OpenRouter API key (trimmed, default empty) */ openrouterApiKey: process.env['NUXT_OPENROUTER_API_KEY']?.trim() || '',
+    /** Server-only: DeepSeek API key for api.deepseek.com */ deepseekApiKey: process.env['NUXT_DEEPSEEK_API_KEY']?.trim() || '',
     /**
      * Public runtime config accessible by the client.
      *

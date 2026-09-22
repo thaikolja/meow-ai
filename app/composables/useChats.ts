@@ -9,7 +9,6 @@
  * For more information, visit: https://opensource.org/licenses/MIT
  *
  * @author    Kolja Nolte
- * @email     kolja.nolte@gmail.com
  * @license   MIT
  * @date      2026
  * @website   https://meow.yanawa.io
@@ -118,9 +117,15 @@ export function useChats() {
     return chat
   }
 
-  /** Retrieves a chat thread by its ID */
-  function getChat(id: string): Chat | undefined {
-    return chats.value.find(c => c.id===id)
+  /** Finds a chat by its stored id or its public slug. */
+  function findChatIndex(key: string): number {
+    return chats.value.findIndex(chat => chat.id === key || chat.slug === key)
+  }
+
+  /** Retrieves a chat thread by its ID or public slug */
+  function getChat(key: string): Chat | undefined {
+    const index = findChatIndex(key)
+    return index === -1 ? undefined : chats.value[index]
   }
 
   /** Removes a chat thread and updates persistence */
@@ -129,9 +134,26 @@ export function useChats() {
     flushSaveChats(chats.value)
   }
 
+  /**
+   * Remembers which model this chat should use from now on.
+   * Does not touch the global default, and does not reorder the sidebar.
+   */
+  function setChatModel(id: string, model: string) {
+    const nextModel = model.trim()
+    if (!nextModel) return
+
+    const index = findChatIndex(id)
+    if (index === -1 || !chats.value[index]) return
+    if (chats.value[index]?.model === nextModel) return
+
+    const updated = { ...chats.value[index] as Chat, model: nextModel }
+    chats.value   = [ ...chats.value.slice(0, index), updated, ...chats.value.slice(index + 1) ]
+    flushSaveChats(chats.value)
+  }
+
   /** Updates the human-readable title of a specific chat thread */
   function renameChat(id: string, title: string) {
-    const index = chats.value.findIndex(c => c.id===id)
+    const index = findChatIndex(id)
     if (index!== -1 && chats.value[index]) {
       const updated = { ...chats.value[index] as Chat, title }
       chats.value = [ ...chats.value.slice(0, index), updated, ...chats.value.slice(index + 1) ]
@@ -144,7 +166,7 @@ export function useChats() {
    * Automatically generates a title from the first user message if still using default.
    */
   function addMessage(chatId: string, message: Omit<ChatMessage, 'id' | 'timestamp'>): ChatMessage {
-    const chatIndex = chats.value.findIndex(c => c.id===chatId)
+    const chatIndex = findChatIndex(chatId)
     if (chatIndex=== -1) throw new Error(`Chat ${chatId} not found`)
 
     const msg: ChatMessage = {
@@ -180,7 +202,7 @@ export function useChats() {
    * Typically used during streaming to append raw text.
    */
   function updateMessage(chatId: string, messageId: string, content: string, isError?: boolean) {
-    const chatIndex = chats.value.findIndex(c => c.id===chatId)
+    const chatIndex = findChatIndex(chatId)
     if (chatIndex=== -1) return
 
     const chat = chats.value[chatIndex]
@@ -208,7 +230,7 @@ export function useChats() {
    * Specifically used to rollback the last response for regeneration.
    */
   function removeLastMessage(chatId: string) {
-    const chatIndex = chats.value.findIndex(c => c.id===chatId)
+    const chatIndex = findChatIndex(chatId)
     if (chatIndex=== -1) return
 
     const chat = chats.value[chatIndex]
@@ -234,6 +256,25 @@ export function useChats() {
     flushSaveChats(chats.value)
   }
 
+  /**
+   * Stores the public address for a chat. Rejects a slug another chat already uses.
+   * Does not reorder the sidebar.
+   */
+  function setChatSlug(id: string, slug: string): boolean {
+    const nextSlug = slug.trim()
+    if (!nextSlug) return false
+
+    const index = chats.value.findIndex(chat => chat.id === id)
+    if (index === -1 || !chats.value[index]) return false
+    if (chats.value.some(chat => chat.id !== id && (chat.slug === nextSlug || chat.id === nextSlug))) return false
+    if (chats.value[index]?.slug === nextSlug) return true
+
+    const updated = { ...chats.value[index] as Chat, slug: nextSlug }
+    chats.value   = [ ...chats.value.slice(0, index), updated, ...chats.value.slice(index + 1) ]
+    flushSaveChats(chats.value)
+    return true
+  }
+
   /** Manual trigger to force-sync state to localStorage */
   function persist() {
     flushSaveChats(chats.value)
@@ -245,6 +286,8 @@ export function useChats() {
     createChat,
     getChat,
     deleteChat,
+    setChatModel,
+    setChatSlug,
     renameChat,
     addMessage,
     updateMessage,

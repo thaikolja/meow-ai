@@ -9,7 +9,6 @@
   - For more information, visit: https://opensource.org/licenses/MIT
   -
   - @author    Kolja Nolte
-  - @email     kolja.nolte@gmail.com
   - @license   MIT
   - @date      2026
   - @website   https://meow.yanawa.io
@@ -67,7 +66,14 @@
               <span v-if="searchQuery">No matching meows 🐾</span> <span v-else>No purrs recorded yet 🐾</span>
             </div>
             <ChatListItem
-                v-for="chat in filteredChats" :key="chat.id" :active="String(route.params.id || '') === chat.id" :chat="chat" @delete="handleDeleteChat(chat.id)" @rename="handleRenameChat" @select="navigateToChat(chat.id)" />
+                v-for="chat in filteredChats"
+                :key="chat.id"
+                :active="isOpenChat(chat)"
+                :chat="chat"
+                @delete="handleDeleteChat(chat.id)"
+                @rename="handleRenameChat"
+                @select="navigateToChat(chat.slug || chat.id)"
+            />
           </ClientOnly>
         </nav>
 
@@ -160,11 +166,13 @@
 
   const route                                               = useRoute()
   const router                                              = useRouter()
+  const { assignChatSlug }                                           = useChatSlug()
   // Access custom chat logic for management
-  const { sortedChats, createChat, deleteChat, renameChat } = useChats()
+  const { sortedChats, createChat, deleteChat, renameChat, getChat } = useChats()
   const { authState, logout }                               = useAuthSession()
   const defaultProvider                                     = useDefaultProvider()
   const defaultModel                                        = useDefaultModel()
+  const { selectedModel: savedDefault } = useSettings()
 
   // Global application states
   const sidebarOpen      = useState('sidebar-open', () => true)
@@ -173,7 +181,6 @@
   const searchQuery      = ref('')
   const usernameCookie   = useCookie('chat_username')
   const selectedProvider = useState<string>('selected-provider', () => defaultProvider.value)
-  const selectedModel    = useState<string>('selected-model', () => defaultModel.value)
   const logoutPending    = ref(false)
 
   const displayName = computed(() => authState.value.username || usernameCookie.value || '')
@@ -232,8 +239,14 @@
    * Initializes a new chat session and redirects the user.
    * Automatically closes the sidebar on mobile to focus on the new chat.
    */
+  function isOpenChat(chat: { id: string; slug?: string }) {
+    const key = String(route.params.id || '')
+    return key === chat.id || key === chat.slug
+  }
+
   function handleNewChat() {
-    const chat = createChat(selectedProvider.value, selectedModel.value)
+    const chat = createChat(selectedProvider.value, savedDefault.value || defaultModel.value)
+    assignChatSlug(chat.id)
     router.push(`/chat/${chat.id}`)
     if (isMobile.value) sidebarOpen.value = false
   }
@@ -251,8 +264,9 @@
    * Deletes a chat and redirects if current chat is the one deleted.
    */
   function handleDeleteChat(id: string) {
+    const open = getChat(String(route.params.id || ''))
     deleteChat(id)
-    if (String(route.params.id || '')===id) {
+    if (open?.id === id) {
       router.push('/')
     }
   }

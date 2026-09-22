@@ -17,7 +17,8 @@ FROM deps AS build
 WORKDIR /app
 
 COPY . .
-RUN bun run build
+# package.json points Vite's socket at this path. Create it before the build.
+RUN mkdir -p /tmp/meow-sockets && bun run build
 
 # Stage 3: lean runtime image
 FROM node:${NODE_VERSION} AS runtime

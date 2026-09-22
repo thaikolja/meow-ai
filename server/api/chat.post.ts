@@ -9,7 +9,6 @@
  * For more information, visit: https://opensource.org/licenses/MIT
  *
  * @author    Kolja Nolte
- * @email     kolja.nolte@gmail.com
  * @license   MIT
  * @date      2026
  * @website   https://meow.yanawa.io
@@ -20,9 +19,9 @@
  * Receives the conversation history and model ID, uses the OpenRouter API key
  * from runtime config, and streams the response back via SSE.
  */
-import { requireAuthenticatedSession }             from '../utils/authSession'
-import { assertProviderBaseUrl, buildChatRequest } from '../utils/providerApi'
-import { validateCsrf }                            from '../utils/csrf'
+import { requireAuthenticatedSession }                                                    from '../utils/authSession'
+import { assertProviderBaseUrl, buildChatRequest, buildDeepSeekRequest, isDeepSeekModel } from '../utils/providerApi'
+import { validateCsrf }                                                                   from '../utils/csrf'
 
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api'
 
@@ -35,6 +34,8 @@ export default defineEventHandler(async (event) => {
   const { messages, model } = body
   const runtimeConfig    = useRuntimeConfig(event)
   const openrouterApiKey = runtimeConfig.openrouterApiKey?.trim() || ''
+  const deepseekApiKey = runtimeConfig.deepseekApiKey?.trim() || ''
+  const useDeepSeek    = isDeepSeekModel(model)
 
   if (!model || !Array.isArray(messages)) {
     throw createError({ statusCode: 400, message: 'Missing required fields: model, messages' })
@@ -44,14 +45,20 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Invalid model value' })
   }
 
-  if (!openrouterApiKey) {
+  if (useDeepSeek && !deepseekApiKey) {
+    throw createError({ statusCode: 500, message: 'DeepSeek API key is not configured' })
+  }
+
+  if (!useDeepSeek && !openrouterApiKey) {
     throw createError({ statusCode: 500, message: 'OpenRouter API key is not configured' })
   }
 
-  const validatedBaseUrl = assertProviderBaseUrl(OPENROUTER_BASE_URL, {
-    allowPrivate:           runtimeConfig.allowPrivateProviderUrls,
-    allowInsecureLocalhost: import.meta.dev
-  })
+  const validatedBaseUrl = useDeepSeek
+      ? ''
+      : assertProviderBaseUrl(OPENROUTER_BASE_URL, {
+        allowPrivate:           runtimeConfig.allowPrivateProviderUrls,
+        allowInsecureLocalhost: import.meta.dev
+      })
 
   const sanitizedMessages = messages
   .filter((message): message is { role: string; content: string } => (
@@ -73,7 +80,9 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Too many messages supplied in a single request' })
   }
 
-  const request = buildChatRequest(validatedBaseUrl, openrouterApiKey, model.trim(), sanitizedMessages)
+  const request = useDeepSeek
+      ? buildDeepSeekRequest(deepseekApiKey, model.trim(), sanitizedMessages)
+      : buildChatRequest(validatedBaseUrl, openrouterApiKey, model.trim(), sanitizedMessages)
 
   let response: Response
 

@@ -9,7 +9,6 @@
  * For more information, visit: https://opensource.org/licenses/MIT
  *
  * @author    Kolja Nolte
- * @email     kolja.nolte@gmail.com
  * @license   MIT
  * @date      2026
  * @website   https://meow.yanawa.io
@@ -78,4 +77,6 @@ export interface Chat {
   providerId?: string
   /** Default model identifier for the thread session */
   model?: string
+  /** Public cat-sentence address. Absent on chats created before slugs existed. */
+  slug?: string
 }
