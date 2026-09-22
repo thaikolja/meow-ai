@@ -22,9 +22,6 @@ services:
       # Default provider/model shown in the UI on first load.
       NUXT_PUBLIC_DEFAULT_PROVIDER: "${NUXT_PUBLIC_DEFAULT_PROVIDER:-openrouter-default}"
       NUXT_PUBLIC_DEFAULT_MODEL: "${NUXT_PUBLIC_DEFAULT_MODEL:-google/gemini-2.5-flash}"
-      # Optional Redis URL for distributed login rate-limiting.
-      # Example: redis://redis:6379
-      NUXT_REDIS_URL: "${NUXT_REDIS_URL:-}"
       # Set to "true" only if you need private/internal provider endpoints.
       NUXT_ALLOW_PRIVATE_PROVIDER_URLS: "${NUXT_ALLOW_PRIVATE_PROVIDER_URLS:-false}"
       # Override the data directory path inside the container.

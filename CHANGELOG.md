@@ -2,111 +2,114 @@
 
 All notable changes to this project are documented here.
 
+## v1.4.0 — 2026-09-23
+
+### feat
+
+- feat(chat): generate a public cat-sentence address for each new chat (`/chat/cat-sits-on-sofa`) with `google/gemini-3.5-flash-lite`
+- feat(chat): keep the random hash as the internal id so old `/chat/<hash>` links still open
+- feat(chat): fall back to a local 4- or 5-word cat sentence when the slug model fails, times out, or returns an unusable phrase
+- feat(models): switch the model inside an open chat; the next message and the refresh button use that model
+- feat(models): start new chats from the saved default (`chat-yanawa-selected-model`, otherwise `NUXT_PUBLIC_DEFAULT_MODEL`)
+- feat(models): replace the catalog with Gemini 2.5 Flash, Gemini 3 Flash, Gemini 3.5 Flash, Gemini 3.5 Flash Lite, Gemini 3.6 Flash, Gemini 3.7 Flash, Gemini 3.8 Flash, and DeepSeek V4.1 Flash (`deepseek-flash`)
+- feat(deepseek): send `deepseek-flash` to `https://api.deepseek.com/chat/completions` with `NUXT_DEEPSEEK_API_KEY`
+- feat(deepseek): map retired ids `deepseek-v4-flash` and `deepseek/…` to `deepseek-flash`, with thinking disabled so the reply streams as normal text
+
+### fix
+
+- fix(app): keep `<NuxtLayout>` and `<NuxtPage>` mounted and cover them with the auth gate, removing `NUXT_E4011`, `NUXT_E4007`, and the Vite `import.meta.hot.send()` warning
+- fix(deploy): enter `/var/www/vhosts/yanawa.io/meow.yanawa.io` before looking for `docker-compose.yml`
+- fix(deploy): allow root password SSH (`PermitRootLogin yes`) so `sshpass` is not rejected
+- fix(ci): log in as root with `SSH_DEPLOY_PASSWORD` instead of `ssh-add`, which failed with `error in libcrypto`
+- fix(docker): create `/tmp/meow-sockets` before `bun run build` and bind-mount `.data/models.json` read-only
+
+### chore
+
+- chore(headers): remove the `@email` line from source file headers
+- chore(repo): stop tracking `.serena/` and delete the unused `gitlab-ci.yml` template
+- chore(security): rewrite history to remove API keys that had been committed in `app/composables/useProviders.ts`
+- chore(deps): refresh Nuxt, Nuxt UI, and related package ranges
+- chore(test): add `tests/chat-slug.test.js` and `tests/session-model.test.js`
+
 ## v1.3.0 — 2026-08-23
 
-### Added
+### feat
 
-- Optional image attach on the composer (JPG, JPEG, PNG, WebP, AVIF, max 1 MB). The image is sent once with that prompt
-  as vision input, then dropped. Chat history and the user bubble stay text-only — no preview, no stored bytes. Attach
-  with the image button, drag-and-drop, or Cmd/Ctrl+V.
-- New chats stamp their model from Settings **Default Meow-del**, or from `NUXT_PUBLIC_DEFAULT_MODEL` if Settings has no
-  override. The header model picker retargets the open chat (or the new-chat default on `/`). The sidebar lists which
-  LLM each session uses.
-- Tests for image MIME/magic-byte/size checks, clipboard image picking, session-model resolution, and multimodal
-  last-user-message attach.
+- feat(chat): stamp new chats with Settings **Default Meow-del**, or `NUXT_PUBLIC_DEFAULT_MODEL` when Settings has no override
+- feat(models): persist the preferred model in `localStorage` under `chat-yanawa-selected-model`
 
-### Changed
+### fix
 
-- `bun run build`, `bun run dev`, and `bun run generate` set `TMPDIR=/tmp/meow-sockets` so Vite/Nuxt Unix sockets stay
-  on a short path (macOS `sun_path` is 104 bytes).
-- `@nuxt/icon` ships a client bundle (`scan` plus an explicit icon list) so layout and auth icons load without a runtime
-  Iconify fetch.
-- GitLab `deploy_production` logs into the server as `root` with `SSH_DEPLOY_PASSWORD` (`sshpass`) instead of
-  `SSH_DEPLOY_KEY` / `ssh-add`. `SSH_DEPLOY_USER` still defaults to `root`.
-- Settings **Default Meow-del** overwrites `.env` (`NUXT_PUBLIC_DEFAULT_MODEL`) for **new** chats only.
+- fix(ci): log into the server as root with `SSH_DEPLOY_PASSWORD` and `sshpass` instead of `ssh-add`
+- fix(deploy): stop failing with `Error loading key "(stdin)": error in libcrypto`
 
-### Fixed
+### chore
 
-- Deploy no longer fails with `Error loading key "(stdin)": error in libcrypto` from a malformed or File-type SSH key.
-- `[Icon] failed to load` warnings for `mdi:paw`, `mdi:cat`, `mdi:gitlab`, `mdi:github`, `lucide:user`, and
-  `lucide:log-out`.
+- chore(build): set `TMPDIR=/tmp/meow-sockets` on `build` and `dev` so Vite sockets stay under the macOS `sun_path` limit
 
 ## v1.2.0 — 2026-06-30
 
-### Added
+### feat
 
-- Auto-seeding of the model catalog — `.data/models.json` is populated with 4 default Gemini models on first request when the file is empty or missing
-- Shared `Model` type in `shared/types/model.ts` as the single source of truth for both server and client
-- `tests/models-storage.test.js` covering the seeding behavior (missing file, empty array, corrupt JSON, existing models, disk persistence)
-- Persisted model selection in `localStorage` under `chat-yanawa-selected-model`
-- "Default Meow-del" dropdown in `SettingsModal` for setting the user's preferred default model
-- Per-chat model memory — each chat remembers which model it was created with, so existing conversations don't change when the default is switched
-- Automatic deployment on push to `main` — `.gitlab-ci.yml` now SSHes into the production server and runs `scripts/deploy.sh` to pull, stop, rebuild, and restart the container
+- feat(models): seed `.data/models.json` with four Gemini models when the file is missing, empty, or corrupt
+- feat(models): add `shared/types/model.ts` as the shared catalog type
+- feat(models): add Settings **Default Meow-del** and remember each chat's model from creation
+- feat(ci): deploy on push to `main` by SSHing to the server and running `scripts/deploy.sh`
 
-### Changed
+### fix
 
-- Simplified the app to use OpenRouter only — all chats are routed through `https://openrouter.ai/api`
-- Default model is now `google/gemini-2.5-flash`
-- Curated catalog of 4 Gemini models: `google/gemini-3-flash-preview`, `google/gemini-3.1-flash-lite-preview`, `google/gemini-3.5-flash`, `google/gemini-2.5-flash`
-- Removed all multi-provider infrastructure: provider CRUD endpoints, encrypted provider storage, provider management UI, `ProviderList.vue`, `ProviderForm.vue`, `useProviders.ts`, and the Google/DeepSeek/Groq-specific code paths in `providerApi.ts`
-- `server/api/chat.post.ts` now hardcodes the OpenRouter base URL and reads the API key from `NUXT_OPENROUTER_API_KEY`; provider lookup is no longer needed
-- `ModelSelector.vue` simplified to a flat list (no provider grouping) and syncs with the persisted preference via a `watchEffect` that handles the SSR → client hydration race
-- `isThinkingModel` moved to `shared/utils/models.ts` and imported directly by both server and client
-- `.env`, `.env.example`, `docker-compose.yml`, and `nuxt.config.ts` simplified to only require `NUXT_OPENROUTER_API_KEY` (DeepSeek, OpenCode, Groq, and Google env vars removed)
-- README and AGENTS docs rewritten to reflect the single-provider architecture
+- fix(models): fill an empty catalog on first load so the dropdown is not stuck on the env default
+- fix(models): restore the saved model after refresh once the catalog has loaded
+- fix(docker): create `/app/.data` as `node:node` so the volume is writable
+- fix(docker): drop the `VOLUME` instruction that discarded the later `chown`
 
-### Fixed
+### chore
 
-- Docker: `/app/.data` is now created with `node:node` ownership in the image so the mounted volume doesn't start with root permissions and cause `EACCES` errors
-- Model dropdown showing only the env default on first load when the catalog was empty — the auto-seeding fills the catalog on first request
-- Model selection no longer resets to the default on page refresh — the persisted value is restored once both the localStorage entry and the model catalog are available
-- `docker build` now uses a clean Dockerfile without the `VOLUME` directive (which was discarding subsequent `chown` instructions)
+- chore(chat): route every completion through OpenRouter and `NUXT_OPENROUTER_API_KEY`
+- chore(models): set the env fallback to `google/gemini-2.5-flash`
+- chore(models): ship `google/gemini-3-flash-preview`, `google/gemini-3.1-flash-lite-preview`, `google/gemini-3.5-flash`, and `google/gemini-2.5-flash`
+- chore(providers): remove provider CRUD, encrypted provider storage, and the provider management UI
+- chore(models): move `isThinkingModel` to `shared/utils/models.ts`
+- chore(test): add `tests/models-storage.test.js`
 
 ## v1.1.0 — 2026-04-07
 
-### Added
+### feat
 
-- In-app `AuthGate` access flow so the main app no longer depends on a phishing-like `/login` page
-- One-time login challenge endpoint and proof-based verification flow
-- Logout endpoint and top-right logout control beside the active username
-- Cat-themed cold-start loading state, richer new-chat starter view, login confetti burst, and randomized thinking messages
-- Theme-aware SVG favicon behavior plus a generated `favicon.ico` fallback
-- Auth challenge tests covering username normalization, one-time use, and proof verification
+- feat(auth): add the in-app `AuthGate`, one-time challenge, and proof login
+- feat(auth): add logout and a username control in the header
+- feat(ui): add the cold-start loader, starter prompts, login confetti, and randomized thinking copy
+- feat(ui): add a theme-aware SVG favicon and a `favicon.ico` fallback
 
-### Changed
+### fix
 
-- Shared-password auth now keeps the secret in `.env` while sending only a client-side proof to the server
-- Root app loading now happens in `app.vue`, with session warmup gated through `/api/auth/session`
-- New chats keep the currently selected provider and model
-- The model selector now explicitly reloads providers and the file-backed model catalog when it mounts
-- Project metadata and developer docs now reflect the current auth, storage, and streaming architecture
-- Production secret validation now happens when the server starts instead of during `nuxt build`, so local and Docker
-  builds no longer require a baked-in password
+- fix(chat): return focus to the composer after send
+- fix(chat): stop hard-coding `"Thinking..."` while a reply streams
+- fix(auth): keep session responses uncacheable
+- fix(docker): pin the Bun build stages, skip `.data/providers.json`, and run Nitro as non-root Node
+- fix(data): read the persistent `.data` directory from preview and other built runtimes
+- fix(assets): send cache headers for static files and favicons
 
-### Fixed
+### chore
 
-- Prompt focus now returns to the chat textarea after sending a message
-- Streaming chat views no longer hard-code a static `"Thinking..."` label
-- Session-related auth responses now avoid cacheable behavior
-- Docker now uses pinned Bun stages for build and production dependencies, excludes `.data/providers.json`, and runs the
-  final Nitro server on a non-root Node runtime
-- Preview and other built runtimes now keep reading the real persistent `.data` directory instead of resolving from
-  `.output`, restoring the full model catalog from `.data/models.json`
-- Static Nuxt assets and favicons now ship with cache headers for faster repeat loads
+- chore(auth): keep `NUXT_APP_PASSWORD` on the server and post only the browser proof
+- chore(auth): check the session from `app.vue` through `/api/auth/session`
+- chore(build): validate `NUXT_APP_PASSWORD` when the server starts, not during `nuxt build`
+- chore(test): cover cat-name rules, one-time challenges, and proof checks
 
 ## v1.0.0 — 2026-04-04
 
-### Added
+### feat
 
-- Initial Nuxt 4 application shell with `@nuxt/ui`, `@nuxt/icon`, and Tailwind CSS 4
-- Core chat interface with message rendering and streaming-oriented layout
-- Basic provider, model, and chat plumbing for remote LLM endpoints
+- feat(app): start the Nuxt 4 shell with Nuxt UI and Tailwind CSS 4
+- feat(chat): add the message list and a streaming layout
+- feat(chat): add the first provider, model, and chat calls to remote LLMs
 
-### Improved
+### chore
 
-- Bun-based local development workflow
-- Dark-mode-first visual styling
+- chore(dx): use Bun for local development
+- chore(ui): ship a dark-mode-first layout
 
-### Fixed
+### fix
 
-- Early hydration and alignment issues in the initial chat UI
+- fix(app): correct the first hydration and alignment bugs in the chat UI
