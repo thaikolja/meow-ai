@@ -1,17 +1,27 @@
 # Meow AI 🐾
 
-**Version [1.4.0](CHANGELOG.md)** — cat-themed Nuxt 4 chat for German practice.
+[![GitHub stars](https://img.shields.io/github/stars/thaikolja/meow-ai?style=flat)](https://github.com/thaikolja/meow-ai/stargazers) [![GitHub forks](https://img.shields.io/github/forks/thaikolja/meow-ai?style=flat)](https://github.com/thaikolja/meow-ai/network/members) [![GitHub issues](https://img.shields.io/github/issues/thaikolja/meow-ai?style=flat)](https://github.com/thaikolja/meow-ai/issues) [![GitHub last commit](https://img.shields.io/github/last-commit/thaikolja/meow-ai?style=flat)](https://github.com/thaikolja/meow-ai/commits)
 
-Chats live in the browser. Gemini models stream through OpenRouter. `deepseek-flash` streams through the official DeepSeek API. Secrets stay on the server.
+**Meow AI** is a flexible and cute cat-themed chat interface whose agents help you learn German. Originally programmed
+solely for my wife, I decided to open-source it – it's just so cute. *Meow AI* uses mostly **Gemini models**, but you
+can customize it and add new providers. API keys are stored in the `.env` file; every chat will be stored in your
+browser and not on another server. Based on **Nuxt 4**.
+
+<div align="center">
+  <img src="./public/home.webp" alt="Front page" style="width:100%; height: auto;" />
+</div>
+
+**Screenshots**: [Chat interface](https://p.ipic.vip/ucbkkz.webp) | [New chat](https://p.ipic.vip/qc7sm7.webp) | [Default model selector](https://p.ipic.vip/t9aa2s.webp) | [Chat](https://p.ipic.vip/0sb66l.webp)
 
 ## Highlights
 
 - **Shared-password gate.** The browser signs a one-time challenge. `NUXT_APP_PASSWORD` never leaves the server.
 - **Signed session** (`chat_session`) plus a readable `chat_username` cookie, and a logout control.
-- **Cat-sentence addresses** such as `/chat/cat-sits-on-sofa`. The hash id stays internal. Older `/chat/<hash>` links still open.
+- **Cat-sentence addresses** such as `/chat/cat-sits-on-sofa`. The hash ID stays internal. Older `/chat/<hash>` links
+  still open.
 - **Mid-chat model switch.** The header picker changes the open chat. The next message and refresh use that model. New chats start from the saved default.
 - **Catalog** in `.data/models.json`: Gemini 2.5 Flash through Gemini 3.8 Flash, plus DeepSeek V4.1 Flash (`deepseek-flash`).
-- **Text composer.** No image attach.
+- **Text composer.** No image attached.
 
 ## Architecture
 
@@ -31,9 +41,9 @@ Chats live in the browser. Gemini models stream through OpenRouter. `deepseek-fl
 | `server/api/models/index.get.ts` | Reads `.data/models.json` |
 | `.data/models.json` | Live catalog. Empty or missing files seed four Gemini models |
 
-## Auth
+## Authentication
 
-There is no live `/login` page. `/login` redirects to `/`.
+Well, there's none. There is no live `/login` page. `/login` redirects to `/`.
 
 1. `app.vue` checks the session. `NuxtLayout` and `NuxtPage` stay mounted. Until the session is valid, a full-screen overlay shows the loader, then `AuthGate.vue`.
 2. The browser fetches `GET /api/auth/challenge`.
@@ -122,14 +132,14 @@ The host must allow root password login (`PasswordAuthentication yes`, `PermitRo
 
 ## Scripts
 
-| Command | Purpose |
-| --- | --- |
-| `bun run dev` | Dev server. Creates `/tmp/meow-sockets` and sets `TMPDIR`. |
-| `bun run build` | Production bundle. Same `TMPDIR` setup. |
-| `bun run generate` | Static generate. Does not set `TMPDIR`. |
-| `bun run preview` | Preview the production bundle |
-| `bun run typecheck` | `nuxt typecheck` |
-| `bun test` | Bun test suite |
+| Command             | Purpose                                                    |
+|---------------------|------------------------------------------------------------|
+| `bun run dev`       | Dev server. Creates `/tmp/meow-sockets` and sets `TMPDIR`. |
+| `bun run build`     | Production bundle. Same `TMPDIR` setup.                    |
+| `bun run generate`  | Static generation. Does not set `TMPDIR`.                  |
+| `bun run preview`   | Preview the production bundle                              |
+| `bun run typecheck` | `nuxt typecheck`                                           |
+| `bun test`          | Bun test suite                                             |
 
 ## Environment variables
 
@@ -143,6 +153,12 @@ The host must allow root password login (`PasswordAuthentication yes`, `PermitRo
 | `NUXT_DEEPSEEK_API_KEY` | Required for `deepseek-flash`. Official DeepSeek Chat Completions API. |
 | `NUXT_ALLOW_PRIVATE_PROVIDER_URLS` | Allow private hosts in `assertProviderBaseUrl()` when `true`. |
 | `NUXT_DATA_DIR` | Overrides `.data/`. Docker sets `/app/.data`. |
+
+## Contributors
+
+### Author
+
+* **[Kolja Nolte](https://github.com/thaikolja/)** (kolja.nolte@gmail.com)
 
 ## Notes
 
