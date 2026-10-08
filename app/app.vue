@@ -29,7 +29,7 @@ const { celebrationSequence }      = useCelebration()
 /** True once the session has been checked and the visitor is authenticated. */
 const appReady                     = computed(() => authState.value.checked && authState.value.authenticated)
 /** True only after `triggerCelebration()` has run. Failed login does not raise the sequence. */
-const showConfetti = computed(() => shouldShowConfetti(celebrationSequence.value))
+const showConfetti                 = computed(() => shouldShowConfetti(celebrationSequence.value))
 
 if (import.meta.server && !authState.value.checked) {
   await verifySession(true)

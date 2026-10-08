@@ -24,10 +24,20 @@ import { E2E_HOUSE_SECRET } from './house-secret'
 test('confetti plays only after a successful login', async ({ page }) => {
   await page.goto('/')
   const openFlap = page.getByRole('button', { name: 'Open the cat flap' })
+  // This sentence is rendered only after the client has fetched a challenge.
+  // Clicking earlier submits the form as a plain GET and reloads the gate.
+  const challengeReady = page.getByText(
+    'This one-time paw-print expires quickly and is tied to this browser session.'
+  )
 
-  await expect(openFlap).toBeEnabled()
+  async function waitForPawPrint() {
+    await expect(challengeReady).toBeVisible()
+    await expect(openFlap).toBeEnabled()
+  }
+
   await expect(page.locator('.confetti-piece')).toHaveCount(0)
   await expect(page.getByText('yes', { exact: true })).toHaveCount(0)
+  await waitForPawPrint()
 
   await page.getByPlaceholder('e.g. Captain Whiskers').fill('Whiskers')
   await page.getByPlaceholder('••••••••').fill('wrong-secret')
@@ -35,7 +45,7 @@ test('confetti plays only after a successful login', async ({ page }) => {
   await expect(page.getByText('The house secret did not match that paw-print.')).toBeVisible()
   await expect(page.locator('.confetti-piece')).toHaveCount(0)
 
-  await expect(openFlap).toBeEnabled()
+  await waitForPawPrint()
   await page.getByPlaceholder('e.g. Captain Whiskers').fill('Whiskers')
   await page.getByPlaceholder('••••••••').fill(E2E_HOUSE_SECRET)
   await openFlap.click()

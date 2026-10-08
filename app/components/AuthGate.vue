@@ -138,7 +138,8 @@
   const username         = ref('')
   const password         = ref('')
   const loading          = ref(false)
-  const challengeLoading = ref(false)
+  // Starts true so the server render cannot submit the form before the client has a challenge.
+  const challengeLoading = ref(true)
   const errorMsg         = ref('')
   const challengeState   = reactive<LoginChallengeResponse>({
     challengeId: '',
