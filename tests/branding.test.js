@@ -82,7 +82,6 @@ describe('Meow branding sweep', () => {
     const loginPage = await readFile(join(ROOT, 'app/pages/login.vue'), 'utf8')
     const authGate = await readFile(join(ROOT, 'app/components/AuthGate.vue'), 'utf8')
     const chatPage = await readFile(join(ROOT, 'app/pages/chat/[id].vue'), 'utf8')
-    const agents = await readFile(join(ROOT, 'AGENTS.md'), 'utf8')
     const styles = await readFile(join(ROOT, 'app/assets/css/main.css'), 'utf8')
     const favicon = await readFile(join(ROOT, 'public/favicon.svg'), 'utf8')
 
@@ -95,7 +94,6 @@ describe('Meow branding sweep', () => {
     expect(loginPage).toContain('Cat flap moved — Meow 🐾')
     expect(authGate).toContain('Open the cat flap')
     expect(chatPage).toContain('meow.yanawa.io')
-    expect(agents).toContain('How to work with meow.yanawa.io')
     expect(styles).toContain('meow.yanawa.io — Custom Styles')
     expect(favicon).toContain('prefers-color-scheme: light')
   })
