@@ -203,9 +203,6 @@ export default defineNuxtConfig({
   vite: {
     server:       {
       allowedHosts: [ 'analyze-sun-humanity-nail.trycloudflare.com', 'meow.yanawa.io', 'yanawa.io' ] // allow Cloudflare
-      // Tunnel
-      // host during
-      // development
     },
     optimizeDeps: {
       include: [
