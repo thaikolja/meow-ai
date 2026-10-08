@@ -1,7 +1,7 @@
 # Meow 1.5.0 CI
 #
 # Pipeline:
-#   lint    - bun install + bun test + tsc typecheck
+#   lint    - bun install + bun test + vitest + playwright + tsc typecheck
 #   build   - bun install + bun run build (artifacts)
 #   deploy  - push to main → sshpass as root → hard-reset checkout → scripts/deploy.sh
 #
@@ -31,7 +31,10 @@ lint_code:
   stage: lint
   script:
     - bun install
-    - bun test
+    - bunx playwright install --with-deps chromium
+    - bun run test
+    - bun run test:vitest
+    - bun run test:e2e
     - bun run typecheck
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'

@@ -25,7 +25,7 @@ import { extname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
-const IGNORED_DIRS = new Set([ '.git', '.nuxt', '.output', 'node_modules', '.idea' ])
+const IGNORED_DIRS = new Set([ '.git', '.nuxt', '.nuxt-e2e', '.output', 'node_modules', '.idea', 'coverage', 'test-results', 'playwright-report' ])
 const SCANNED_EXTENSIONS = new Set([ '.ts', '.js', '.vue', '.mjs', '.json', '.md', '.yml', '.yaml', '.css', '.txt' ])
 const EXTRA_FILES = new Set([ 'package.json', '.gitlab-ci.yml' ])
 const LEGACY_BRAND = ['Ein', 'stein'].join('')

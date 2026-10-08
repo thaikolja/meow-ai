@@ -15,18 +15,16 @@
  */
 
 /**
- * Reads `meo.confetti` from public runtime config.
- * Throws unless the value is the string `"yes"` or `"nein"`.
+ * Decides when the celebration overlay may mount.
+ * The sequence starts at zero and rises only after a successful login.
  */
-
-import { assertMeoConfetti } from '#shared/utils/meoConfig'
 
 /**
- * Public Meow settings for the current request.
+ * Confetti is visible only after at least one successful login in this page load.
  *
- * @returns `confetti`, which is `"yes"` or `"nein"`.
+ * @param sequence - `celebrationSequence` from `useCelebration()`. Zero means no successful login yet.
+ * @returns Whether `ConfettiRain` should mount.
  */
-export function useMeo() {
-  const confetti = assertMeoConfetti(useRuntimeConfig().public.meo?.confetti)
-  return { confetti }
+export function shouldShowConfetti(sequence: number): boolean {
+  return sequence > 0
 }

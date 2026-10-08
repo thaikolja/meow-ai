@@ -19,5 +19,9 @@ dist
 # Local Serena project index
 .serena/
 
-# Test coverage
+# Test coverage and browser runs
 coverage/
+.nuxt-e2e
+test-results/
+playwright-report/
+blob-report/

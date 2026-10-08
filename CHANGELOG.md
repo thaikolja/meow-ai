@@ -6,8 +6,7 @@ All notable changes to this project are documented here.
 
 ### feat
 
-- feat(config): add `meo.confetti` in `nuxt.config.ts` as the string `"yes"` or `"nein"`
-- feat(config): type that key in `nuxt.schema.ts` and show the value from `app.vue`
+- feat (ui): play celebration confetti only after a successful login
 - feat(chat): attach one photo per message when the model can read images
 - feat(chat): shrink uploads to JPEG (long edge 1600px) and store the bytes in IndexedDB `meow-chat-images`
 - feat(chat): keep only `imageId` in `localStorage`, and delete those photos when a chat or all chats are removed
@@ -19,11 +18,14 @@ All notable changes to this project are documented here.
 - fix(models): fall back to `google/gemini-3.8-flash`, which is in the shipped catalog
 - fix(models): seed that same catalog when `.data/models.json` is missing, empty, or corrupt
 - fix(app): publish the package version on public runtime config and show it in the sidebar
-- fix(config): copy `meo.confetti` onto public runtime config, render it from `app.vue`, and skip confetti when the value is `"nein"`
+- fix (ui): keep confetti off the cat-flap gate and off a rejected login
 
 ### chore
 
-- chore(deps): pin `vue` and `vue-router`, move `vue-language-server` to devDependencies, and leave Vitest out of the app
+- chore (config): remove the `meo.confetti` flag, its schema, and the public runtime copy
+- chore (deps): keep app libraries in `dependencies`; put Nuxt build modules, types, and Vitest/Playwright in
+  `devDependencies`
+- chore (test): add Vitest and Playwright coverage for login confetti
 - chore(build): typecheck with `tsc` on the generated Nuxt projects, because `vue-tsc` cannot load TypeScript 7
 - chore(docs): add JSDoc to the app, server, shared, and test sources
 - chore(docs): add the MIT `LICENSE`

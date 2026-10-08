@@ -15,22 +15,7 @@
  */
 
 /**
- * Types the top-level `meo` key. Nuxt loads this file itself. It is not a module.
- * `confetti` is the string `"yes"` or `"nein"`.
+ * House secret for the Playwright server only.
+ * The Playwright config sets `NUXT_APP_PASSWORD` to this value. It is not the deployed secret.
  */
-
-export default defineNuxtSchema({
-  meo: {
-    $schema: {
-      title:       'Meo',
-      description: 'Meow project settings. This key is not a Nuxt module.'
-    },
-    /**
-     * Celebration confetti. Only the strings "yes" and "nein" are valid.
-     *
-     * @type {'yes' | 'nein'}
-     * @default 'yes'
-     */
-    confetti: 'yes' as const
-  }
-})
+export const E2E_HOUSE_SECRET = 'meow-e2e-secret'

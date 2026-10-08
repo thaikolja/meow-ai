@@ -17,7 +17,8 @@ browser and not on another server. Based on **Nuxt 4**.
 
 ## Project config
 
-`nuxt.config.ts` has a top-level `meo` object. `meo.confetti` is a string, `"yes"` or `"nein"`. `nuxt.schema.ts` types that key. A `modules:done` hook copies it onto public runtime config. `app.vue` prints the value. `"yes"` shows the login confetti. `"nein"` leaves it off. The sidebar shows the package version.
+Celebration confetti plays only after a successful login. A rejected house secret leaves the gate up and does not mount
+`ConfettiRain`. The sidebar shows the package version.
 
 ## Highlights
 
@@ -59,7 +60,8 @@ Well, there's none. There is no live `/login` page. `/login` redirects to `/`.
 1. `app.vue` checks the session. `NuxtLayout` and `NuxtPage` stay mounted. Until the session is valid, a full-screen overlay shows the loader, then `AuthGate.vue`.
 2. The browser fetches `GET /api/auth/challenge`.
 3. It signs the challenge in Web Crypto and posts `{ username, challengeId, proof }`.
-4. The server checks the proof with `NUXT_APP_PASSWORD`, sets the cookies, and the UI fires confetti.
+4. The server checks the proof with `NUXT_APP_PASSWORD`, sets the cookies, and the UI fires confetti. A rejected proof
+   does not.
 
 Challenges are IP-bound, single-use, and last 5 minutes. Sessions last 7 days. Login is not rate-limited.
 
@@ -124,7 +126,7 @@ NUXT_DEEPSEEK_API_KEY=replace-me
 
 A push to `main` runs GitLab CI:
 
-1. `lint` — `bun install`, `bun test`, and `bun run typecheck`
+1. `lint` — `bun install`, the Bun suite, Vitest, Playwright, and `bun run typecheck`
 2. `build` — `bun install` and `bun run build`
 3. `deploy` — `sshpass` as root copies `scripts/deploy.sh` and runs it
 
@@ -149,14 +151,16 @@ The host must allow root password login (`PasswordAuthentication yes`, `PermitRo
 
 ## Scripts
 
-| Command             | Purpose                                                    |
-|---------------------|------------------------------------------------------------|
-| `bun run dev`       | Dev server. Creates `/tmp/meow-sockets` and sets `TMPDIR`. |
-| `bun run build`     | Production bundle. Same `TMPDIR` setup.                    |
-| `bun run generate`  | Static generation. Does not set `TMPDIR`.                  |
-| `bun run preview`   | Preview the production bundle                              |
-| `bun run typecheck` | `tsc` on the generated Nuxt app and server projects       |
-| `bun test`          | Bun test suite                                             |
+| Command               | Purpose                                                                   |
+|-----------------------|---------------------------------------------------------------------------|
+| `bun run dev`         | Dev server. Creates `/tmp/meow-sockets` and sets `TMPDIR`.                |
+| `bun run build`       | Production bundle. Same `TMPDIR` setup.                                   |
+| `bun run generate`    | Static generation. Does not set `TMPDIR`.                                 |
+| `bun run preview`     | Preview the production bundle                                             |
+| `bun run typecheck`   | `tsc` on the generated Nuxt app and server projects                       |
+| `bun test`            | Bun test suite in `tests/`                                                |
+| `bun run test:vitest` | Vitest unit tests and the Nuxt component environment                      |
+| `bun run test:e2e`    | Playwright login confetti test. Needs `bunx playwright install chromium`. |
 
 ## Environment variables
 

@@ -17,9 +17,6 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { useNuxt } from '@nuxt/kit'
-import type { MeoConfetti } from './shared/types/meo'
-import { copyMeoToPublicRuntimeConfig } from './shared/utils/meoConfig'
 
 /**
  * Runtime configuration entrypoint for Nuxt.
@@ -47,12 +44,6 @@ const appPassword: string = process.env['NUXT_APP_PASSWORD']?.trim() || ''
  * This id is in `.data/models.json`.
  */
 const defaultModelId = 'google/gemini-3.8-flash'
-
-/**
- * Celebration confetti. Only the strings "yes" and "nein" are valid.
- * A `modules:done` hook copies this onto public runtime config.
- */
-const meoConfetti: MeoConfetti = 'yes'
 
 /**
  * Application version string read from package.json.
@@ -100,36 +91,27 @@ export default defineNuxtConfig({
   devtools: { enabled: false }, // Toggle Nuxt devtools globally
 
   /**
+   * Generated directory. Playwright sets `NUXT_BUILD_DIR` so its dev server
+   * does not share `.nuxt` with a local `bun run dev`.
+   */
+  buildDir: process.env['NUXT_BUILD_DIR'] || '.nuxt',
+
+  /**
    * Nuxt modules used by the app.
    *
    * - @nuxt/ui: UI primitives and tokens
    * - @nuxt/image: optimized image handling
    * - @nuxt/icon: icon generation and bundling
    * - @nuxt/fonts: automatic font loading
+   * - @nuxt/test-utils/module: Vitest runtime for `test/nuxt`
    */
   modules: [
     '@nuxt/ui', // UI library and design tokens
     '@nuxt/image', // Image optimization
     '@nuxt/icon', // Icon bundling
-    '@nuxt/fonts' // Automatic font loading and optimization
+    '@nuxt/fonts', // Automatic font loading and optimization
+    '@nuxt/test-utils/module' // Vitest Nuxt environment
   ],
-
-  /**
-   * Project setting. Not a Nuxt module, and not listed in `modules`.
-   * `nuxt.schema.ts` types `confetti` as `"yes"` or `"nein"`.
-   */
-  meo: {
-    confetti: meoConfetti
-  },
-
-  /**
-   * Copies the top-level `meo` value onto public runtime config after modules load.
-   */
-  hooks: {
-    'modules:done'() {
-      copyMeoToPublicRuntimeConfig(useNuxt().options)
-    }
-  },
 
   /**
    * runtimeConfig exposes server-only and public runtime variables.
@@ -157,10 +139,7 @@ export default defineNuxtConfig({
     public: {
       /** Public default provider ID used when no selection exists */ defaultProvider:      process.env['NUXT_PUBLIC_DEFAULT_PROVIDER']?.trim() || 'openrouter-default',
       /** Public default model ID used for new chats and initial selection */ defaultModel: process.env['NUXT_PUBLIC_DEFAULT_MODEL']?.trim() || defaultModelId,
-      /** Package version shown in the sidebar */ version:                                  packageJson.version,
-      /** Same `meo.confetti` value as the top-level key. The hook writes it again after modules load. */ meo: {
-        confetti: meoConfetti
-      }
+      /** Package version shown in the sidebar */ version: packageJson.version
     }
   },
 
