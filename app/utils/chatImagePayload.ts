@@ -14,6 +14,11 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Builds the message list posted to the chat API from saved transcript rows.
+ * A vision model receives only the newest stored photo as a data URL; blank turns are left out.
+ */
+
 import { MAX_IMAGES_PER_REQUEST, type ChatContentPart, type UpstreamMessage } from '#shared/utils/chatImage'
 import { modelSupportsVision }                                                from '#shared/utils/models'
 import { readChatImageDataUrl }                                               from '~/utils/chatImageStore'

@@ -126,7 +126,9 @@
   // Shared global state for current AI configuration
   const selectedProvider = useState<string>('selected-provider', () => defaultProvider.value)
   const headerModel                         = useState<string>('selected-model', () => savedDefault.value || defaultModel.value)
+  /** Model used for a new chat: the header pick, then the saved default, then the env fallback. */
   const composerModel                       = computed(() => headerModel.value || savedDefault.value || defaultModel.value)
+  /** Whether that composer model can accept an attached photo. */
   const supportsVision                      = computed(() => modelSupportsVision(composerModel.value))
 
   // Personalized greeting state

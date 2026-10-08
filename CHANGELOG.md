@@ -2,6 +2,34 @@
 
 All notable changes to this project are documented here.
 
+## v1.5.0 — 2026-10-08
+
+### feat
+
+- feat(config): add `meo.confetti` in `nuxt.config.ts` as the string `"yes"` or `"nein"`
+- feat(config): type that key in `nuxt.schema.ts` and show the value from `app.vue`
+- feat(chat): attach one photo per message when the model can read images
+- feat(chat): shrink uploads to JPEG (long edge 1600px) and store the bytes in IndexedDB `meow-chat-images`
+- feat(chat): keep only `imageId` in `localStorage`, and delete those photos when a chat or all chats are removed
+- feat(chat): forward only the newest JPEG; older photos stay in the thread, and a follow-up with no new photo still sends the latest one
+- feat(chat): allow photos on `google/…` ids and DeepSeek Flash, and reject them for DeepSeek Pro and unknown models
+
+### fix
+
+- fix(models): fall back to `google/gemini-3.8-flash`, which is in the shipped catalog
+- fix(models): seed that same catalog when `.data/models.json` is missing, empty, or corrupt
+- fix(app): publish the package version on public runtime config and show it in the sidebar
+- fix(config): copy `meo.confetti` onto public runtime config, render it from `app.vue`, and skip confetti when the value is `"nein"`
+
+### chore
+
+- chore(deps): pin `vue` and `vue-router`, move `vue-language-server` to devDependencies, and leave Vitest out of the app
+- chore(build): typecheck with `tsc` on the generated Nuxt projects, because `vue-tsc` cannot load TypeScript 7
+- chore(docs): add JSDoc to the app, server, shared, and test sources
+- chore(docs): add the MIT `LICENSE`
+- chore(models): ship Gemini 3.5 Flash Lite, Gemini 3.6 Flash, Gemini 3.7 Flash, Gemini 3.8 Flash, and DeepSeek V4.1 Flash in `.data/models.json`
+- chore(release): set the package version to 1.5.0
+
 ## v1.4.0 — 2026-09-23
 
 ### feat

@@ -1,3 +1,5 @@
+# Meow 1.5.0. Keep the build context small. Tests and local data are not copied in.
+
 node_modules/
 .nuxt/
 .output/

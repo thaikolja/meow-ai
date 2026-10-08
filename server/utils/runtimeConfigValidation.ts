@@ -14,10 +14,21 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Refuses to continue in production when the house secret is missing.
+ */
+
 type RuntimeSecretConfig = {
   appPassword?: string
 }
 
+/**
+ * Does nothing unless `nodeEnv` is exactly `production`.
+ * In production, throws when `appPassword` is missing or blank.
+ *
+ * @param config - Runtime config slice that may contain `appPassword`.
+ * @param nodeEnv - Environment name. Defaults to `NODE_ENV`, or `''` when that is unset.
+ */
 export function assertProductionRuntimeSecrets(config: RuntimeSecretConfig, nodeEnv = process.env['NODE_ENV'] || '') {
   if (nodeEnv!=='production') {
     return

@@ -15,6 +15,10 @@
   -->
 
 <script lang="ts" setup>
+  /**
+   * Retired login route. Sets the moved-page title and sends the visitor back to the front page, where the cat flap now lives.
+   */
+
   useHead({
     title: 'Cat flap moved — Meow 🐾'
   })

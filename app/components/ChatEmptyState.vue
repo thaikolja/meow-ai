@@ -47,6 +47,10 @@
 </template>
 
 <script lang="ts" setup>
+  /**
+   * Empty conversation panel with three starter lessons. Choosing one emits the prompt so the parent can send it as the first message.
+   */
+
   defineEmits<{
     'quick-prompt': [ prompt: string ]
   }>()

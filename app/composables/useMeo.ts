@@ -14,7 +14,19 @@
  * @website   https://meow.yanawa.io
  */
 
-// Obsolete TypeScript copy of the branding test.
-// The active suite lives in `tests/branding.test.js`.
-export {}
+/**
+ * Reads `meo.confetti` from public runtime config.
+ * Throws unless the value is the string `"yes"` or `"nein"`.
+ */
 
+import { assertMeoConfetti } from '#shared/utils/meoConfig'
+
+/**
+ * Public Meow settings for the current request.
+ *
+ * @returns `confetti`, which is `"yes"` or `"nein"`.
+ */
+export function useMeo() {
+  const confetti = assertMeoConfetti(useRuntimeConfig().public.meo?.confetti)
+  return { confetti }
+}

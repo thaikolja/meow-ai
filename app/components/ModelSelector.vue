@@ -80,13 +80,16 @@
   // Global default for new chats. A chat session does not write this.
   const selectedModel = useState<string>('selected-model', () => persistedModel.value || defaultModel.value)
 
+  /** Resolved new-chat default: header state, then the saved model, then the env fallback. */
   const globalModel = computed(() => selectedModel.value || persistedModel.value || defaultModel.value)
 
+  /** Chat record for the current address, when the route is a chat. */
   const openChat = computed(() => {
     const key = chatSessionKey(route.path)
     return key ? getChat(key) : undefined
   })
 
+  /** Model id shown on the trigger for this route. */
   const displayedModel = computed(() => displayedModelId({
     path:        route.path,
     chatModel: (openChat.value && recallSessionModel(openChat.value.id)) || openChat.value?.model,
@@ -97,6 +100,7 @@
   const isOpen = ref(false)
   const search = ref('')
 
+  /** Closes the menu when a click happens outside the picker. */
   const handleClickOutside = (event: MouseEvent) => {
     if (dropdownContainer.value && !event.composedPath().includes(dropdownContainer.value)) {
       isOpen.value = false
@@ -133,12 +137,14 @@
     }
   })
 
+  /** Trigger label: the catalog name, or the raw model id when the name is unknown. */
   const displayLabel = computed(() => {
     if (!displayedModel.value) return 'Pick a Meow-del 🐾'
     const model = getModel(displayedModel.value)
     return model?.name || displayedModel.value
   })
 
+  /** Active models whose name or id matches the search text. */
   const filteredModels = computed(() => {
     const q = search.value.toLowerCase()
     if (!q) return activeModels.value
@@ -148,10 +154,12 @@
     )
   })
 
+  /** True when this row is the model currently shown. */
   function isSelected(modelId: string) {
     return displayedModel.value === modelId
   }
 
+  /** Stores the pick on the open chat, or as the new-chat default elsewhere, then closes the menu. */
   function selectModel(modelId: string) {
     const chat = openChat.value
     if (chat) {

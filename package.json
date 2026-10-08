@@ -1,38 +1,38 @@
 {
-  "name":            "meow.yanawa.io",
-  "version":         "1.4.0",
-  "private":         true,
-  "type":            "module",
-  "description":     "Cat-themed Nuxt chat interface for focused AI-powered German practice.",
-  "scripts":         {
-    "build":    "mkdir -p /tmp/meow-sockets && TMPDIR=/tmp/meow-sockets nuxt build",
-    "dev":      "mkdir -p /tmp/meow-sockets && TMPDIR=/tmp/meow-sockets nuxt dev",
+  "name": "meow.yanawa.io",
+  "version": "1.5.0",
+  "private": true,
+  "type": "module",
+  "description": "Cat-themed Nuxt chat interface for focused AI-powered German practice.",
+  "scripts": {
+    "build": "mkdir -p /tmp/meow-sockets && TMPDIR=/tmp/meow-sockets nuxt build",
+    "dev": "mkdir -p /tmp/meow-sockets && TMPDIR=/tmp/meow-sockets nuxt dev",
     "generate": "nuxt generate",
-    "preview":  "nuxt preview",
+    "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "test":     "bun test",
-    "typecheck": "nuxt typecheck"
+    "test": "bun test",
+    "typecheck": "tsc -p .nuxt/tsconfig.json --noEmit && tsc -p .nuxt/tsconfig.node.json --noEmit"
   },
-  "dependencies":    {
-    "@nuxt/fonts":         "0.14.0",
-    "@nuxt/image":         "^2.1.0",
-    "@nuxt/ui":            "^4.11.3",
-    "highlight.js":        "^11.12.0",
-    "marked":              "^18.1.0",
-    "nuxt":                "^4.6.0",
+  "dependencies": {
+    "@nuxt/fonts": "0.14.0",
+    "@nuxt/image": "^2.1.0",
+    "@nuxt/ui": "^4.11.3",
+    "highlight.js": "^11.12.0",
+    "marked": "^18.1.0",
+    "nuxt": "^4.6.0",
     "sanitize-html": "^2.18.0",
-    "vue":                 "latest",
-    "vue-language-server": "^0.0.67",
-    "vue-router":          "latest"
+    "vue": "3.5.43",
+    "vue-router": "5.4.0"
   },
   "devDependencies": {
     "@iconify-json/circle-flags": "^1.2.12",
     "@iconify-json/lucide": "^1.2.141",
-    "@iconify-json/mdi":    "^1.2.3",
-    "@types/node":          "^26.6.4",
+    "@iconify-json/mdi": "^1.2.3",
+    "@types/node": "^26.6.4",
     "@types/sanitize-html": "^2.16.2",
-    "@vue/language-core":   "^3.3.12",
-    "bun-types":            "^1.4.2",
-    "typescript":           "^7.0.2"
+    "@vue/language-core": "^3.3.12",
+    "bun-types": "^1.4.2",
+    "typescript": "^7.0.2",
+    "vue-language-server": "^0.0.67"
   }
 }

@@ -14,9 +14,20 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Reads the signed session cookie and reports whether it is still valid.
+ */
+
 import { AUTH_SESSION_COOKIE_NAME, AUTH_USERNAME_COOKIE_NAME } from '#shared/constants/auth'
 import { clearAuthCookies, getAuthSecret, verifySessionToken } from '../../utils/authSession'
 
+/**
+ * GET /api/auth/session.
+ * No CSRF check. A missing or invalid session is not an error.
+ * Sets `Cache-Control: no-store`. An invalid token also clears the auth cookies.
+ *
+ * @returns `{ authenticated: false, username: null }` when the token is missing or invalid. When it is valid, `{ authenticated: true, username }` uses the username cookie if that cookie is set, otherwise the name inside the token.
+ */
 export default defineEventHandler((event) => {
   setResponseHeaders(event, {
     'Cache-Control': 'no-store'

@@ -162,8 +162,11 @@
   const imageError = ref('')
   const imageBusy = ref(false)
 
+  /** True only when the parent says this model can read images. */
   const visionEnabled  = computed(() => props.supportsVision === true)
+  /** Disables the photo button while vision is off, a reply is streaming, or a photo is still processing. */
   const attachDisabled = computed(() => !visionEnabled.value || props.isStreaming || imageBusy.value)
+  /** Allows send when text or a photo is ready and nothing is streaming or processing. */
   const canSend        = computed(() => !props.isStreaming && !imageBusy.value && (message.value.trim().length > 0 || Boolean(imageId.value)))
 
   /**
@@ -186,12 +189,14 @@
     })
   }
 
+  /** Opens the hidden file picker when attaching a photo is allowed. */
   function openPicker() {
     if (attachDisabled.value) return
     imageError.value = ''
     fileRef.value?.click()
   }
 
+  /** Shrinks the chosen photo, stores it in the browser, and shows a preview. */
   async function onFile(event: Event) {
     const input = event.target as HTMLInputElement
     const file  = input.files?.[0]
@@ -221,6 +226,7 @@
     }
   }
 
+  /** Drops the current photo preview and deletes its stored blob. */
   async function clearAttachment() {
     const id         = imageId.value
     imageId.value    = null
@@ -229,6 +235,7 @@
     if (id) await deleteChatImage(id)
   }
 
+  /** Revokes the object URL used for the photo preview. */
   function releasePreview() {
     if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
     previewUrl.value = null
@@ -270,6 +277,7 @@
     el.style.height = Math.min(el.scrollHeight, 192) + 'px'
   }
 
+  /** On a narrow screen, scrolls the composer into view after the keyboard opens. */
   function handleFocus() {
     if (import.meta.server || window.innerWidth >= 768) {
       return

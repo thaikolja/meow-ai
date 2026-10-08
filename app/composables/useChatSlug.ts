@@ -20,14 +20,31 @@
  */
 import { fallbackChatSlug } from '#shared/utils/chatSlug'
 
+/**
+ * Requests a unique cat-sentence slug and replaces the hash route once that chat address is current.
+ * Tries the slug API twice, then stores a local fallback when the remote slug is missing or already taken.
+ *
+ * @returns `assignChatSlug`, which does nothing on the server and publishes in the background on the client.
+ */
 export function useChatSlug() {
   const router                          = useRouter()
   const { chats, getChat, setChatSlug } = useChats()
 
+  /**
+   * True when another chat already uses this slug or hash id.
+   *
+   * @param slug - Candidate public address.
+   * @param chatId - Chat that is allowed to keep the slug.
+   */
   function taken(slug: string, chatId: string): boolean {
     return chats.value.some(chat => chat.id !== chatId && (chat.slug === slug || chat.id === slug))
   }
 
+  /**
+   * Slugs the model should not repeat, capped at 20.
+   *
+   * @param extra - Slugs rejected during this assignment.
+   */
   function avoidList(extra: string[]): string[] {
     const existing = chats.value
     .map(chat => chat.slug)
@@ -36,6 +53,11 @@ export function useChatSlug() {
     return [ ...new Set([ ...extra, ...existing ]) ].slice(0, 20)
   }
 
+  /**
+   * Asks `/api/chat-slug` for one sentence. Network and empty replies become `null`.
+   *
+   * @param avoid - Slugs already in use.
+   */
   async function requestSlug(avoid: string[]): Promise<string | null> {
     try {
       const result = await $fetch<{ slug: string | null }>('/api/chat-slug', {
@@ -48,6 +70,12 @@ export function useChatSlug() {
     }
   }
 
+  /**
+   * Replaces the hash route with the slug once that chat is the open page.
+   *
+   * @param chatId - Internal chat id.
+   * @param slug - Public cat-sentence address.
+   */
   async function publish(chatId: string, slug: string) {
     // The slug can arrive before router.push has committed the hash address.
     for (let attempt = 0; attempt < 20; attempt++) {
@@ -63,11 +91,23 @@ export function useChatSlug() {
     }
   }
 
+  /**
+   * Stores the slug when no other chat already has it.
+   *
+   * @param chatId - Internal chat id.
+   * @param slug - Public address to store.
+   * @returns Whether the slug was stored.
+   */
   function claim(chatId: string, slug: string): boolean {
     if (taken(slug, chatId)) return false
     return setChatSlug(chatId, slug)
   }
 
+  /**
+   * Starts the background slug assignment. Does nothing during server render.
+   *
+   * @param chatId - Internal chat id.
+   */
   function assignChatSlug(chatId: string) {
     if (import.meta.server) return
 

@@ -14,6 +14,11 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Checks one JPEG page photo and the chat messages that carry it.
+ * Remote URLs and non-JPEG payloads are rejected before a provider sees them.
+ */
+
 import { modelSupportsVision } from './models'
 
 /** Decoded JPEG size cap for one attached page. */
@@ -27,10 +32,18 @@ export const MAX_CHAT_BODY_BYTES = 8_000_000
 
 const JPEG_DATA_PREFIX = 'data:image/jpeg;base64,'
 
+/**
+ * One part of a user message that may include a page photo.
+ * Text is a string; a photo is a JPEG data URL.
+ */
 export type ChatContentPart =
     | { type: 'text'; text: string }
     | { type: 'image_url'; image_url: { url: string } }
 
+/**
+ * Message forwarded to a provider.
+ * `content` is plain text, or text plus at most one JPEG part.
+ */
 export type UpstreamMessage = {
   role: string
   content: string | ChatContentPart[]
@@ -110,6 +123,14 @@ export function sanitizeUpstreamMessages(messages: unknown, model: string): Upst
   return sanitized
 }
 
+/**
+ * Accepts one chat message for the upstream request.
+ * A vision model may keep one JPEG on a user message. Other models reject image parts.
+ *
+ * @param message - Raw message from the client.
+ * @param vision - Whether the selected model may receive an image.
+ * @returns A text or multipart message, or `null` when the message is empty.
+ */
 function readMessage(message: unknown, vision: boolean): UpstreamMessage | null {
   if (!message || typeof message !== 'object') return null
 
@@ -137,6 +158,12 @@ function readMessage(message: unknown, vision: boolean): UpstreamMessage | null 
   return { role, content: parts }
 }
 
+/**
+ * Keeps one text part and one JPEG `image_url` from a user message.
+ *
+ * @param parts - Content parts from the client.
+ * @returns The parts that will be forwarded. Empty text is dropped.
+ */
 function readUserParts(parts: unknown[]): ChatContentPart[] {
   let text                 = ''
   let image: string | null = null
@@ -175,6 +202,11 @@ function readUserParts(parts: unknown[]): ChatContentPart[] {
   return list
 }
 
+/**
+ * Decodes a base64 payload into bytes.
+ *
+ * @param payload - Base64 body of a data URL, without the prefix.
+ */
 function bytesFromBase64(payload: string): Uint8Array {
   const binary = atob(payload)
   const bytes  = new Uint8Array(binary.length)

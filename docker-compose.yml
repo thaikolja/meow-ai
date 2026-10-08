@@ -1,3 +1,7 @@
+# Meow 1.5.0 production stack.
+# The image tag stays `meow-ai:latest`. Package version is `1.5.0` in package.json.
+# Secrets come from the server `.env`. The catalog file is mounted read-only.
+
 services:
   app:
     build:
@@ -21,7 +25,7 @@ services:
       NUXT_DEEPSEEK_API_KEY: "${NUXT_DEEPSEEK_API_KEY:-}"
       # Default provider/model shown in the UI on first load.
       NUXT_PUBLIC_DEFAULT_PROVIDER: "${NUXT_PUBLIC_DEFAULT_PROVIDER:-openrouter-default}"
-      NUXT_PUBLIC_DEFAULT_MODEL: "${NUXT_PUBLIC_DEFAULT_MODEL:-google/gemini-2.5-flash}"
+      NUXT_PUBLIC_DEFAULT_MODEL: "${NUXT_PUBLIC_DEFAULT_MODEL:-google/gemini-3.8-flash}"
       # Set to "true" only if you need private/internal provider endpoints.
       NUXT_ALLOW_PRIVATE_PROVIDER_URLS: "${NUXT_ALLOW_PRIVATE_PROVIDER_URLS:-false}"
       # Override the data directory path inside the container.

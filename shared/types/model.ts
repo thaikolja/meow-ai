@@ -15,6 +15,10 @@
  */
 
 /**
+ * Shared model catalog type used by both server and client.
+ */
+
+/**
  * Shared model type used by both server and client.
  * Represents a single entry in the .data/models.json catalog.
  */

@@ -62,6 +62,7 @@
   let streamingUpdateFrame: number | null                                              = null
   const chatMessagesRef = ref<any>()
 
+  /** Coalesces live token writes onto the next animation frame. */
   function scheduleStreamingUpdate(chatId: string, messageId: string) {
     if (streamingUpdateFrame!==null || import.meta.server) {
       return
@@ -73,6 +74,7 @@
     })
   }
 
+  /** Cancels a pending frame and writes the assistant message immediately. */
   function flushStreamingUpdate(chatId: string, messageId: string, content: string, isError?: boolean) {
     if (import.meta.client && streamingUpdateFrame!==null) {
       window.cancelAnimationFrame(streamingUpdateFrame)
@@ -87,7 +89,9 @@
   const selectedModel    = useState<string>('selected-model', () => defaultModel.value)
   const selectedProvider = useState<string>('selected-provider', () => defaultProvider.value)
   const { recallSessionModel } = useSessionModel()
+  /** Whether the model for this chat is a thinking model. */
   const isThinking = computed(() => isThinkingModel(resolveChatModel()))
+  /** Whether the model for this chat can accept images. */
   const supportsVision = computed(() => modelSupportsVision(resolveChatModel()))
 
   /**

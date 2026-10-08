@@ -140,6 +140,7 @@
     void loadModels()
   })
 
+  /** Editor value: the custom override when one is stored, otherwise the built-in tutor prompt. */
   const systemPromptEditor = computed({
     get: () => systemPromptOverride.value ?? defaultSystemPrompt.value,
     set: (value: string) => {

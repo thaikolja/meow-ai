@@ -14,6 +14,11 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Chat threads kept in `localStorage` under `chat-yanawa-chats`.
+ * Creates and edits threads and messages, stores a public slug, and deletes saved photos when a chat is removed.
+ */
+
 import type { Chat, ChatMessage } from '~/types'
 import { deleteAllChatImages, deleteImagesForChat } from '~/utils/chatImageStore'
 
@@ -54,6 +59,11 @@ function saveChats(chats: Chat[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(chats))
 }
 
+/**
+ * Writes the chat list after a short quiet period so rapid edits share one save.
+ *
+ * @param chats - Chat list to persist.
+ */
 function scheduleSaveChats(chats: Chat[]) {
   if (import.meta.server) return
 
@@ -67,6 +77,11 @@ function scheduleSaveChats(chats: Chat[]) {
   }, PERSIST_THROTTLE_MS)
 }
 
+/**
+ * Cancels a pending save and writes the chat list immediately.
+ *
+ * @param chats - Chat list to persist.
+ */
 function flushSaveChats(chats: Chat[]) {
   if (persistTimer) {
     clearTimeout(persistTimer)

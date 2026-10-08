@@ -15,6 +15,11 @@
  */
 
 /**
+ * Detects reasoning-style model ids and hides chain-of-thought text.
+ * Vision support is decided here so an unknown model cannot receive a page photo.
+ */
+
+/**
  * Regex patterns that identify model IDs that produce chain-of-thought /
  * reasoning style output. Patterns are matched against the lowercased model ID
  * with any leading "models/" prefix stripped.
@@ -39,6 +44,11 @@ export const THINKING_MODEL_PATTERNS: RegExp[] = [
  */
 const THINK_BLOCK_PATTERN = /<think\b[^>]*>[\s\S]*?<\/think>/g
 
+/**
+ * Removes inline `<think>` blocks, including any attributes, from model text.
+ * @param content - Streamed or finished message text.
+ * @returns The text with think blocks removed and surrounding space trimmed.
+ */
 export function stripThinkBlocks(content: string): string {
   return content.replace(THINK_BLOCK_PATTERN, '').trim()
 }

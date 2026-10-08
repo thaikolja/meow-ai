@@ -15,6 +15,11 @@
  */
 
 /**
+ * Chooses whether a model pick belongs to the open chat or to the new-chat default.
+ * A path under `/chat/` is one session and must not rewrite the global model.
+ */
+
+/**
  * A chat thread is one session. Picking a model there must not rewrite the
  * default used for new chats.
  */
@@ -33,6 +38,15 @@ export function chatSessionKey(path: string): string {
   }
 }
 
+/**
+ * Model id the header should show for this path.
+ * On a chat path, a stored chat model wins; otherwise the global default is used.
+ * @param input - Path, optional chat model, and the global default.
+ * @param input.path - Current route. The query string is ignored.
+ * @param input.chatModel - Model stored on the open chat, if any.
+ * @param input.globalModel - Default model for new chats.
+ * @returns The model id to display.
+ */
 export function displayedModelId(input: {
   path: string
   chatModel?: string | null

@@ -14,6 +14,11 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Sweeps the tree for retired project names and checks that key
+ * pages, styles, and metadata still say Meow.
+ */
+
 import { describe, expect, test } from 'bun:test'
 import { readdir, readFile } from 'node:fs/promises'
 import { extname, join } from 'node:path'
@@ -28,6 +33,11 @@ const LEGACY_DOMAIN = ['chat', 'yanawa', 'io'].join('.')
 const FORBIDDEN_STRINGS = [ LEGACY_BRAND, LEGACY_DOMAIN ]
 const EXCLUDED_FILES = new Set([ join(ROOT, 'tests/branding.test.js') ])
 
+/**
+ * Lists project files whose extension is scanned for retired brand names.
+ *
+ * @param dir - Directory to walk. Build output and dependencies are skipped.
+ */
 async function collectFiles(dir) {
   const entries = await readdir(dir, { withFileTypes: true })
   const files = []

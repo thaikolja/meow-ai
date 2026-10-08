@@ -1,3 +1,7 @@
+# Meow 1.5.0 image.
+# deps installs with Bun, build runs `bun run build`, runtime serves the Nitro output on port 3000.
+# The image tag stays `meow-ai:latest`. The package version lives in package.json.
+
 ARG BUN_VERSION=1.2
 ARG NODE_VERSION=22-bookworm-slim
 

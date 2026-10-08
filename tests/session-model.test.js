@@ -14,6 +14,11 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Covers which model a path displays and which store a pick updates.
+ * Inside a chat the pick stays on that chat; elsewhere it becomes the new-chat default.
+ */
+
 import { describe, expect, test } from 'bun:test'
 
 import { applyModelPick, chatSessionKey, displayedModelId } from '../shared/utils/sessionModel'

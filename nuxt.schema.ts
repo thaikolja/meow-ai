@@ -15,8 +15,22 @@
  */
 
 /**
- * Local entry for a production build.
- * Imports the compiled Nitro server at `.output/server/index.mjs`.
+ * Types the top-level `meo` key. Nuxt loads this file itself. It is not a module.
+ * `confetti` is the string `"yes"` or `"nein"`.
  */
 
-import './.output/server/index.mjs';
+export default defineNuxtSchema({
+  meo: {
+    $schema: {
+      title:       'Meo',
+      description: 'Meow project settings. This key is not a Nuxt module.'
+    },
+    /**
+     * Celebration confetti. Only the strings "yes" and "nein" are valid.
+     *
+     * @type {'yes' | 'nein'}
+     * @default 'yes'
+     */
+    confetti: 'yes' as const
+  }
+})

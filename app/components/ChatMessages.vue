@@ -70,6 +70,7 @@
     'quick-prompt': [ prompt: string ]
   }>()
 
+  /** Forwards a starter or tutor prompt to the parent chat page. */
   function handleQuickPrompt(prompt: string) {
     emit('quick-prompt', prompt)
   }
@@ -97,6 +98,7 @@
     isAutoScrolling.value = true
   }
 
+  /** Scrolls the feed so the latest message starts near the top of the container. */
   function scrollToLastMessage() {
     if (!container.value || !messageList.value) return
     requestAnimationFrame(() => {

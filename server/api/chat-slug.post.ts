@@ -31,6 +31,12 @@ import {
 
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api'
 
+/**
+ * Reads the assistant text from an OpenRouter chat completion payload.
+ * String content is returned as-is. Array content is joined from string parts and `text` fields.
+ *
+ * @param payload - JSON body from the slug model.
+ */
 function readMessageContent(payload: unknown): string {
   const content = (payload as { choices?: Array<{ message?: { content?: unknown } }> })
       ?.choices?.[0]?.message?.content
@@ -47,6 +53,11 @@ function readMessageContent(payload: unknown): string {
   .join(' ')
 }
 
+/**
+ * Normalizes up to 20 slug strings from `{ avoid }` on the request body.
+ *
+ * @param body - Parsed request body.
+ */
 function avoidList(body: unknown): string[] {
   const raw = (body as { avoid?: unknown })?.avoid
   if (!Array.isArray(raw)) return []
@@ -62,6 +73,14 @@ function avoidList(body: unknown): string[] {
   return slugs
 }
 
+/**
+ * POST /api/chat-slug.
+ * Requires a valid session and a passing CSRF check.
+ * Optional `avoid` entries are normalized and capped at 20 unique slugs.
+ * Asks `google/gemini-3.5-flash-lite` on OpenRouter for one cat sentence. A missing key, transport failure, non-OK response, or unusable reply uses the local fallback instead of an error status.
+ *
+ * @returns `{ slug }` from the model reply, or from the local fallback.
+ */
 export default defineEventHandler(async (event) => {
   validateCsrf(event)
   requireAuthenticatedSession(event)

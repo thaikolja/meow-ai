@@ -1,7 +1,7 @@
-# Meow CI
+# Meow 1.5.0 CI
 #
 # Pipeline:
-#   lint    - bun install + typecheck (soft-fail)
+#   lint    - bun install + bun test + tsc typecheck
 #   build   - bun install + bun run build (artifacts)
 #   deploy  - push to main → sshpass as root → hard-reset checkout → scripts/deploy.sh
 #
@@ -31,7 +31,8 @@ lint_code:
   stage: lint
   script:
     - bun install
-    - bun run typecheck || echo "Typecheck failed; continuing because this job is optional"
+    - bun test
+    - bun run typecheck
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_COMMIT_BRANCH == 'main'

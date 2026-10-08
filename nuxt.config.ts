@@ -14,7 +14,12 @@
  * @website   https://meow.yanawa.io
  */
 
+import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { useNuxt } from '@nuxt/kit'
+import type { MeoConfetti } from './shared/types/meo'
+import { copyMeoToPublicRuntimeConfig } from './shared/utils/meoConfig'
 
 /**
  * Runtime configuration entrypoint for Nuxt.
@@ -38,6 +43,26 @@ import { join } from 'node:path'
 const appPassword: string = process.env['NUXT_APP_PASSWORD']?.trim() || ''
 
 /**
+ * Shipped model used when Settings and NUXT_PUBLIC_DEFAULT_MODEL are empty.
+ * This id is in `.data/models.json`.
+ */
+const defaultModelId = 'google/gemini-3.8-flash'
+
+/**
+ * Celebration confetti. Only the strings "yes" and "nein" are valid.
+ * A `modules:done` hook copies this onto public runtime config.
+ */
+const meoConfetti: MeoConfetti = 'yes'
+
+/**
+ * Application version string read from package.json.
+ * Exposed on public runtime config so the sidebar can show it.
+ */
+const packageJson = JSON.parse(
+    readFileSync(fileURLToPath(new URL('./package.json', import.meta.url)), 'utf-8')
+) as { version: string }
+
+/**
  * Session secret used to sign session cookies.
  *
  * Falls back to the application password when a dedicated session secret is
@@ -59,6 +84,8 @@ const sessionSecret: string = process.env['NUXT_SESSION_SECRET']?.trim() || appP
  */
 export default defineNuxtConfig({
   /**
+   * Project settings.
+   *
    * Compatibility date for Nuxt features.
    *
    * Locking this helps avoid surprising framework upgrades changing behavior.
@@ -87,6 +114,22 @@ export default defineNuxtConfig({
     '@nuxt/fonts' // Automatic font loading and optimization
   ],
 
+  /**
+   * Project setting. Not a Nuxt module, and not listed in `modules`.
+   * `nuxt.schema.ts` types `confetti` as `"yes"` or `"nein"`.
+   */
+  meo: {
+    confetti: meoConfetti
+  },
+
+  /**
+   * Copies the top-level `meo` value onto public runtime config after modules load.
+   */
+  hooks: {
+    'modules:done'() {
+      copyMeoToPublicRuntimeConfig(useNuxt().options)
+    }
+  },
 
   /**
    * runtimeConfig exposes server-only and public runtime variables.
@@ -102,10 +145,10 @@ export default defineNuxtConfig({
      *
      * Controlled via NUXT_ALLOW_PRIVATE_PROVIDER_URLS environment variable.
      */
-    allowPrivateProviderUrls:                                                 process.env['NUXT_ALLOW_PRIVATE_PROVIDER_URLS'] === 'true', // boolean flag
+    allowPrivateProviderUrls:                                                         process.env['NUXT_ALLOW_PRIVATE_PROVIDER_URLS'] === 'true', // boolean flag
     /** Server-only: absolute path to the persistent data directory */ dataDir:       process.env['NUXT_DATA_DIR']?.trim() || join(process.cwd(), '.data'),
     /** Server-only: OpenRouter API key (trimmed, default empty) */ openrouterApiKey: process.env['NUXT_OPENROUTER_API_KEY']?.trim() || '',
-    /** Server-only: DeepSeek API key for api.deepseek.com */ deepseekApiKey: process.env['NUXT_DEEPSEEK_API_KEY']?.trim() || '',
+    /** Server-only: DeepSeek API key for api.deepseek.com */ deepseekApiKey:         process.env['NUXT_DEEPSEEK_API_KEY']?.trim() || '',
     /**
      * Public runtime config accessible by the client.
      *
@@ -113,10 +156,13 @@ export default defineNuxtConfig({
      */
     public: {
       /** Public default provider ID used when no selection exists */ defaultProvider:      process.env['NUXT_PUBLIC_DEFAULT_PROVIDER']?.trim() || 'openrouter-default',
-      /** Public default model ID used for new chats and initial selection */ defaultModel: process.env['NUXT_PUBLIC_DEFAULT_MODEL']?.trim() || 'google/gemini-2.5-flash'
+      /** Public default model ID used for new chats and initial selection */ defaultModel: process.env['NUXT_PUBLIC_DEFAULT_MODEL']?.trim() || defaultModelId,
+      /** Package version shown in the sidebar */ version:                                  packageJson.version,
+      /** Same `meo.confetti` value as the top-level key. The hook writes it again after modules load. */ meo: {
+        confetti: meoConfetti
+      }
     }
   },
-
 
   /**
    * Global CSS files included in every page.

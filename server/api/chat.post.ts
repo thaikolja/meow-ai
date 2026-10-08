@@ -26,6 +26,14 @@ import { validateCsrf }                                                         
 
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api'
 
+/**
+ * POST /api/chat.
+ * Requires a valid session and a passing CSRF check.
+ * Uses `model` and `messages` and ignores other body fields. DeepSeek ids stream from the official DeepSeek API; every other id streams from OpenRouter. The upstream body is returned as SSE.
+ * Responds 403 when CSRF fails, 401 when the session is missing, 413 when `Content-Length` is over the chat body limit, and 400 when `model` or `messages` is missing or rejected. Responds 500 when the required API key is missing or the upstream body is empty, and 502 when the upstream connection fails or times out after 45 seconds. An upstream HTTP error is returned with that status and its response text.
+ *
+ * @returns The upstream server-sent event stream.
+ */
 export default defineEventHandler(async (event) => {
   validateCsrf(event)
 

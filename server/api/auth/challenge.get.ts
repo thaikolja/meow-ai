@@ -14,8 +14,19 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Issues the one-time login challenge the client signs with the house secret.
+ */
+
 import { issueLoginChallenge } from '../../utils/authChallenge'
 
+/**
+ * GET /api/auth/challenge.
+ * No session and no CSRF check. Responds 503 when the house secret is empty.
+ * Binds a new challenge to the request IP (`x-forwarded-for` when present) and sets `Cache-Control: no-store`.
+ *
+ * @returns `{ challengeId, challenge, expiresAt }`.
+ */
 export default defineEventHandler((event) => {
   const config = useRuntimeConfig(event)
   if (!config.appPassword?.trim()) {

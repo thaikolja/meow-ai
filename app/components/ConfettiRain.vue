@@ -32,6 +32,10 @@
 </template>
 
 <script lang="ts" setup>
+  /**
+   * Full-screen confetti shown after a successful unlock. Each new burst id rebuilds the pieces and lets them fall once.
+   */
+
   type Piece = {
     id: number
     left: number
@@ -55,6 +59,7 @@
 
   let hideTimer: ReturnType<typeof setTimeout> | undefined
 
+  /** Builds the randomized pieces for one celebration burst. */
   function buildPieces(burstId: number): Piece[] {
     return Array.from({ length: 64 }, (_, index) => ({
       id:       burstId * 1000 + index,

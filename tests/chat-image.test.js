@@ -14,6 +14,11 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Covers which models accept a page photo and how one JPEG data URL
+ * is checked before OpenRouter or DeepSeek Flash receives it.
+ */
+
 import { describe, expect, test } from 'bun:test'
 
 import { buildChatRequest, buildDeepSeekRequest } from '../server/utils/providerApi'
@@ -24,6 +29,11 @@ import {
 }                                                 from '../shared/utils/chatImage'
 import { modelSupportsVision }                    from '../shared/utils/models'
 
+/**
+ * Builds a tiny JPEG data URL. `extraBytes` pads the payload so size limits can be tested.
+ *
+ * @param extraBytes - Extra bytes appended after the JPEG markers.
+ */
 function jpegDataUrl(extraBytes = 0) {
     const bytes = [ 0xff, 0xd8, 0xff, 0xd9 ]
     for (let index = 0; index < extraBytes; index += 1) bytes.push(0)

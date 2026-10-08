@@ -22,8 +22,20 @@
 import { isThinkingModel } from '#shared/utils/models'
 import type { Model }        from '#shared/types/model'
 
+/**
+ * Re-exports the shared check for reasoning-style model ids.
+ *
+ * @param modelId - Model id, matched in lowercase after a leading `models/` prefix is removed.
+ * @returns True when the id matches a thinking-model pattern.
+ */
 export { isThinkingModel }
 
+/**
+ * Loads the catalog from `GET /api/models` into shared state.
+ * The first client call starts that load when the catalog is not yet marked loaded.
+ *
+ * @returns The catalog, active rows, load and lookup helpers, and `isThinkingModel`.
+ */
 export function useModels() {
   const models   = useState<Model[]>('models', () => [])
   const isLoaded = useState('models-loaded', () => false)

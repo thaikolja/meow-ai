@@ -14,6 +14,16 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Recognizes the bare `/_nuxt` paths that must not be served as application routes.
+ */
+
+/**
+ * Reports whether `pathname` is exactly `/_nuxt` or `/_nuxt/`.
+ *
+ * @param pathname - Request pathname, without a query string.
+ * @returns `true` only for those two paths.
+ */
 export function isBareBuildAssetsPath(pathname: string): boolean {
   return pathname==='/_nuxt' || pathname==='/_nuxt/'
 }

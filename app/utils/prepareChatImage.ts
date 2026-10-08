@@ -14,6 +14,11 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Shrinks a picked photo into a JPEG that can be stored with a chat message.
+ * Rejects files over 20 MB, SVG and other non-images, and results that stay above the shared byte cap.
+ */
+
 import { MAX_CHAT_IMAGE_BYTES } from '#shared/utils/chatImage'
 
 const MAX_INPUT_BYTES = 20 * 1024 * 1024
@@ -58,6 +63,12 @@ export async function prepareChatImage(file: File): Promise<Blob> {
   }
 }
 
+/**
+ * Decodes a photo and applies its EXIF orientation.
+ * An unreadable file throws the unsupported-photo error.
+ *
+ * @param file - Photo chosen in the composer.
+ */
 async function decodeImage(file: File): Promise<ImageBitmap> {
   try {
     return await createImageBitmap(file, { imageOrientation: 'from-image' })
@@ -66,6 +77,13 @@ async function decodeImage(file: File): Promise<ImageBitmap> {
   }
 }
 
+/**
+ * Draws the bitmap into a JPEG blob, scaled so the long edge is at most `maxEdge`.
+ *
+ * @param source - Decoded photo.
+ * @param maxEdge - Longest allowed side in pixels.
+ * @param quality - JPEG quality from 0 to 1.
+ */
 function renderJpeg(source: ImageBitmap, maxEdge: number, quality: number): Promise<Blob> {
   const fitted  = fitEdge(source.width, source.height, maxEdge)
   const canvas  = document.createElement('canvas')
@@ -84,6 +102,14 @@ function renderJpeg(source: ImageBitmap, maxEdge: number, quality: number): Prom
   })
 }
 
+/**
+ * Scales a rectangle so its long edge is at most `maxEdge`.
+ *
+ * @param width - Source width in pixels.
+ * @param height - Source height in pixels.
+ * @param maxEdge - Longest allowed side in pixels.
+ * @returns Rounded pixel size. Each side stays at least 1.
+ */
 function fitEdge(width: number, height: number, maxEdge: number): { width: number; height: number } {
   if (width < 1 || height < 1) {
     throw new Error('Could not read that photo.')

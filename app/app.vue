@@ -18,9 +18,14 @@
     setup
     lang="ts"
 >
+/**
+ * Root shell for Meow. Verifies the session, keeps the layout and page mounted, and covers them with a loading splash or the cat-flap gate until the visitor is signed in. Celebration confetti renders above that shell.
+ */
 
 const { authState, verifySession } = useAuthSession()
 const { celebrationSequence }      = useCelebration()
+const { confetti }                 = useMeo()
+/** True once the session has been checked and the visitor is authenticated. */
 const appReady                     = computed(() => authState.value.checked && authState.value.authenticated)
 
 if (import.meta.server && !authState.value.checked) {
@@ -58,6 +63,10 @@ if (import.meta.client && !authState.value.checked) {
       <AuthGate v-else />
     </div>
 
-    <ConfettiRain :burst-id="celebrationSequence" />
+    <span class="sr-only">{{ confetti }}</span>
+    <ConfettiRain
+        v-if="confetti === 'yes'"
+        :burst-id="celebrationSequence"
+    />
   </UApp>
 </template>

@@ -186,6 +186,7 @@
     if (imageUrl.value) URL.revokeObjectURL(imageUrl.value)
   })
 
+  /** Loads a stored chat image into an object URL for this message. */
   async function loadImage(id?: string) {
     if (imageUrl.value) {
       URL.revokeObjectURL(imageUrl.value)
@@ -197,12 +198,14 @@
     imageUrl.value = URL.createObjectURL(record.blob)
   }
 
+  /** Visible message text, with think blocks removed and the live stream used while it is running. */
   const displayContent = computed(() => {
     if (props.isThinking && props.isStreaming) return ''
     const raw = props.isStreaming && props.streamingContent!==undefined ? props.streamingContent: props.message.content
     return stripThinkBlocks(raw)
   })
 
+  /** Copies the visible message text and briefly shows a copied state. */
   async function copyContent() {
     try {
       await navigator.clipboard.writeText(displayContent.value)
@@ -215,6 +218,7 @@
     }
   }
 
+  /** Rough token count taken from the visible text length. */
   const tokenEstimate = computed(() => {
     const text = displayContent.value
     if (!text) return 0

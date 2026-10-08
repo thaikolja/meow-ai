@@ -14,6 +14,11 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Covers cat-name normalization, one-time IP-bound login challenges,
+ * and HMAC verification of the shared login proof.
+ */
+
 import { createHmac } from 'node:crypto'
 
 import { describe, expect, test } from 'bun:test'
