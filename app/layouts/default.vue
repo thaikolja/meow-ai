@@ -263,9 +263,9 @@
   /**
    * Deletes a chat and redirects if current chat is the one deleted.
    */
-  function handleDeleteChat(id: string) {
+  async function handleDeleteChat(id: string) {
     const open = getChat(String(route.params.id || ''))
-    deleteChat(id)
+    await deleteChat(id)
     if (open?.id === id) {
       router.push('/')
     }

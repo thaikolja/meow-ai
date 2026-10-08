@@ -51,7 +51,7 @@ export function useChatStream() {
    * @param onError - Callback for handling network or API failures
    */
   async function streamMessage(
-      messages: Array<{ role: string; content: string }>,
+      messages: Array<{ role: string; content: string | Array<{ type: string; text?: string; image_url?: { url: string } }> }>,
       config: { providerId: string; model: string },
       onChunk: (chunk: string) => void,
       onDone: (fullContent: string) => void,

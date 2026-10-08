@@ -19,6 +19,7 @@
  * Receives the conversation history and model ID, uses the OpenRouter API key
  * from runtime config, and streams the response back via SSE.
  */
+import { MAX_CHAT_BODY_BYTES, sanitizeUpstreamMessages } from '#shared/utils/chatImage'
 import { requireAuthenticatedSession }                                                    from '../utils/authSession'
 import { assertProviderBaseUrl, buildChatRequest, buildDeepSeekRequest, isDeepSeekModel } from '../utils/providerApi'
 import { validateCsrf }                                                                   from '../utils/csrf'
@@ -29,6 +30,11 @@ export default defineEventHandler(async (event) => {
   validateCsrf(event)
 
   requireAuthenticatedSession(event)
+
+  const contentLength = Number(getRequestHeader(event, 'content-length') || 0)
+  if (Number.isFinite(contentLength) && contentLength > MAX_CHAT_BODY_BYTES) {
+    throw createError({ statusCode: 413, message: 'That photo is too large.' })
+  }
 
   const body             = await readBody(event)
   const { messages, model } = body
@@ -60,24 +66,14 @@ export default defineEventHandler(async (event) => {
         allowInsecureLocalhost: import.meta.dev
       })
 
-  const sanitizedMessages = messages
-  .filter((message): message is { role: string; content: string } => (
-      Boolean(message)
-      && typeof message.role==='string'
-      && typeof message.content==='string'
-  ))
-  .map((message) => ({
-    role:    message.role,
-    content: message.content.trim()
-  }))
-  .filter((message) => message.content.length > 0)
-
-  if (sanitizedMessages.length===0) {
-    throw createError({ statusCode: 400, message: 'At least one valid message is required' })
-  }
-
-  if (sanitizedMessages.length > 100) {
-    throw createError({ statusCode: 400, message: 'Too many messages supplied in a single request' })
+  let sanitizedMessages
+  try {
+    sanitizedMessages = sanitizeUpstreamMessages(messages, model.trim())
+  } catch (error: any) {
+    throw createError({
+      statusCode: 400,
+      message:    typeof error?.message === 'string' ? error.message : 'Invalid messages'
+    })
   }
 
   const request = useDeepSeek

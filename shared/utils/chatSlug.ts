@@ -14,6 +14,7 @@
  * @website   https://meow.yanawa.io
  */
 
+
 export const CHAT_SLUG_MODEL     = 'google/gemini-3.5-flash-lite'
 export const CHAT_SLUG_MIN_WORDS = 4
 export const CHAT_SLUG_MAX_WORDS = 8

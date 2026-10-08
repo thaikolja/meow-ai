@@ -15,11 +15,9 @@
  */
 
 import { isIP } from 'node:net'
+import type { UpstreamMessage } from '../../shared/utils/chatImage'
 
-export type ChatMessageInput = {
-  role: string
-  content: string
-}
+export type ChatMessageInput = UpstreamMessage
 
 export type ChatRequest = {
   apiUrl: string

@@ -84,8 +84,9 @@ export default defineNuxtConfig({
     '@nuxt/ui', // UI library and design tokens
     '@nuxt/image', // Image optimization
     '@nuxt/icon', // Icon bundling
-    '@nuxt/fonts' // Font loader
+    '@nuxt/fonts' // Automatic font loading and optimization
   ],
+
 
   /**
    * runtimeConfig exposes server-only and public runtime variables.

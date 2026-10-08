@@ -51,3 +51,19 @@ export function isThinkingModel(modelId: string): boolean {
   const normalized = modelId.replace(/^models\//, '').toLowerCase()
   return THINKING_MODEL_PATTERNS.some(pattern => pattern.test(normalized))
 }
+
+/**
+ * Gemini models on OpenRouter, and DeepSeek Flash, accept a page photo.
+ * DeepSeek Pro stays closed. Unknown ids stay closed so a new text model
+ * cannot send an image by accident.
+ */
+export function modelSupportsVision(modelId: unknown): boolean {
+  if (typeof modelId !== 'string') return false
+  const id = modelId.trim().toLowerCase()
+  if (id.startsWith('google/')) return true
+  if (id.includes('v4-pro')) return false
+  return id === 'deepseek-flash'
+      || id === 'deepseek-v4-flash'
+      || id === 'deepseek-v4-flash-vision-exp'
+      || id.startsWith('deepseek/')
+}

@@ -14,6 +14,25 @@
   - @website   https://meow.yanawa.io
   -->
 
+<script
+    setup
+    lang="ts"
+>
+
+const { authState, verifySession } = useAuthSession()
+const { celebrationSequence }      = useCelebration()
+const appReady                     = computed(() => authState.value.checked && authState.value.authenticated)
+
+if (import.meta.server && !authState.value.checked) {
+  await verifySession(true)
+}
+
+if (import.meta.client && !authState.value.checked) {
+  void verifySession(true)
+}
+
+</script>
+
 <template>
   <UApp>
     <div
@@ -27,7 +46,7 @@
 
     <div
         v-if="!appReady"
-        class="fixed inset-0 z-[100] bg-zinc-900"
+        class="fixed inset-0 z-100 bg-zinc-900"
     >
       <CatLoadingState
           v-if="!authState.checked"
@@ -42,17 +61,3 @@
     <ConfettiRain :burst-id="celebrationSequence" />
   </UApp>
 </template>
-
-<script lang="ts" setup>
-  const { authState, verifySession } = useAuthSession()
-  const { celebrationSequence }      = useCelebration()
-  const appReady = computed(() => authState.value.checked && authState.value.authenticated)
-
-  if (import.meta.server && !authState.value.checked) {
-    await verifySession(true)
-  }
-
-  if (import.meta.client && !authState.value.checked) {
-    void verifySession(true)
-  }
-</script>

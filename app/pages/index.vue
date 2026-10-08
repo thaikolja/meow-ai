@@ -97,7 +97,10 @@
       <!-- Primary Entry Point: Reusable ChatInput component -->
       <div class="relative z-20 shrink-0 w-full">
         <ChatInput
-            :is-streaming="false" @send="handleSend" />
+            :is-streaming="false"
+            :supports-vision="supportsVision"
+            @send="handleSend"
+        />
       </div>
     </ClientOnly>
   </div>
@@ -109,8 +112,11 @@
    * Provides a friendly hero section, quick-start prompts, and immediate chat entry.
    */
 
+  import { modelSupportsVision } from '#shared/utils/models'
+  import { bindChatImage }       from '~/utils/chatImageStore'
+
   const router                     = useRouter()
-  const { createChat, addMessage } = useChats()
+  const { createChat, addMessage, getChat } = useChats()
   const { assignChatSlug } = useChatSlug()
   const { authState }              = useAuthSession()
   const defaultProvider            = useDefaultProvider()
@@ -119,6 +125,9 @@
 
   // Shared global state for current AI configuration
   const selectedProvider = useState<string>('selected-provider', () => defaultProvider.value)
+  const headerModel                         = useState<string>('selected-model', () => savedDefault.value || defaultModel.value)
+  const composerModel                       = computed(() => headerModel.value || savedDefault.value || defaultModel.value)
+  const supportsVision                      = computed(() => modelSupportsVision(composerModel.value))
 
   // Personalized greeting state
   const username    = useCookie('chat_username')
@@ -131,15 +140,24 @@
    * 3. Sets a session flag to auto-trigger generation on the chat page.
    * 4. Navigates to the chat view.
    */
-  async function handleSend(content: string) {
-    const startingModel = savedDefault.value || defaultModel.value
+  async function handleSend(content: string, imageId?: string) {
+    const text     = content.trim()
+    const attached = imageId?.trim() || undefined
+    if (!text && !attached) return
+
+    const startingModel = composerModel.value
+    if (attached && !modelSupportsVision(startingModel)) return
+
     const newChat       = createChat(selectedProvider.value, startingModel)
-    addMessage(newChat.id, {
+    const message       = addMessage(newChat.id, {
       role:       'user',
-      content,
-      model: startingModel,
+      content: text,
+      imageId: attached,
+      model:   startingModel,
       providerId: selectedProvider.value
     })
+    const chat          = getChat(newChat.id)
+    if (attached && chat) await bindChatImage(attached, chat.id, message.id)
 
     // Handshake mechanism for cross-page stream triggering
     sessionStorage.setItem('pending-stream', newChat.id)

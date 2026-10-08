@@ -14,7 +14,8 @@
  * @website   https://meow.yanawa.io
  */
 
-import { isBareBuildAssetsPath } from '../utils/buildAssetsGuard'
+import { getRequestURL, defineEventHandler, setResponseStatus, setResponseHeaders } from 'h3'
+import { isBareBuildAssetsPath }                                                    from '../utils/buildAssetsGuard'
 
 export default defineEventHandler((event) => {
   const pathname = getRequestURL(event).pathname
