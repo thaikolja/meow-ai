@@ -34,6 +34,15 @@ import { consumeLoginChallenge, verifyLoginProof } from '../../utils/authChallen
 import { getAuthSecret, setAuthCookies }  from '../../utils/authSession'
 import { validateCsrf }                   from '../../utils/csrf'
 
+/**
+ * POST /api/auth/login.
+ * No session required. CSRF is required.
+ * Reads `username`, `challengeId`, and `proof`, consumes the matching IP-bound challenge, and checks the HMAC proof against the house secret.
+ * On success, sets the auth cookies and returns `{ success: true, username }` for the normalized cat name, with `Cache-Control: no-store`.
+ * Responds 400 when a field is missing, the cat name is invalid, or the challenge is unknown, expired, already used, or bound to another IP; 401 when the proof does not match; 503 when the house secret is empty.
+ *
+ * @returns `{ success: true, username }` after the cookies are set.
+ */
 export default defineEventHandler(async (event) => {
   // CSRF protection
   validateCsrf(event)

@@ -14,7 +14,9 @@
  * @website   https://meow.yanawa.io
  */
 
+import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 /**
  * Runtime configuration entrypoint for Nuxt.
@@ -38,6 +40,20 @@ import { join } from 'node:path'
 const appPassword: string = process.env['NUXT_APP_PASSWORD']?.trim() || ''
 
 /**
+ * Shipped model used when Settings and NUXT_PUBLIC_DEFAULT_MODEL are empty.
+ * This id is in `.data/models.json`.
+ */
+const defaultModelId = 'google/gemini-3.8-flash'
+
+/**
+ * Application version string read from package.json.
+ * Exposed on public runtime config so the sidebar can show it.
+ */
+const packageJson = JSON.parse(
+    readFileSync(fileURLToPath(new URL('./package.json', import.meta.url)), 'utf-8')
+) as { version: string }
+
+/**
  * Session secret used to sign session cookies.
  *
  * Falls back to the application password when a dedicated session secret is
@@ -59,6 +75,8 @@ const sessionSecret: string = process.env['NUXT_SESSION_SECRET']?.trim() || appP
  */
 export default defineNuxtConfig({
   /**
+   * Project settings.
+   *
    * Compatibility date for Nuxt features.
    *
    * Locking this helps avoid surprising framework upgrades changing behavior.
@@ -73,18 +91,26 @@ export default defineNuxtConfig({
   devtools: { enabled: false }, // Toggle Nuxt devtools globally
 
   /**
+   * Generated directory. Playwright sets `NUXT_BUILD_DIR` so its dev server
+   * does not share `.nuxt` with a local `bun run dev`.
+   */
+  buildDir: process.env['NUXT_BUILD_DIR'] || '.nuxt',
+
+  /**
    * Nuxt modules used by the app.
    *
    * - @nuxt/ui: UI primitives and tokens
    * - @nuxt/image: optimized image handling
    * - @nuxt/icon: icon generation and bundling
    * - @nuxt/fonts: automatic font loading
+   * - @nuxt/test-utils/module: Vitest runtime for `test/nuxt`
    */
   modules: [
     '@nuxt/ui', // UI library and design tokens
     '@nuxt/image', // Image optimization
     '@nuxt/icon', // Icon bundling
-    '@nuxt/fonts' // Font loader
+    '@nuxt/fonts', // Automatic font loading and optimization
+    '@nuxt/test-utils/module' // Vitest Nuxt environment
   ],
 
   /**
@@ -101,10 +127,10 @@ export default defineNuxtConfig({
      *
      * Controlled via NUXT_ALLOW_PRIVATE_PROVIDER_URLS environment variable.
      */
-    allowPrivateProviderUrls:                                                 process.env['NUXT_ALLOW_PRIVATE_PROVIDER_URLS'] === 'true', // boolean flag
+    allowPrivateProviderUrls:                                                         process.env['NUXT_ALLOW_PRIVATE_PROVIDER_URLS'] === 'true', // boolean flag
     /** Server-only: absolute path to the persistent data directory */ dataDir:       process.env['NUXT_DATA_DIR']?.trim() || join(process.cwd(), '.data'),
     /** Server-only: OpenRouter API key (trimmed, default empty) */ openrouterApiKey: process.env['NUXT_OPENROUTER_API_KEY']?.trim() || '',
-    /** Server-only: DeepSeek API key for api.deepseek.com */ deepseekApiKey: process.env['NUXT_DEEPSEEK_API_KEY']?.trim() || '',
+    /** Server-only: DeepSeek API key for api.deepseek.com */ deepseekApiKey:         process.env['NUXT_DEEPSEEK_API_KEY']?.trim() || '',
     /**
      * Public runtime config accessible by the client.
      *
@@ -112,10 +138,10 @@ export default defineNuxtConfig({
      */
     public: {
       /** Public default provider ID used when no selection exists */ defaultProvider:      process.env['NUXT_PUBLIC_DEFAULT_PROVIDER']?.trim() || 'openrouter-default',
-      /** Public default model ID used for new chats and initial selection */ defaultModel: process.env['NUXT_PUBLIC_DEFAULT_MODEL']?.trim() || 'google/gemini-2.5-flash'
+      /** Public default model ID used for new chats and initial selection */ defaultModel: process.env['NUXT_PUBLIC_DEFAULT_MODEL']?.trim() || defaultModelId,
+      /** Package version shown in the sidebar */ version: packageJson.version
     }
   },
-
 
   /**
    * Global CSS files included in every page.
@@ -203,9 +229,6 @@ export default defineNuxtConfig({
   vite: {
     server:       {
       allowedHosts: [ 'analyze-sun-humanity-nail.trycloudflare.com', 'meow.yanawa.io', 'yanawa.io' ] // allow Cloudflare
-      // Tunnel
-      // host during
-      // development
     },
     optimizeDeps: {
       include: [

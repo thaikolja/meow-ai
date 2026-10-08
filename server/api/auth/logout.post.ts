@@ -14,9 +14,20 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Ends the browser session by clearing the auth cookies.
+ */
+
 import { clearAuthCookies } from '../../utils/authSession'
 import { validateCsrf } from '../../utils/csrf'
 
+/**
+ * POST /api/auth/logout.
+ * No session required. CSRF is required.
+ * Clears the session and username cookies and sets `Cache-Control: no-store`.
+ *
+ * @returns `{ success: true }`.
+ */
 export default defineEventHandler((event) => {
   validateCsrf(event)
 

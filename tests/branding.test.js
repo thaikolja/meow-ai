@@ -14,13 +14,18 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Sweeps the tree for retired project names and checks that key
+ * pages, styles, and metadata still say Meow.
+ */
+
 import { describe, expect, test } from 'bun:test'
 import { readdir, readFile } from 'node:fs/promises'
 import { extname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
-const IGNORED_DIRS = new Set([ '.git', '.nuxt', '.output', 'node_modules', '.idea' ])
+const IGNORED_DIRS = new Set([ '.git', '.nuxt', '.nuxt-e2e', '.output', 'node_modules', '.idea', 'coverage', 'test-results', 'playwright-report' ])
 const SCANNED_EXTENSIONS = new Set([ '.ts', '.js', '.vue', '.mjs', '.json', '.md', '.yml', '.yaml', '.css', '.txt' ])
 const EXTRA_FILES = new Set([ 'package.json', '.gitlab-ci.yml' ])
 const LEGACY_BRAND = ['Ein', 'stein'].join('')
@@ -28,6 +33,11 @@ const LEGACY_DOMAIN = ['chat', 'yanawa', 'io'].join('.')
 const FORBIDDEN_STRINGS = [ LEGACY_BRAND, LEGACY_DOMAIN ]
 const EXCLUDED_FILES = new Set([ join(ROOT, 'tests/branding.test.js') ])
 
+/**
+ * Lists project files whose extension is scanned for retired brand names.
+ *
+ * @param dir - Directory to walk. Build output and dependencies are skipped.
+ */
 async function collectFiles(dir) {
   const entries = await readdir(dir, { withFileTypes: true })
   const files = []
@@ -72,7 +82,6 @@ describe('Meow branding sweep', () => {
     const loginPage = await readFile(join(ROOT, 'app/pages/login.vue'), 'utf8')
     const authGate = await readFile(join(ROOT, 'app/components/AuthGate.vue'), 'utf8')
     const chatPage = await readFile(join(ROOT, 'app/pages/chat/[id].vue'), 'utf8')
-    const agents = await readFile(join(ROOT, 'AGENTS.md'), 'utf8')
     const styles = await readFile(join(ROOT, 'app/assets/css/main.css'), 'utf8')
     const favicon = await readFile(join(ROOT, 'public/favicon.svg'), 'utf8')
 
@@ -85,7 +94,6 @@ describe('Meow branding sweep', () => {
     expect(loginPage).toContain('Cat flap moved — Meow 🐾')
     expect(authGate).toContain('Open the cat flap')
     expect(chatPage).toContain('meow.yanawa.io')
-    expect(agents).toContain('How to work with meow.yanawa.io')
     expect(styles).toContain('meow.yanawa.io — Custom Styles')
     expect(favicon).toContain('prefers-color-scheme: light')
   })

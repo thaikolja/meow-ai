@@ -1,50 +1,32 @@
 [
   {
-    "id":         "google/gemini-2.5-flash",
-    "name":       "Gemini 2.5 Flash",
-    "providerId": "openrouter-default",
-    "isActive":   true
-  },
-  {
-    "id":         "google/gemini-3-flash-preview",
-    "name":       "Gemini 3 Flash",
-    "providerId": "openrouter-default",
-    "isActive":   true
-  },
-  {
-    "id":   "google/gemini-3.5-flash",
-    "name": "Gemini 3.5 Flash",
-    "providerId": "openrouter-default",
-    "isActive":   true
-  },
-  {
-    "id":   "google/gemini-3.5-flash-lite",
-    "name": "Gemini 3.5 Flash Lite",
-    "providerId": "openrouter-default",
-    "isActive":   true
-  },
-  {
-    "id":         "google/gemini-3.6-flash",
-    "name":       "Gemini 3.6 Flash",
-    "providerId": "openrouter-default",
-    "isActive":   true
-  },
-  {
-    "id":         "google/gemini-3.7-flash",
-    "name":       "Gemini 3.7 Flash",
-    "providerId": "openrouter-default",
-    "isActive":   true
-  },
-  {
-    "id":   "google/gemini-3.8-flash",
+    "id": "google/gemini-3.8-flash",
     "name": "Gemini 3.8 Flash",
     "providerId": "openrouter-default",
-    "isActive":   true
+    "isActive": true
   },
   {
-    "id":   "deepseek-flash",
+    "id": "google/gemini-3.7-flash",
+    "name": "Gemini 3.7 Flash",
+    "providerId": "openrouter-default",
+    "isActive": true
+  },
+  {
+    "id": "google/gemini-3.6-flash",
+    "name": "Gemini 3.6 Flash",
+    "providerId": "openrouter-default",
+    "isActive": true
+  },
+  {
+    "id": "google/gemini-3.5-flash-lite",
+    "name": "Gemini 3.5 Flash Lite",
+    "providerId": "openrouter-default",
+    "isActive": true
+  },
+  {
+    "id": "deepseek-flash",
     "name": "DeepSeek V4.1 Flash",
     "providerId": "deepseek-default",
-    "isActive":   true
+    "isActive": true
   }
 ]

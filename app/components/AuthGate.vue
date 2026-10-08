@@ -117,6 +117,10 @@
 </template>
 
 <script lang="ts" setup>
+  /**
+   * Inline cat-flap gate shown until the session is valid. The visitor enters a cat name and the house secret; the browser signs a one-time challenge and the secret is never sent to the server.
+   */
+
   import { buildLoginProofMessage, normalizeAuthUsername } from '#shared/utils/authProof'
 
   type LoginChallengeResponse = {
@@ -134,7 +138,8 @@
   const username         = ref('')
   const password         = ref('')
   const loading          = ref(false)
-  const challengeLoading = ref(false)
+  // Starts true so the server render cannot submit the form before the client has a challenge.
+  const challengeLoading = ref(true)
   const errorMsg         = ref('')
   const challengeState   = reactive<LoginChallengeResponse>({
     challengeId: '',
@@ -142,6 +147,7 @@
     expiresAt:   0
   })
 
+  /** Status line while a challenge is loading, missing, or ready to sign. */
   const challengeStatus = computed(() => {
     if (challengeLoading.value) {
       return 'Meow is drawing a fresh paw-print challenge for you...'
@@ -154,6 +160,7 @@
     return 'This one-time paw-print expires quickly and is tied to this browser session.'
   })
 
+  /** Loads a one-time login challenge from the server. */
   async function loadChallenge() {
     challengeLoading.value = true
 
@@ -172,6 +179,7 @@
     }
   }
 
+  /** Encodes bytes as unpadded base64url for the login proof. */
   function bytesToBase64Url(bytes: Uint8Array): string {
     let binary = ''
 
@@ -185,6 +193,7 @@
     .replace(/=+$/g, '')
   }
 
+  /** Signs the challenge with HMAC-SHA256, using the house secret as the key. */
   async function createProof(secret: string, challengeId: string, challenge: string, currentUsername: string): Promise<string> {
     if (!globalThis.crypto?.subtle) {
       throw new Error('This browser cannot create a secure paw-print proof.')
@@ -208,6 +217,7 @@
     return bytesToBase64Url(new Uint8Array(signature))
   }
 
+  /** Submits the paw-print proof and opens the session when it is accepted. */
   async function handleUnlock() {
     const normalizedUsername = normalizeAuthUsername(username.value)
     if (!normalizedUsername || !password.value) {

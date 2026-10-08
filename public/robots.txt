@@ -1,2 +1,3 @@
+# Meow 1.5.0. Crawlers are not allowed.
 User-agent: *
 Disallow: /

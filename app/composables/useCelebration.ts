@@ -14,6 +14,16 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Shared counter for the confetti overlay.
+ * Raising it asks the celebration UI to play another burst.
+ */
+
+/**
+ * Exposes that counter and the call that advances it.
+ *
+ * @returns `celebrationSequence`, starting at zero, and `triggerCelebration`, which adds one.
+ */
 export function useCelebration() {
   const celebrationSequence = useState<number>('celebration-sequence', () => 0)
 

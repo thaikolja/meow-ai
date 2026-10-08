@@ -15,6 +15,10 @@
  * @website   https://meow.yanawa.io
  */
 
+/*
+ * Global stylesheet for the Meow app: Tailwind, Nuxt UI, scrollbars, motion, and chat chrome.
+ */
+
 @import "tailwindcss";
 @import "@nuxt/ui";
 

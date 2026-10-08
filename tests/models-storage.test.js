@@ -14,6 +14,11 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Covers seeding `.data/models.json`.
+ * Missing, empty, or corrupt files receive the shipped catalog; a custom catalog is left as it is.
+ */
+
 import {afterEach, describe, expect, test} from 'bun:test'
 import {existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
 import {tmpdir}                                                           from 'node:os'
@@ -31,23 +36,26 @@ describe('modelsStorage', () => {
     if (existsSync(modelsFile)) rmSync(modelsFile)
   })
 
-  test('seeds 4 default models when models.json is missing', () => {
+  test('seeds the shipped catalog when models.json is missing', () => {
     initializeDefaultModels()
     const models = getAllModels()
-    expect(models).toHaveLength(4)
-    const ids = models.map(m => m.id)
-    expect(ids).toContain('google/gemini-3-flash-preview')
-    expect(ids).toContain('google/gemini-3.1-flash-lite-preview')
-    expect(ids).toContain('google/gemini-3.5-flash')
-    expect(ids).toContain('google/gemini-2.5-flash')
+    expect(models).toHaveLength(5)
+    expect(models.map(m => m.id)).toEqual([
+      'google/gemini-3.8-flash',
+      'google/gemini-3.7-flash',
+      'google/gemini-3.6-flash',
+      'google/gemini-3.5-flash-lite',
+      'deepseek-flash'
+    ])
     expect(models.every(m => m.isActive)).toBe(true)
-    expect(models.every(m => m.providerId==='openrouter-default')).toBe(true)
+    expect(models.filter(m => m.id.startsWith('google/')).every(m => m.providerId === 'openrouter-default')).toBe(true)
+    expect(models.find(m => m.id === 'deepseek-flash')?.providerId).toBe('deepseek-default')
   })
 
   test('seeds defaults when models.json is an empty array', () => {
     writeFileSync(modelsFile, '[]')
     initializeDefaultModels()
-    expect(getAllModels()).toHaveLength(4)
+    expect(getAllModels()).toHaveLength(5)
   })
 
   test('does not overwrite existing custom models', () => {
@@ -67,7 +75,7 @@ describe('modelsStorage', () => {
   test('overwrites corrupt JSON by treating it as empty', () => {
     writeFileSync(modelsFile, '{ invalid json')
     initializeDefaultModels()
-    expect(getAllModels()).toHaveLength(4)
+    expect(getAllModels()).toHaveLength(5)
   })
 
   test('returns empty array when file is missing and not initialized', () => {
@@ -79,6 +87,6 @@ describe('modelsStorage', () => {
     const raw    = readFileSync(modelsFile, 'utf-8')
     const parsed = JSON.parse(raw)
     expect(Array.isArray(parsed)).toBe(true)
-    expect(parsed).toHaveLength(4)
+    expect(parsed).toHaveLength(5)
   })
 })

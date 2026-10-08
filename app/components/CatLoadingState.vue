@@ -42,6 +42,10 @@
 </template>
 
 <script lang="ts" setup>
+  /**
+   * Loading splash for session checks and chat hydration. Shows a title, a subtitle, and the thinking-cat mascot, either full screen or inline.
+   */
+
   withDefaults(defineProps<{
     title?: string
     subtitle?: string

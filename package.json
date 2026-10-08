@@ -1,37 +1,46 @@
 {
   "name":            "meow.yanawa.io",
-  "version":         "1.4.0",
+  "version":         "1.5.0",
   "private":         true,
   "type":            "module",
   "description":     "Cat-themed Nuxt chat interface for focused AI-powered German practice.",
   "scripts":         {
-    "build":     "mkdir -p /tmp/meow-sockets && TMPDIR=/tmp/meow-sockets nuxt build",
-    "dev":       "mkdir -p /tmp/meow-sockets && TMPDIR=/tmp/meow-sockets nuxt dev",
-    "generate":  "nuxt generate",
-    "preview":   "nuxt preview",
+    "build":       "mkdir -p /tmp/meow-sockets && TMPDIR=/tmp/meow-sockets nuxt build",
+    "dev":         "mkdir -p /tmp/meow-sockets && TMPDIR=/tmp/meow-sockets nuxt dev",
+    "generate":    "nuxt generate",
+    "preview":     "nuxt preview",
     "postinstall": "nuxt prepare",
-    "test":      "bun test",
-    "typecheck": "nuxt typecheck"
+    "test":        "bun test tests",
+    "test:vitest": "vitest run",
+    "test:e2e":    "playwright test",
+    "typecheck":   "tsc -p .nuxt/tsconfig.json --noEmit && tsc -p .nuxt/tsconfig.node.json --noEmit"
   },
   "dependencies":    {
-    "@nuxt/fonts":   "0.14.0",
-    "@nuxt/image":   "^2.1.0",
-    "@nuxt/ui":      "^4.11.2",
+    "@nuxt/ui":      "^4.11.3",
     "highlight.js":  "^11.12.0",
-    "marked":        "^18.0.14",
-    "nuxt":          "^4.5.2",
-    "sanitize-html": "^2.17.7",
-    "vue":           "latest",
-    "vue-router":    "latest"
+    "marked":        "^18.1.0",
+    "nuxt":          "^4.6.0",
+    "sanitize-html": "^2.18.0",
+    "vue":           "3.5.43",
+    "vue-router":    "5.4.0"
   },
   "devDependencies": {
-    "@iconify-json/circle-flags": "^1.2.11",
-    "@iconify-json/lucide":       "^1.2.136",
+    "@iconify-json/circle-flags": "^1.2.12",
+    "@iconify-json/lucide":       "^1.2.141",
     "@iconify-json/mdi":          "^1.2.3",
-    "@types/node":                "^26.6.2",
-    "@types/sanitize-html":       "^2.16.1",
-    "@vue/language-core":         "^3.3.11",
+    "@nuxt/fonts":                "0.14.0",
+    "@nuxt/image":                "^2.1.0",
+    "@nuxt/test-utils":           "^4.3.3",
+    "@playwright/test":           "^1.64.0",
+    "@types/node":                "^26.6.4",
+    "@types/sanitize-html":       "^2.16.2",
+    "@vue/language-core":         "^3.3.12",
+    "@vue/test-utils":            "^2.5.1",
     "bun-types":                  "^1.4.2",
-    "typescript":                 "^7.0.2"
+    "happy-dom":                  "^20.14.5",
+    "playwright":                 "^1.64.0",
+    "typescript":                 "^7.0.2",
+    "vitest":                     "^5.0.3",
+    "vue-language-server":        "^0.0.67"
   }
 }

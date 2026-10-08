@@ -15,6 +15,11 @@
  */
 
 /**
+ * Detects reasoning-style model ids and hides chain-of-thought text.
+ * Vision support is decided here so an unknown model cannot receive a page photo.
+ */
+
+/**
  * Regex patterns that identify model IDs that produce chain-of-thought /
  * reasoning style output. Patterns are matched against the lowercased model ID
  * with any leading "models/" prefix stripped.
@@ -39,6 +44,11 @@ export const THINKING_MODEL_PATTERNS: RegExp[] = [
  */
 const THINK_BLOCK_PATTERN = /<think\b[^>]*>[\s\S]*?<\/think>/g
 
+/**
+ * Removes inline `<think>` blocks, including any attributes, from model text.
+ * @param content - Streamed or finished message text.
+ * @returns The text with think blocks removed and surrounding space trimmed.
+ */
 export function stripThinkBlocks(content: string): string {
   return content.replace(THINK_BLOCK_PATTERN, '').trim()
 }
@@ -50,4 +60,20 @@ export function stripThinkBlocks(content: string): string {
 export function isThinkingModel(modelId: string): boolean {
   const normalized = modelId.replace(/^models\//, '').toLowerCase()
   return THINKING_MODEL_PATTERNS.some(pattern => pattern.test(normalized))
+}
+
+/**
+ * Gemini models on OpenRouter, and DeepSeek Flash, accept a page photo.
+ * DeepSeek Pro stays closed. Unknown ids stay closed so a new text model
+ * cannot send an image by accident.
+ */
+export function modelSupportsVision(modelId: unknown): boolean {
+  if (typeof modelId !== 'string') return false
+  const id = modelId.trim().toLowerCase()
+  if (id.startsWith('google/')) return true
+  if (id.includes('v4-pro')) return false
+  return id === 'deepseek-flash'
+      || id === 'deepseek-v4-flash'
+      || id === 'deepseek-v4-flash-vision-exp'
+      || id.startsWith('deepseek/')
 }

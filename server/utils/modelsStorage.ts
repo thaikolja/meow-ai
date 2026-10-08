@@ -25,11 +25,17 @@ import { join }                                      from 'node:path'
 import { ensureDataDir }                             from './dataDir'
 import type { Model }                                from '#shared/types/model'
 
+/**
+ * Absolute path of `.data/models.json` under the configured data directory.
+ */
 function getStoragePath(): string {
   const dataDir = ensureDataDir(useRuntimeConfig().dataDir || process.env['NUXT_DATA_DIR'])
   return join(dataDir, 'models.json')
 }
 
+/**
+ * Parses the catalog file. A missing file or invalid JSON becomes an empty list.
+ */
 function loadModelsFile(): Model[] {
   const filePath = getStoragePath()
   if (!existsSync(filePath)) return []
@@ -40,14 +46,29 @@ function loadModelsFile(): Model[] {
   }
 }
 
+/**
+ * Writes the catalog as pretty JSON.
+ *
+ * @param models - Full catalog to store.
+ */
 function saveModelsFile(models: Model[]): void {
   writeFileSync(getStoragePath(), JSON.stringify(models, null, 2))
 }
 
+/**
+ * Reads `.data/models.json` without seeding it.
+ *
+ * @returns The parsed JSON, or an empty array when the file is missing or not valid JSON.
+ */
 export function getAllModels(): Model[] {
   return loadModelsFile()
 }
 
+/**
+ * Writes the shipped catalog when the file loads as empty:
+ * Gemini 3.8 Flash, Gemini 3.7 Flash, Gemini 3.6 Flash, Gemini 3.5 Flash Lite, and DeepSeek V4.1 Flash.
+ * A missing file, an empty array, and invalid JSON count as empty. A non-empty array is left unchanged.
+ */
 export function initializeDefaultModels(): void {
   const models = loadModelsFile()
 
@@ -55,27 +76,33 @@ export function initializeDefaultModels(): void {
 
   const defaults: Model[] = [
     {
-      id:         'google/gemini-3-flash-preview',
-      name:       'Gemini 3 Flash',
+      id:         'google/gemini-3.8-flash',
+      name:       'Gemini 3.8 Flash',
       providerId: 'openrouter-default',
       isActive:   true
     },
     {
-      id:         'google/gemini-3.1-flash-lite-preview',
-      name:       'Gemini 3.1 Flash Lite',
+      id:         'google/gemini-3.7-flash',
+      name:       'Gemini 3.7 Flash',
       providerId: 'openrouter-default',
       isActive:   true
     },
     {
-      id:         'google/gemini-3.5-flash',
-      name:       'Gemini 3.5 Flash',
+      id:         'google/gemini-3.6-flash',
+      name:       'Gemini 3.6 Flash',
       providerId: 'openrouter-default',
       isActive:   true
     },
     {
-      id:         'google/gemini-2.5-flash',
-      name:       'Gemini 2.5 Flash',
+      id:         'google/gemini-3.5-flash-lite',
+      name:       'Gemini 3.5 Flash Lite',
       providerId: 'openrouter-default',
+      isActive:   true
+    },
+    {
+      id:         'deepseek-flash',
+      name:       'DeepSeek V4.1 Flash',
+      providerId: 'deepseek-default',
       isActive:   true
     }
   ]

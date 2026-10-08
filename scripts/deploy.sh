@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Meow-deploy: redeploys the production container.
+# Meow 1.5.0 deploy: redeploys the production container.
 # GitLab CI copies this script to /tmp and runs it as root, so it must
 # enter the project directory itself before looking for docker-compose.yml.
 #

@@ -23,7 +23,12 @@
 
       <!-- Input Area: Sticky footer for user text entry and stream control -->
       <ChatInput
-          :is-streaming="isStreaming" sticky @send="handleSend" @stop="stopStreaming" />
+          :is-streaming="isStreaming"
+          :supports-vision="supportsVision"
+          sticky
+          @send="handleSend"
+          @stop="stopStreaming"
+      />
 
       <!-- Loading skeleton while Nuxt hydrates client-side state -->
       <template #fallback>
@@ -40,6 +45,10 @@
    * Coordinates between UI components and multiple composables for state, settings, and streaming.
    */
 
+  import { modelSupportsVision } from '#shared/utils/models'
+  import { toUpstreamMessages }  from '~/utils/chatImagePayload'
+  import { bindChatImage }       from '~/utils/chatImageStore'
+
   const route  = useRoute()
   const router = useRouter()
 
@@ -53,6 +62,7 @@
   let streamingUpdateFrame: number | null                                              = null
   const chatMessagesRef = ref<any>()
 
+  /** Coalesces live token writes onto the next animation frame. */
   function scheduleStreamingUpdate(chatId: string, messageId: string) {
     if (streamingUpdateFrame!==null || import.meta.server) {
       return
@@ -64,6 +74,7 @@
     })
   }
 
+  /** Cancels a pending frame and writes the assistant message immediately. */
   function flushStreamingUpdate(chatId: string, messageId: string, content: string, isError?: boolean) {
     if (import.meta.client && streamingUpdateFrame!==null) {
       window.cancelAnimationFrame(streamingUpdateFrame)
@@ -78,7 +89,10 @@
   const selectedModel    = useState<string>('selected-model', () => defaultModel.value)
   const selectedProvider = useState<string>('selected-provider', () => defaultProvider.value)
   const { recallSessionModel } = useSessionModel()
+  /** Whether the model for this chat is a thinking model. */
   const isThinking = computed(() => isThinkingModel(resolveChatModel()))
+  /** Whether the model for this chat can accept images. */
+  const supportsVision = computed(() => modelSupportsVision(resolveChatModel()))
 
   /**
    * Extracts the unique chat ID from the route parameters.
@@ -145,15 +159,23 @@
    * High-level handler for new user inputs.
    * Persists the user message locally before requesting an AI response.
    */
-  async function handleSend(content: string) {
-    const currentChatId = chatId.value
+  async function handleSend(content: string, imageId?: string) {
+    const text     = content.trim()
+    const attached = imageId?.trim() || undefined
+    if (!text && !attached) return
+    if (attached && !modelSupportsVision(resolveChatModel())) return
 
-    addMessage(currentChatId, {
+    const currentChatId = chatId.value
+    const message  = addMessage(currentChatId, {
       role:       'user',
-      content,
-      model: resolveChatModel(),
+      content: text,
+      imageId: attached,
+      model:   resolveChatModel(),
       providerId: selectedProvider.value
     })
+
+    const chat = getChat(currentChatId)
+    if (attached && chat) await bindChatImage(attached, chat.id, message.id)
 
     await triggerCompletion()
   }
@@ -170,23 +192,23 @@
 
     // Filter messages for industry-standard API format (no UI-only fields)
     const chat      = getChat(currentChatId)
-    let apiMessages = (chat?.messages || [])
+    const chatModel = resolveChatModel()
+    let history     = (chat?.messages || [])
     .filter(m => m.role==='user' || m.role==='assistant')
-    .map(m => ({ role: m.role, content: m.content }))
+    .map(m => ({ role: m.role, content: m.content, imageId: m.imageId }))
 
     // Optimization: Only send the last N messages to respect context window limits and save tokens
     if (maxContextMessages.value > 0) {
-      apiMessages = apiMessages.slice(-maxContextMessages.value)
+      history = history.slice(-maxContextMessages.value)
     }
+
+    const apiMessages = await toUpstreamMessages(history, chatModel)
 
     // Inject the character/identity instruction at the start of the context
     const systemPrompt = effectiveSystemPrompt.value.trim()
     if (systemPrompt) {
       apiMessages.unshift({ role: 'system', content: systemPrompt })
     }
-
-    // Use the chat's stored model so existing conversations remember which model they used
-    const chatModel = resolveChatModel()
 
     // Create an empty shell for the upcoming AI response
     const assistantMsg = addMessage(currentChatId, {

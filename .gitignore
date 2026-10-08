@@ -1,3 +1,6 @@
+# Meow 1.5.0. Local and generated files stay out of git.
+# Markdown is ignored except README.md, CHANGELOG.md, and public/*.md.
+
 node_modules
 *.log
 .nuxt
@@ -15,3 +18,10 @@ dist
 
 # Local Serena project index
 .serena/
+
+# Test coverage and browser runs
+coverage/
+.nuxt-e2e
+test-results/
+playwright-report/
+blob-report/

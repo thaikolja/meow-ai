@@ -14,6 +14,11 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Covers DeepSeek and OpenRouter request building, provider URL checks,
+ * thinking-model detection, and env-backed default provider and model ids.
+ */
+
 import {describe, expect, test} from 'bun:test';
 
 import {
@@ -23,7 +28,7 @@ import {
     DEEPSEEK_CHAT_URL
 }                                          from '../server/utils/providerApi';
 import {isThinkingModel}                   from '../shared/utils/models';
-import {resolveDefaultModel, resolveDefaultProvider} from '../app/composables/useDefaultModel';
+import {DEFAULT_MODEL_ID, resolveDefaultModel, resolveDefaultProvider} from '../app/composables/useDefaultModel';
 
 describe('providerApi', () => {
     test('sends DeepSeek Flash to the official DeepSeek endpoint', () => {
@@ -76,7 +81,8 @@ describe('providerApi', () => {
   test('resolves env-backed default provider and model values', () => {
     expect(resolveDefaultProvider('openrouter-default')).toBe('openrouter-default');
     expect(resolveDefaultProvider('')).toBe('openrouter-default');
-    expect(resolveDefaultModel('google/gemini-2.5-flash')).toBe('google/gemini-2.5-flash');
-    expect(resolveDefaultModel('')).toBe('google/gemini-2.5-flash');
+    expect(resolveDefaultModel('google/gemini-3.8-flash')).toBe('google/gemini-3.8-flash');
+    expect(resolveDefaultModel('')).toBe(DEFAULT_MODEL_ID);
+    expect(DEFAULT_MODEL_ID).toBe('google/gemini-3.8-flash');
   })
 })
