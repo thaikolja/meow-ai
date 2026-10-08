@@ -14,6 +14,11 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Browser settings for the tutor prompt, how many prior messages are sent, and the default model id.
+ * On the client, loads `/system-prompt.md`, migrates the legacy prompt key once, and writes changes to `localStorage`.
+ */
+
 const SYSTEM_PROMPT_OVERRIDE_STORAGE_KEY = 'chat-yanawa-system-prompt-override'
 const LEGACY_SYSTEM_PROMPT_STORAGE_KEY = 'chat-yanawa-system-prompt'
 const MAX_CONTEXT_STORAGE_KEY          = 'chat-yanawa-max-context'
@@ -30,7 +35,8 @@ Follow these rules:
 - Correct mistakes gently and explain why the correction is better.
 - Prioritize practical language learning, pronunciation hints, and natural usage.
 - Stay concise unless the user asks for more depth.
-- Keep the tone warm, supportive, and easy to follow.`
+- Keep the tone warm, supportive, and easy to follow.
+- If the student attaches a photo, read it as their page and answer their question about it.`
 
 let defaultPromptLoadPromise: Promise<string> | null = null
 
@@ -59,6 +65,11 @@ export function useSettings() {
 
   const isUsingCustomSystemPrompt = computed(() => Boolean(systemPromptOverride.value?.trim()))
 
+  /**
+   * Loads `/system-prompt.md` once in the browser and keeps the bundled fallback until that succeeds.
+   *
+   * @returns The default system prompt.
+   */
   async function ensureDefaultSystemPromptLoaded() {
     if (import.meta.server || defaultSystemPrompt.value!==DEFAULT_SYSTEM_PROMPT_FALLBACK) {
       return defaultSystemPrompt.value
@@ -86,6 +97,12 @@ export function useSettings() {
     return defaultPromptLoadPromise as Promise<string>
   }
 
+  /**
+   * Turns a blank override, or one that matches the default prompt, into `null`.
+   *
+   * @param value - Custom prompt from the settings form.
+   * @returns The trimmed override, or `null` when the default should be used.
+   */
   function normalizeOverride(value: string | null | undefined): string | null {
     const normalized = value?.trim() || ''
     if (!normalized || normalized===defaultSystemPrompt.value.trim()) {
@@ -95,10 +112,18 @@ export function useSettings() {
     return normalized
   }
 
+  /**
+   * Stores a custom system prompt. A blank value or the default text clears the override.
+   *
+   * @param value - Custom prompt from the settings form.
+   */
   function setSystemPromptOverride(value: string | null | undefined) {
     systemPromptOverride.value = normalizeOverride(value)
   }
 
+  /**
+   * Drops the custom system prompt so the default file is used again.
+   */
   function resetSystemPromptOverride() {
     systemPromptOverride.value = null
   }

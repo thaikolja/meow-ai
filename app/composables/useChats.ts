@@ -14,7 +14,13 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Chat threads kept in `localStorage` under `chat-yanawa-chats`.
+ * Creates and edits threads and messages, stores a public slug, and deletes saved photos when a chat is removed.
+ */
+
 import type { Chat, ChatMessage } from '~/types'
+import { deleteAllChatImages, deleteImagesForChat } from '~/utils/chatImageStore'
 
 /** Local storage key for chat persistence */
 const STORAGE_KEY         = 'chat-yanawa-chats'
@@ -53,6 +59,11 @@ function saveChats(chats: Chat[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(chats))
 }
 
+/**
+ * Writes the chat list after a short quiet period so rapid edits share one save.
+ *
+ * @param chats - Chat list to persist.
+ */
 function scheduleSaveChats(chats: Chat[]) {
   if (import.meta.server) return
 
@@ -66,6 +77,11 @@ function scheduleSaveChats(chats: Chat[]) {
   }, PERSIST_THROTTLE_MS)
 }
 
+/**
+ * Cancels a pending save and writes the chat list immediately.
+ *
+ * @param chats - Chat list to persist.
+ */
 function flushSaveChats(chats: Chat[]) {
   if (persistTimer) {
     clearTimeout(persistTimer)
@@ -128,9 +144,17 @@ export function useChats() {
     return index === -1 ? undefined : chats.value[index]
   }
 
-  /** Removes a chat thread and updates persistence */
-  function deleteChat(id: string) {
-    chats.value = chats.value.filter(c => c.id!==id)
+  /** Removes a chat thread, its saved photos, and updates persistence. */
+  async function deleteChat(id: string) {
+    const existing = chats.value.find(chat => chat.id === id || chat.slug === id)
+    if (!existing) return
+
+    const imageIds = existing.messages.flatMap(message => message.imageId ? [ message.imageId ] : [])
+    if (import.meta.client) {
+      await deleteImagesForChat(existing.id, imageIds)
+    }
+
+    chats.value = chats.value.filter(chat => chat.id !== existing.id)
     flushSaveChats(chats.value)
   }
 
@@ -185,7 +209,10 @@ export function useChats() {
 
     // Auto-generate a descriptive title from the initial user input
     if (updatedChat && (updatedChat.title==='New Meow 🐾' || updatedChat.title==='') && message.role==='user') {
-      updatedChat.title = message.content.substring(0, 50) + (message.content.length > 50 ? '...': '')
+      const source = message.content.trim() || (message.imageId ? 'Photo' : '')
+      if (source) {
+        updatedChat.title = source.substring(0, 50) + (source.length > 50 ? '...' : '')
+      }
     }
 
     chats.value = [
@@ -250,8 +277,11 @@ export function useChats() {
     flushSaveChats(chats.value)
   }
 
-  /** Wipes all chat history from memory and storage */
-  function clearAllChats() {
+  /** Wipes all chat history and every saved photo from the browser. */
+  async function clearAllChats() {
+    if (import.meta.client) {
+      await deleteAllChatImages()
+    }
     chats.value = []
     flushSaveChats(chats.value)
   }

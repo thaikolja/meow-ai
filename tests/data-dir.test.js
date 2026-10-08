@@ -14,6 +14,11 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Covers resolution of the data directory.
+ * An explicit path wins; otherwise the directory is the working directory plus `.data`.
+ */
+
 import {describe, expect, test} from 'bun:test';
 
 import {resolveDataDirPath} from '../server/utils/dataDir';

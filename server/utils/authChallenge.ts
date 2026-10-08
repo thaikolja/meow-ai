@@ -14,6 +14,11 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * In-memory login challenges and HMAC-SHA256 proof checks for the house secret.
+ * Each challenge is single-use, bound to one IP address, and expires after five minutes.
+ */
+
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
 
 import { buildLoginProofMessage, normalizeAuthUsername } from '#shared/utils/authProof'
@@ -24,6 +29,9 @@ type LoginChallengeEntry = {
   ipAddress: string
 }
 
+/**
+ * Lifetime of a newly issued login challenge, in milliseconds (five minutes).
+ */
 export const LOGIN_CHALLENGE_MAX_AGE_MS = 5 * 60 * 1000
 
 const loginChallenges = new Map<string, LoginChallengeEntry>()
@@ -39,6 +47,11 @@ function safeEqual(left: string, right: string): boolean {
   return timingSafeEqual(leftBuffer, rightBuffer)
 }
 
+/**
+ * Drops challenges whose expiry is at or before `now`.
+ *
+ * @param now - Current time in milliseconds. Defaults to `Date.now()`.
+ */
 function cleanupExpiredChallenges(now = Date.now()) {
   for (const [ challengeId, challenge ] of loginChallenges) {
     if (challenge.expiresAt <= now) {
@@ -47,6 +60,13 @@ function cleanupExpiredChallenges(now = Date.now()) {
   }
 }
 
+/**
+ * Stores a new challenge for `ipAddress` after dropping expired ones.
+ * The id is 18 random bytes and the challenge is 32 random bytes, both base64url.
+ *
+ * @param ipAddress - Caller address stored with the challenge and compared exactly later.
+ * @returns `{ challengeId, challenge, expiresAt }`.
+ */
 export function issueLoginChallenge(ipAddress: string) {
   cleanupExpiredChallenges()
 
@@ -67,6 +87,14 @@ export function issueLoginChallenge(ipAddress: string) {
   }
 }
 
+/**
+ * Deletes the challenge and returns it only when it is unexpired and was issued for `ipAddress`.
+ * An unknown id returns null. A known entry is always removed, including when it is expired or bound to another IP.
+ *
+ * @param challengeId - Id returned when the challenge was issued.
+ * @param ipAddress - Must equal the address stored at issue time.
+ * @returns `{ challenge, expiresAt }`, or `null` when the id is unknown, expired, or bound to another IP.
+ */
 export function consumeLoginChallenge(challengeId: string, ipAddress: string): { challenge: string; expiresAt: number } | null {
   cleanupExpiredChallenges()
 
@@ -91,12 +119,29 @@ export function consumeLoginChallenge(challengeId: string, ipAddress: string): {
   }
 }
 
+/**
+ * HMAC-SHA256 of the shared login-proof message, using the house secret as the key.
+ * The username is normalized before signing.
+ *
+ * @param secret - HMAC key. This is the house secret.
+ * @param challengeId - Challenge id included in the signed message.
+ * @param challenge - Challenge value included in the signed message.
+ * @param username - Cat name, normalized before signing.
+ * @returns Base64url digest.
+ */
 export function createLoginProof(secret: string, challengeId: string, challenge: string, username: string): string {
   return createHmac('sha256', secret)
   .update(buildLoginProofMessage(challengeId, challenge, normalizeAuthUsername(username)))
   .digest('base64url')
 }
 
+/**
+ * Returns whether `params.proof` matches the HMAC from `createLoginProof`.
+ * An empty secret or proof is rejected before that compare.
+ *
+ * @param params - House secret, challenge id, challenge, username, and the client proof.
+ * @returns `true` only when the proof matches.
+ */
 export function verifyLoginProof(params: {
   secret: string
   challengeId: string

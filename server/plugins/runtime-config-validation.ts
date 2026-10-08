@@ -14,8 +14,16 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Checks production runtime secrets once when the Nitro server starts.
+ */
+
 import { assertProductionRuntimeSecrets } from '../utils/runtimeConfigValidation'
 
+/**
+ * Startup plugin with no route, session, or CSRF check.
+ * Throws when production runtime config has a missing or blank house secret.
+ */
 export default defineNitroPlugin(() => {
   assertProductionRuntimeSecrets(useRuntimeConfig())
 })

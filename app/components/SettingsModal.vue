@@ -140,6 +140,7 @@
     void loadModels()
   })
 
+  /** Editor value: the custom override when one is stored, otherwise the built-in tutor prompt. */
   const systemPromptEditor = computed({
     get: () => systemPromptOverride.value ?? defaultSystemPrompt.value,
     set: (value: string) => {
@@ -160,9 +161,9 @@
    * Deletes all local chat history across all threads.
    * Includes a mandatory confirmation dialog to prevent accidental data loss.
    */
-  function handleClearChats() {
+  async function handleClearChats() {
     if (confirm('Are you sure you want to empty the litter box? All meows will be gone forever! 🐾')) {
-      clearAllChats()
+      await clearAllChats()
       navigateTo('/') // Redirect to home as current threads are now invalid
     }
   }

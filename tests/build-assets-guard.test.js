@@ -14,6 +14,11 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Covers detection of the bare Nuxt build-asset directory.
+ * `/_nuxt` and `/_nuxt/` match; files under that directory do not.
+ */
+
 import {describe, expect, test} from 'bun:test';
 
 import {isBareBuildAssetsPath} from '../server/utils/buildAssetsGuard';

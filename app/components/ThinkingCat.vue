@@ -74,11 +74,13 @@
     'Meow is lining up the next pounce... 🐾'
   ]
 
+  /** Picks one of the rotating status lines at random. */
   function pickLoadingLine() {
     return loadingLines[Math.floor(Math.random() * loadingLines.length)] || 'Meow is drafting a reply... 🐾'
   }
 
   const randomLoadingLine = ref(pickLoadingLine())
+  /** Status text: the parent label when one was passed, otherwise the random line. */
   const loadingLine = computed(() => props.label?.trim() || randomLoadingLine.value)
 </script>
 

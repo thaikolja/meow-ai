@@ -48,6 +48,8 @@ export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
   /** The raw markdown or text body of the dialogue */
   content: string
+  /** IndexedDB id for a page photo attached to this turn. The bytes stay in the browser. */
+  imageId?: string
   /** UNIX timestamp for exact message delivery time */
   timestamp: number
   /** The model identifier used to generate this specific response */

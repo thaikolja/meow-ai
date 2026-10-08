@@ -14,6 +14,11 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Covers slug normalization, the model prompt, the local fallback sentence,
+ * and the public chat address.
+ */
+
 import { describe, expect, test } from 'bun:test'
 
 import { buildChatSlugPrompt, chatAddress, fallbackChatSlug, normalizeChatSlug } from '../shared/utils/chatSlug'

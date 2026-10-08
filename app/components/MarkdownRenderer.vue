@@ -99,6 +99,7 @@
   </div>`
   }
 
+  /** Renders a link that opens in a new tab, keeping only http, https, mailto, and tel targets. */
   renderer.link = function ({ href, title, tokens }) {
     const text      = this.parser.parseInline(tokens)
     const safeHref  = href && /^(https?:|mailto:|tel:)/i.test(href) ? href: '#'

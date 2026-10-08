@@ -21,6 +21,13 @@
 
 import { getAllModels, initializeDefaultModels } from '../../utils/modelsStorage'
 
+/**
+ * GET /api/models.
+ * No session and no CSRF check.
+ * Seeds `.data/models.json` when it is missing, empty, or invalid JSON, then reads it back.
+ *
+ * @returns `{ models }` from the catalog file.
+ */
 export default defineEventHandler((event) => {
   initializeDefaultModels()
   const models = getAllModels()

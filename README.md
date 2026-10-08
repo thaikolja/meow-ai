@@ -2,6 +2,8 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/thaikolja/meow-ai?style=flat)](https://github.com/thaikolja/meow-ai/stargazers) [![GitHub forks](https://img.shields.io/github/forks/thaikolja/meow-ai?style=flat)](https://github.com/thaikolja/meow-ai/network/members) [![GitHub issues](https://img.shields.io/github/issues/thaikolja/meow-ai?style=flat)](https://github.com/thaikolja/meow-ai/issues) [![GitHub last commit](https://img.shields.io/github/last-commit/thaikolja/meow-ai?style=flat)](https://github.com/thaikolja/meow-ai/commits)
 
+**Version 1.5.0.** Do not bump past this until asked.
+
 **Meow AI** is a flexible and cute cat-themed chat interface whose agents help you learn German. Originally programmed
 solely for my wife, I decided to open-source it – it's just so cute. *Meow AI* uses mostly **Gemini models**, but you
 can customize it and add new providers. API keys are stored in the `.env` file; every chat will be stored in your
@@ -13,6 +15,11 @@ browser and not on another server. Based on **Nuxt 4**.
 
 **Screenshots**: [Chat interface](https://p.ipic.vip/ucbkkz.webp) | [New chat](https://p.ipic.vip/qc7sm7.webp) | [Default model selector](https://p.ipic.vip/t9aa2s.webp) | [Chat](https://p.ipic.vip/0sb66l.webp)
 
+## Project config
+
+Celebration confetti plays only after a successful login. A rejected house secret leaves the gate up and does not mount
+`ConfettiRain`. The sidebar shows the package version.
+
 ## Highlights
 
 - **Shared-password gate.** The browser signs a one-time challenge. `NUXT_APP_PASSWORD` never leaves the server.
@@ -20,8 +27,8 @@ browser and not on another server. Based on **Nuxt 4**.
 - **Cat-sentence addresses** such as `/chat/cat-sits-on-sofa`. The hash ID stays internal. Older `/chat/<hash>` links
   still open.
 - **Mid-chat model switch.** The header picker changes the open chat. The next message and refresh use that model. New chats start from the saved default.
-- **Catalog** in `.data/models.json`: Gemini 2.5 Flash through Gemini 3.8 Flash, plus DeepSeek V4.1 Flash (`deepseek-flash`).
-- **Text composer.** No image attached.
+- **Catalog** in `.data/models.json`: Gemini 3.5 Flash Lite, Gemini 3.6 Flash, Gemini 3.7 Flash, Gemini 3.8 Flash, and DeepSeek V4.1 Flash (`deepseek-flash`).
+- **One photo per message.** Gemini models and DeepSeek Flash can read a page. The browser stores a JPEG in IndexedDB. Other models grey out the attach button.
 
 ## Architecture
 
@@ -34,12 +41,17 @@ browser and not on another server. Based on **Nuxt 4**.
 | `app/composables/useSessionModel.ts` | In-memory model pick for the open chat |
 | `app/composables/useSettings.ts` | System prompt, max context, saved default model |
 | `app/composables/useModels.ts` | Catalog from `/api/models` |
-| `app/components/ChatInput.vue` | Text composer |
+| `app/components/ChatInput.vue` | Composer. One photo when the model can read images |
+| `app/utils/prepareChatImage.ts` | Shrinks a picked photo to JPEG (long edge 1600px) |
+| `app/utils/chatImageStore.ts` | JPEG bytes in IndexedDB `meow-chat-images` |
+| `app/utils/chatImagePayload.ts` | Sends only the newest JPEG with the transcript |
+| `shared/utils/chatImage.ts` | JPEG checks. One image per request |
+| `shared/utils/models.ts` | `modelSupportsVision()` |
 | `server/api/chat.post.ts` | Auth + CSRF, then OpenRouter or DeepSeek SSE |
 | `server/api/chat-slug.post.ts` | One cat sentence from `google/gemini-3.5-flash-lite` |
 | `server/api/auth/*` | Challenge, login, logout, session |
 | `server/api/models/index.get.ts` | Reads `.data/models.json` |
-| `.data/models.json` | Live catalog. Empty or missing files seed four Gemini models |
+| `.data/models.json` | Live catalog. An empty or missing file seeds the same five models |
 
 ## Authentication
 
@@ -48,7 +60,8 @@ Well, there's none. There is no live `/login` page. `/login` redirects to `/`.
 1. `app.vue` checks the session. `NuxtLayout` and `NuxtPage` stay mounted. Until the session is valid, a full-screen overlay shows the loader, then `AuthGate.vue`.
 2. The browser fetches `GET /api/auth/challenge`.
 3. It signs the challenge in Web Crypto and posts `{ username, challengeId, proof }`.
-4. The server checks the proof with `NUXT_APP_PASSWORD`, sets the cookies, and the UI fires confetti.
+4. The server checks the proof with `NUXT_APP_PASSWORD`, sets the cookies, and the UI fires confetti. A rejected proof
+   does not.
 
 Challenges are IP-bound, single-use, and last 5 minutes. Sessions last 7 days. Login is not rate-limited.
 
@@ -60,9 +73,15 @@ Challenges are IP-bound, single-use, and last 5 minutes. Sessions last 7 days. L
 4. `useChatStream()` posts `{ messages, providerId, model }`. The server ignores `providerId`.
 5. DeepSeek ids go to `https://api.deepseek.com/chat/completions`. Every other id goes to OpenRouter.
 
+A message can include one photo. The browser shrinks it to JPEG (long edge 1600px) and stores the bytes in IndexedDB (`meow-chat-images`). `localStorage` keeps only `imageId`. Reload keeps the photo. Deleting a chat, or clearing every chat, removes its photos.
+
+`modelSupportsVision()` is true for `google/…` ids and for DeepSeek Flash (`deepseek-flash`, retired `deepseek-v4-flash` and `deepseek/…` slugs). DeepSeek Pro and unknown models cannot attach a photo. `/api/chat` rejects image parts for them. A vision request sends text plus one `image_url` JPEG data URL. Only the newest photo is forwarded. Older photos stay in the thread. A later message with no new photo still includes that latest one.
+
+A custom system prompt in Settings replaces `public/system-prompt.md`, so the photo-reading instruction is omitted until that override is cleared.
+
 ## Models
 
-- New chats use Settings **Default Meow-del** when it is set, otherwise `NUXT_PUBLIC_DEFAULT_MODEL` (`google/gemini-2.5-flash`).
+- New chats use Settings **Default Meow-del** when it is set, otherwise `NUXT_PUBLIC_DEFAULT_MODEL` (`google/gemini-3.8-flash`).
 - Inside a chat, the header picker changes only that chat. Refresh and the next message use the new model. The default for later chats stays put.
 - The sidebar shows titles, not models.
 - The label under an answer is the model that produced that reply.
@@ -107,7 +126,7 @@ NUXT_DEEPSEEK_API_KEY=replace-me
 
 A push to `main` runs GitLab CI:
 
-1. `lint` — `bun install` and typecheck (soft-fail)
+1. `lint` — `bun install`, the Bun suite, Vitest, Playwright, and `bun run typecheck`
 2. `build` — `bun install` and `bun run build`
 3. `deploy` — `sshpass` as root copies `scripts/deploy.sh` and runs it
 
@@ -132,14 +151,16 @@ The host must allow root password login (`PasswordAuthentication yes`, `PermitRo
 
 ## Scripts
 
-| Command             | Purpose                                                    |
-|---------------------|------------------------------------------------------------|
-| `bun run dev`       | Dev server. Creates `/tmp/meow-sockets` and sets `TMPDIR`. |
-| `bun run build`     | Production bundle. Same `TMPDIR` setup.                    |
-| `bun run generate`  | Static generation. Does not set `TMPDIR`.                  |
-| `bun run preview`   | Preview the production bundle                              |
-| `bun run typecheck` | `nuxt typecheck`                                           |
-| `bun test`          | Bun test suite                                             |
+| Command               | Purpose                                                                   |
+|-----------------------|---------------------------------------------------------------------------|
+| `bun run dev`         | Dev server. Creates `/tmp/meow-sockets` and sets `TMPDIR`.                |
+| `bun run build`       | Production bundle. Same `TMPDIR` setup.                                   |
+| `bun run generate`    | Static generation. Does not set `TMPDIR`.                                 |
+| `bun run preview`     | Preview the production bundle                                             |
+| `bun run typecheck`   | `tsc` on the generated Nuxt app and server projects                       |
+| `bun test`            | Bun test suite in `tests/`                                                |
+| `bun run test:vitest` | Vitest unit tests and the Nuxt component environment                      |
+| `bun run test:e2e`    | Playwright login confetti test. Needs `bunx playwright install chromium`. |
 
 ## Environment variables
 
@@ -148,7 +169,7 @@ The host must allow root password login (`PasswordAuthentication yes`, `PermitRo
 | `NUXT_APP_PASSWORD` | House secret. Required in production. |
 | `NUXT_SESSION_SECRET` | Signs session cookies. Defaults to `NUXT_APP_PASSWORD`. |
 | `NUXT_PUBLIC_DEFAULT_PROVIDER` | UI default provider id (`openrouter-default`). Not used to route chat. |
-| `NUXT_PUBLIC_DEFAULT_MODEL` | Fallback model when Settings has no override (`google/gemini-2.5-flash`). |
+| `NUXT_PUBLIC_DEFAULT_MODEL` | Fallback model when Settings has no override (`google/gemini-3.8-flash`). |
 | `NUXT_OPENROUTER_API_KEY` | Required for every model except DeepSeek. |
 | `NUXT_DEEPSEEK_API_KEY` | Required for `deepseek-flash`. Official DeepSeek Chat Completions API. |
 | `NUXT_ALLOW_PRIVATE_PROVIDER_URLS` | Allow private hosts in `assertProviderBaseUrl()` when `true`. |
@@ -163,7 +184,7 @@ The host must allow root password login (`PasswordAuthentication yes`, `PermitRo
 ## Notes
 
 - API keys never reach the browser.
-- Chats, the prompt override, context length, the default model, and the slug live in browser storage.
+- Chats, the prompt override, context length, the default model, and the slug live in browser storage. Photo bytes live in IndexedDB (`meow-chat-images`). Chat rows store `imageId` only.
 - `chat_username` is display-only. Auth uses the signed session cookie.
 - Icons use `icon.serverBundle: 'local'`. There is no `clientBundle.icons` list.
 - The SVG favicon follows `prefers-color-scheme`. `favicon.ico` is the fallback.
@@ -175,4 +196,8 @@ bun run typecheck
 bun test
 ```
 
-Coverage includes auth, branding, model seeding, session-model selection, chat-slug normalization, provider request shape (including the DeepSeek endpoint), build-asset paths, and production secret checks.
+Coverage includes auth, branding, model seeding, session-model selection, chat-slug normalization, photo payload checks, provider request shape (including the DeepSeek endpoint), build-asset paths, and production secret checks.
+
+## License
+
+[MIT](./LICENSE). Copyright (C) 2026 Kolja Nolte.

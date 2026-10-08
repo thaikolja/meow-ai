@@ -14,6 +14,11 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Covers when the session cookie is marked Secure.
+ * Localhost previews stay insecure; HTTPS and public hosts stay secure.
+ */
+
 import {describe, expect, test} from 'bun:test';
 
 import {shouldUseSecureCookies} from '../server/utils/authSession';

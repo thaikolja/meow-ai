@@ -14,8 +14,25 @@
  * @website   https://meow.yanawa.io
  */
 
+
+/**
+ * Turns a short cat sentence into a public chat address.
+ * A slug is 4 to 8 lowercase words. A local sentence is used when the model reply cannot be used.
+ */
+
+/**
+ * Model asked to invent a chat slug.
+ */
 export const CHAT_SLUG_MODEL     = 'google/gemini-3.5-flash-lite'
+
+/**
+ * Fewest words a slug may contain.
+ */
 export const CHAT_SLUG_MIN_WORDS = 4
+
+/**
+ * Most words a slug may contain.
+ */
 export const CHAT_SLUG_MAX_WORDS = 8
 
 /**
@@ -44,6 +61,11 @@ export function normalizeChatSlug(raw: string): string | null {
   return words.join('-')
 }
 
+/**
+ * Prompt that asks the slug model for one short cat sentence.
+ * @param avoid - Slugs the model must not repeat. Defaults to none.
+ * @returns The prompt text, one instruction per line.
+ */
 export function buildChatSlugPrompt(avoid: string[] = []): string {
   const lines = [
     'Write one short cat sentence of 4 or 5 words.',
@@ -62,6 +84,11 @@ export function buildChatSlugPrompt(avoid: string[] = []): string {
   return lines.join('\n')
 }
 
+/**
+ * Public path for a chat. Uses the slug when one exists, otherwise the id.
+ * @param chat - Chat id and optional slug.
+ * @returns A `/chat/...` path.
+ */
 export function chatAddress(chat: { id: string; slug?: string | null }): string {
   return `/chat/${chat.slug || chat.id}`
 }

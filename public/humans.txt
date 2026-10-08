@@ -9,4 +9,5 @@ Developer: Kolja Nolte
 Contact: kolja.nolte@gmail.com
 
 /* SITE */
+Version: 1.5.0
 Built for my lovely wife <3

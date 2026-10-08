@@ -32,6 +32,10 @@
 </template>
 
 <script lang="ts" setup>
+  /**
+   * Full-screen confetti shown after a successful unlock. Each new burst id rebuilds the pieces and lets them fall once.
+   */
+
   type Piece = {
     id: number
     left: number
@@ -55,6 +59,7 @@
 
   let hideTimer: ReturnType<typeof setTimeout> | undefined
 
+  /** Builds the randomized pieces for one celebration burst. */
   function buildPieces(burstId: number): Piece[] {
     return Array.from({ length: 64 }, (_, index) => ({
       id:       burstId * 1000 + index,
@@ -70,7 +75,12 @@
     }))
   }
 
-  watch(() => props.burstId, (burstId) => {
+  /**
+   * Plays one burst on the client. A mount that already has a positive id
+   * (the shell uses `v-if` after login) starts from `onMounted`. A later id
+   * starts from the watcher.
+   */
+  function playBurst(burstId: number) {
     if (!import.meta.client || burstId <= 0) {
       return
     }
@@ -85,6 +95,12 @@
     hideTimer = setTimeout(() => {
       visible.value = false
     }, 2800)
+  }
+
+  watch(() => props.burstId, playBurst)
+
+  onMounted(() => {
+    playBurst(props.burstId)
   })
 
   onUnmounted(() => {

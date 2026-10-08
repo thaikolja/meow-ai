@@ -14,8 +14,20 @@
  * @website   https://meow.yanawa.io
  */
 
-import { isBareBuildAssetsPath } from '../utils/buildAssetsGuard'
+/**
+ * Blocks bare Nitro asset prefixes so they are not handled as pages.
+ */
 
+import { getRequestURL, defineEventHandler, setResponseStatus, setResponseHeaders } from 'h3'
+import { isBareBuildAssetsPath }                                                    from '../utils/buildAssetsGuard'
+
+/**
+ * Runs for each request. No auth and no CSRF check.
+ * Paths other than `/_nuxt` and `/_nuxt/` are passed through.
+ * Those two paths get status 404, `Cache-Control: no-store`, `X-Robots-Tag: noindex`, and a plain-text body.
+ *
+ * @returns `'Not found'` for a bare asset path, and nothing otherwise.
+ */
 export default defineEventHandler((event) => {
   const pathname = getRequestURL(event).pathname
 

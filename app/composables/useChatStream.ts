@@ -34,6 +34,9 @@ export function useChatStream() {
   /** Reference to the current fetch signal, allowing for manual interruption of the stream */
   let abortController: AbortController | null = null
 
+  /**
+   * Marks the stream idle and drops the abort handle.
+   */
   function resetStreamingState() {
     isStreaming.value = false
     abortController   = null
@@ -51,7 +54,7 @@ export function useChatStream() {
    * @param onError - Callback for handling network or API failures
    */
   async function streamMessage(
-      messages: Array<{ role: string; content: string }>,
+      messages: Array<{ role: string; content: string | Array<{ type: string; text?: string; image_url?: { url: string } }> }>,
       config: { providerId: string; model: string },
       onChunk: (chunk: string) => void,
       onDone: (fullContent: string) => void,
@@ -93,6 +96,12 @@ export function useChatStream() {
       let fullContent = ''
       let buffer    = ''
 
+      /**
+       * Reads one SSE event. A `[DONE]` line finishes the stream.
+       *
+       * @param eventChunk - Raw event text, including `data:` lines.
+       * @returns `true` when the stream is finished.
+       */
       function processEventChunk(eventChunk: string): boolean {
         const data = eventChunk
         .split('\n')

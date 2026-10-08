@@ -14,7 +14,17 @@
  * @website   https://meow.yanawa.io
  */
 
-// Obsolete TypeScript copy of the branding test.
-// The active suite lives in `tests/branding.test.js`.
-export {}
+/**
+ * Decides when the celebration overlay may mount.
+ * The sequence starts at zero and rises only after a successful login.
+ */
 
+/**
+ * Confetti is visible only after at least one successful login in this page load.
+ *
+ * @param sequence - `celebrationSequence` from `useCelebration()`. Zero means no successful login yet.
+ * @returns Whether `ConfettiRain` should mount.
+ */
+export function shouldShowConfetti(sequence: number): boolean {
+  return sequence > 0
+}

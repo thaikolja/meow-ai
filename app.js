@@ -14,4 +14,9 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Local entry for a production build.
+ * Imports the compiled Nitro server at `.output/server/index.mjs`.
+ */
+
 import './.output/server/index.mjs';

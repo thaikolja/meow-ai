@@ -70,6 +70,12 @@
       <div class="flex-1 min-w-0">
         <div class="chat-prose prose-p:leading-relaxed prose-pre:my-0">
           <ClientOnly>
+            <img
+                v-if="imageUrl"
+                :src="imageUrl"
+                alt="Attached page"
+                class="mb-3 max-h-72 w-full rounded-2xl bg-zinc-950/40 object-contain"
+            />
             <MarkdownRenderer v-if="displayContent" :class="message.role === 'user' ? 'text-purple-100!' : ''" :content="displayContent" />
             <div v-else-if="isStreaming && isThinking" class="py-1">
               <ThinkingCat compact />
@@ -77,13 +83,20 @@
             <div v-else-if="isStreaming" class="py-1">
               <ThinkingCat />
             </div>
-            <div v-else class="text-zinc-500 italic text-sm">No purrs recorded yet... 🐾</div>
+            <div
+                v-else-if="!imageUrl"
+                class="text-zinc-500 italic text-sm"
+            >No purrs recorded yet... 🐾
+            </div>
             <slot />
           </ClientOnly>
         </div>
       </div>
 
-      <div v-if="!isStreaming && displayContent" class="flex flex-col gap-3 sm:flex-row sm:flex-nowrap overflow-x-auto no-scrollbar sm:items-center sm:justify-between pt-3 mt-1.5 transition-opacity w-full min-w-0">
+      <div
+          v-if="!isStreaming && (displayContent || imageUrl)"
+          class="flex flex-col gap-3 sm:flex-row sm:flex-nowrap overflow-x-auto no-scrollbar sm:items-center sm:justify-between pt-3 mt-1.5 transition-opacity w-full min-w-0"
+      >
         <div
             :class="[
               'flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-medium tracking-wide opacity-40 min-w-0',
@@ -150,6 +163,7 @@
 
   import type { ChatMessage } from '~/types'
   import { stripThinkBlocks } from '#shared/utils/models'
+  import { getChatImage } from '~/utils/chatImageStore'
 
   const { getModelName } = useModels()
   const props = defineProps<{
@@ -161,14 +175,37 @@
   }>()
 
   const copied = ref(false)
+  const imageUrl = ref<string | null>(null)
   const usernameCookie = useCookie('chat_username')
 
+  watch(() => props.message.imageId, (id) => {
+    void loadImage(id)
+  }, { immediate: true })
+
+  onUnmounted(() => {
+    if (imageUrl.value) URL.revokeObjectURL(imageUrl.value)
+  })
+
+  /** Loads a stored chat image into an object URL for this message. */
+  async function loadImage(id?: string) {
+    if (imageUrl.value) {
+      URL.revokeObjectURL(imageUrl.value)
+      imageUrl.value = null
+    }
+    if (!id || import.meta.server) return
+    const record = await getChatImage(id)
+    if (!record?.blob || props.message.imageId !== id) return
+    imageUrl.value = URL.createObjectURL(record.blob)
+  }
+
+  /** Visible message text, with think blocks removed and the live stream used while it is running. */
   const displayContent = computed(() => {
     if (props.isThinking && props.isStreaming) return ''
     const raw = props.isStreaming && props.streamingContent!==undefined ? props.streamingContent: props.message.content
     return stripThinkBlocks(raw)
   })
 
+  /** Copies the visible message text and briefly shows a copied state. */
   async function copyContent() {
     try {
       await navigator.clipboard.writeText(displayContent.value)
@@ -181,6 +218,7 @@
     }
   }
 
+  /** Rough token count taken from the visible text length. */
   const tokenEstimate = computed(() => {
     const text = displayContent.value
     if (!text) return 0

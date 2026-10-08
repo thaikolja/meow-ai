@@ -14,6 +14,11 @@
  * @website   https://meow.yanawa.io
  */
 
+/**
+ * Covers the production check for the app password.
+ * Development may omit it; production requires a non-empty value.
+ */
+
 import {describe, expect, test} from 'bun:test';
 
 import {assertProductionRuntimeSecrets} from '../server/utils/runtimeConfigValidation';
