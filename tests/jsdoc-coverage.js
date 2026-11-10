@@ -500,6 +500,34 @@ function attachedDoc(source, tokens, anchor) {
  */
 function statementAnchor(tokens, focus) {
     let cursor = focus
+    if (tokens[cursor]?.text==='=>') {
+        let back = cursor - 1
+        if (tokens[back]?.text!==')') {
+            let depth = 0
+            while (back >= 0 && !(tokens[back].text===')' && depth===0)) {
+                const text = tokens[back].text || ''
+                if ([ ')', '}', ']', '>' ].includes(text)) depth++
+                else if ([ '(', '{', '[', '<' ].includes(text) && depth > 0) depth--
+                back--
+            }
+        }
+        if (tokens[back]?.text===')') cursor = skipBalancedBack(tokens, back)
+    }
+    if (tokens[cursor - 1]?.text==='>') {
+        let depth = 0
+        let back  = cursor - 1
+        while (back >= 0) {
+            if (tokens[back].text==='>') depth++
+            else if (tokens[back].text==='<') {
+                depth--
+                if (depth===0) {
+                    cursor = back
+                    break
+                }
+            }
+            back--
+        }
+    }
     while (cursor > 0 && [ 'async', 'get', 'set', 'static', 'public', 'private', 'protected', 'readonly', 'abstract', 'declare' ].includes(tokens[cursor - 1].text || '')) {
         cursor--
     }
