@@ -10,6 +10,11 @@ FROM oven/bun:${BUN_VERSION} AS deps
 
 WORKDIR /app
 
+# better-sqlite3 compiles a native addon. oven/bun has no Python or toolchain.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends python3 make g++ \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 

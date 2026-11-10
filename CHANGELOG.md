@@ -7,17 +7,21 @@ All notable changes to this project are documented here.
 ### feat
 
 - feat (settings): save the system prompt, preferred model id, and max context for the signed-in username
-- feat (settings): restore the shipped system prompt, or reset the modal fields, without deleting chats
+- feat (settings): Save the nest commits that draft. Change Meow's default prompt shows a browser alert when the
+  draft prompt is customized, and the button does nothing when the draft already matches the shipped prompt
 - feat (chat): store threads, slugs, and each chat's model id for that username and load them on the next login
 - feat (models): show the `.data/models.json` name in settings, the header picker, and chat bubbles, and send the
   catalog id upstream
+- feat (ui): close Paw-ferences with the header X and with Escape
 
 ### fix
 
-- fix (ui): remove the Danger Zone label, the empty settings button, and Empty Litter Box from the modal footer
-- fix (settings): write the saved system prompt from the browser, and keep the selected model when the prompt is
-  restored or the fields are reset
-- fix (ui): fade the nest card on a hard refresh, and rain confetti inside the settings modal after Save
+- fix (ui): remove Sweep the nest, the Danger Zone label, the empty settings button, and Empty Litter Box. Settings
+  does not delete chats
+- fix (settings): write the saved system prompt from the browser, and keep the selected model when the prompt draft
+  is restored
+- fix (ui): fade the nest card on a hard refresh. Confetti rains inside the settings modal only after a successful
+  save, and does not play again just because the modal was reopened
 
 ## v1.5.0 — 2026-10-08
 
