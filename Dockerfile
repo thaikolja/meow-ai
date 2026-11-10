@@ -27,7 +27,12 @@ WORKDIR /app
 
 COPY . .
 # package.json points Vite's socket at this path. Create it before the build.
-RUN mkdir -p /tmp/meow-sockets && bun run build
+# Node loads vue/index.mjs. Nitro only copies that file into the version it
+# actually traced, then links `vue` at the newest copy. Two Vue versions make
+# that link miss index.mjs, so the container crash-loops. package.json overrides
+# keep a single Vue. This check fails the image instead of shipping a bad one.
+RUN mkdir -p /tmp/meow-sockets && bun run build \
+    && test -f .output/server/node_modules/vue/index.mjs
 
 # Stage 3: lean runtime image
 FROM node:${NODE_VERSION} AS runtime
