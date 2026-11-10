@@ -17,6 +17,7 @@
 /**
  * Global authentication middleware for the Meow application.
  * Keeps session state warm and retires the old /login route.
+ * @param to - Route the browser is entering.
  */
 export default defineNuxtRouteMiddleware(async (to) => {
   // Skip internal Nuxt paths (build assets, image proxy, etc.)

@@ -33,6 +33,7 @@ const OPENROUTER_BASE_URL = 'https://openrouter.ai/api'
  * Responds 403 when CSRF fails, 401 when the session is missing, 413 when `Content-Length` is over the chat body limit, and 400 when `model` or `messages` is missing or rejected. Responds 500 when the required API key is missing or the upstream body is empty, and 502 when the upstream connection fails or times out after 45 seconds. An upstream HTTP error is returned with that status and its response text.
  *
  * @returns The upstream server-sent event stream.
+ * @param event - Request handled by this route.
  */
 export default defineEventHandler(async (event) => {
   validateCsrf(event)
@@ -124,6 +125,11 @@ export default defineEventHandler(async (event) => {
   }
 
   const stream = new ReadableStream({
+    /**
+     * Copies upstream chunks into the server-sent event stream until the reader ends.
+     *
+     * @param controller - Value passed as `controller`.
+     */
     async start(controller) {
       try {
         while (true) {

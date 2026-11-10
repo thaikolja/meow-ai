@@ -28,6 +28,7 @@ import { AccountAuthError, accountDataDir, loadAccountForSession } from '../util
  * Requires a valid `chat_session` cookie. A missing or invalid session is 401 and clears the auth cookies.
  *
  * @returns `{ settings, chats }` for the username inside the session.
+ * @param event - Request handled by this route.
  */
 export default defineEventHandler((event) => {
   setResponseHeaders(event, {

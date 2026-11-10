@@ -22,6 +22,7 @@
 /**
  * Validates that the request originates from the same origin.
  * Must be called for all state-changing operations (POST, PUT, DELETE, PATCH).
+ * @param event - Request handled by this route.
  */
 export function validateCsrf(event: any): void {
   const method = getMethod(event)
@@ -94,6 +95,9 @@ export function validateCsrf(event: any): void {
 /**
  * Checks if the request origin matches the expected origin.
  * Handles localhost variations and common development scenarios.
+ * @param requestOrigin - Origin header, or the origin parsed from Referer.
+ * @param expectedOrigin - Origin derived from the host the request reached.
+ * @returns `true` when the check passes.
  */
 function isValidOrigin(requestOrigin: string, expectedOrigin: string): boolean {
   // Exact match

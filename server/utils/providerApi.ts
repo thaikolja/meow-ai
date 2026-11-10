@@ -50,6 +50,7 @@ export type ProviderUrlValidationOptions = {
  * Parses a provider base URL. Surrounding whitespace is ignored.
  *
  * @param baseUrl - Candidate URL. An unparseable value throws.
+ * @returns The result (URL).
  */
 function ensureUrl(baseUrl: string): URL {
   return new URL(baseUrl.trim())
@@ -59,6 +60,7 @@ function ensureUrl(baseUrl: string): URL {
  * True for `localhost`, `127.0.0.1`, and `::1`.
  *
  * @param hostname - Hostname already extracted from a URL.
+ * @returns `true` when the check passes.
  */
 function isLoopbackHostname(hostname: string): boolean {
   return hostname==='localhost' || hostname==='127.0.0.1' || hostname==='::1'
@@ -68,6 +70,7 @@ function isLoopbackHostname(hostname: string): boolean {
  * True for loopback, private, link-local, and carrier-grade NAT IPv4 addresses.
  *
  * @param hostname - Dotted IPv4 string.
+ * @returns `true` when the check passes.
  */
 function isPrivateIPv4(hostname: string): boolean {
   const octets = hostname.split('.').map(Number)
@@ -89,6 +92,7 @@ function isPrivateIPv4(hostname: string): boolean {
  * True for `::1`, unique-local (`fc`/`fd`), and link-local (`fe80:`) IPv6 addresses.
  *
  * @param hostname - IPv6 hostname.
+ * @returns `true` when the check passes.
  */
 function isPrivateIPv6(hostname: string): boolean {
   const normalized = hostname.toLowerCase()
@@ -102,6 +106,7 @@ function isPrivateIPv6(hostname: string): boolean {
  * True for loopback, private IP addresses, and `.local`, `.internal`, or `.localhost` names.
  *
  * @param hostname - Hostname from a provider URL.
+ * @returns `true` when the check passes.
  */
 function isPrivateHostname(hostname: string): boolean {
   const normalized = hostname.toLowerCase()
@@ -163,6 +168,7 @@ export function assertProviderBaseUrl(baseUrl: string, options: ProviderUrlValid
  * Removes trailing slashes.
  *
  * @param value - URL or path.
+ * @returns The string this function produces.
  */
 function trimTrailingSlashes(value: string): string {
   return value.replace(/\/+$/, '')
@@ -173,6 +179,7 @@ function trimTrailingSlashes(value: string): string {
  * Appends `/v1` unless the path already ends in a version suffix.
  *
  * @param baseUrl - Provider base URL.
+ * @returns The string this function produces.
  */
 function normalizeOpenAIBaseUrl(baseUrl: string): string {
   const normalized = trimTrailingSlashes(baseUrl)

@@ -56,6 +56,8 @@ export function stripThinkBlocks(content: string): string {
 /**
  * Identifies model IDs that expose chain-of-thought / reasoning style output.
  * Matches against the lowercased model ID with any leading "models/" prefix stripped.
+ * @param modelId - Catalog id from `.data/models.json`.
+ * @returns `true` when the check passes.
  */
 export function isThinkingModel(modelId: string): boolean {
   const normalized = modelId.replace(/^models\//, '').toLowerCase()
@@ -86,6 +88,8 @@ export function catalogModelName(
  * Gemini models on OpenRouter, and DeepSeek Flash, accept a page photo.
  * DeepSeek Pro stays closed. Unknown ids stay closed so a new text model
  * cannot send an image by accident.
+ * @param modelId - Catalog id from `.data/models.json`.
+ * @returns `true` when the check passes.
  */
 export function modelSupportsVision(modelId: unknown): boolean {
   if (typeof modelId !== 'string') return false

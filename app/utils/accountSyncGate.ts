@@ -29,6 +29,7 @@ let writesOpen    = false
 
 /**
  * True while hydration is applying a server record. Saves must not PUT.
+ * @returns `true` when the check passes.
  */
 export function isAccountPushSuppressed(): boolean {
   return suppressCount > 0
@@ -38,6 +39,7 @@ export function isAccountPushSuppressed(): boolean {
  * Runs `fn` without writing the account back to the server.
  *
  * @param fn - State update that should stay local.
+ * @returns The result (T).
  */
 export function withoutAccountPush<T>(fn: () => T): T {
   suppressCount += 1
@@ -51,6 +53,7 @@ export function withoutAccountPush<T>(fn: () => T): T {
 /**
  * True after this username's account load has been applied.
  * Earlier saves must not PUT, or they replace the server copy with an empty list.
+ * @returns `true` when the check passes.
  */
 export function accountWritesOpen(): boolean {
   return writesOpen
@@ -71,6 +74,7 @@ export function setAccountWritesOpen(open: boolean): void {
  *
  * @param authenticated - Whether the session is signed in.
  * @param suppressed - Whether hydration is applying a record.
+ * @returns `true` when the check passes.
  */
 export function canPushAccountWrite(authenticated: boolean, suppressed: boolean): boolean {
   return authenticated && writesOpen && !suppressed
@@ -91,6 +95,7 @@ export function noteAccountMutation(): void {
  *
  * @param epochAtStart - `accountMutationEpoch()` from before the fetch.
  * @param writesWereOpen - Whether PUTs were already allowed before this fetch.
+ * @returns `true` when the check passes.
  */
 export function shouldApplyFetchedAccount(epochAtStart: number, writesWereOpen: boolean): boolean {
   if (!writesWereOpen) return true
@@ -99,6 +104,7 @@ export function shouldApplyFetchedAccount(epochAtStart: number, writesWereOpen: 
 
 /**
  * Current edit generation. Compare it before and after a fetch.
+ * @returns The number this function produces.
  */
 export function accountMutationEpoch(): number {
   return mutationEpoch

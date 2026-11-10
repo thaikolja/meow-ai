@@ -42,6 +42,7 @@ type CookieSecurityContext = {
  * Encodes a UTF-8 string as base64url.
  *
  * @param value - Plain payload text.
+ * @returns The string this function produces.
  */
 function base64UrlEncode(value: string): string {
   return Buffer.from(value, 'utf8').toString('base64url')
@@ -51,6 +52,7 @@ function base64UrlEncode(value: string): string {
  * Decodes a base64url string as UTF-8.
  *
  * @param value - Encoded payload text.
+ * @returns The string this function produces.
  */
 function base64UrlDecode(value: string): string {
   return Buffer.from(value, 'base64url').toString('utf8')
@@ -61,6 +63,7 @@ function base64UrlDecode(value: string): string {
  *
  * @param payload - Canonical payload string.
  * @param secret - Session signing secret.
+ * @returns The string this function produces.
  */
 function createSignature(payload: string, secret: string): string {
   return createHmac('sha256', secret).update(payload).digest('base64url')
@@ -71,6 +74,7 @@ function createSignature(payload: string, secret: string): string {
  * Bracketed IPv6 hosts keep the address inside the brackets.
  *
  * @param host - Raw Host or X-Forwarded-Host header.
+ * @returns The string this function produces.
  */
 function normalizeHostname(host: string | null | undefined): string {
   if (!host) {
@@ -123,6 +127,7 @@ export function shouldUseSecureCookies(context: CookieSecurityContext): boolean 
  *
  * @param left - Expected value.
  * @param right - Supplied value.
+ * @returns `true` when the check passes.
  */
 function safeEqual(left: string, right: string): boolean {
   const leftBuffer  = Buffer.from(left)

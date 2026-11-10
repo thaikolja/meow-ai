@@ -27,6 +27,7 @@ import { getAllModels, initializeDefaultModels } from '../../utils/modelsStorage
  * Seeds `.data/models.json` when it is missing, empty, or invalid JSON, then reads it back.
  *
  * @returns `{ models }` from the catalog file.
+ * @param event - Request handled by this route.
  */
 export default defineEventHandler((event) => {
   initializeDefaultModels()

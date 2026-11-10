@@ -22,12 +22,19 @@
 /**
  * A chat thread is one session. Picking a model there must not rewrite the
  * default used for new chats.
+ * @param path - Route path, with or without a query string.
+ * @returns `true` when the check passes.
  */
 export function isChatSessionPath(path: string): boolean {
   return chatSessionKey(path) !== ''
 }
 
-/** Chat id or slug from `/chat/<key>`, ignoring the query string. */
+/**
+ * Chat id or slug from `/chat/<key>`, ignoring the query string.
+ *
+ * @param path - Route path, with or without a query string.
+ * @returns The string this function produces.
+ */
 export function chatSessionKey(path: string): string {
   const match = path.split('?')[0]?.match(/^\/chat\/([^/]+)\/?$/)
   if (!match?.[1]) return ''
@@ -63,6 +70,8 @@ export function displayedModelId(input: {
 /**
  * On a chat path, the pick stays on that chat. Elsewhere it becomes the
  * default for new chats.
+ * @param input - Path, picked model, and the current default.
+ * @returns The result ({sessionModel:string|null;globalModel:string}).
  */
 export function applyModelPick(input: {
   path: string

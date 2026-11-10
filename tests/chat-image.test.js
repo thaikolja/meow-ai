@@ -33,6 +33,7 @@ import { modelSupportsVision }                    from '../shared/utils/models'
  * Builds a tiny JPEG data URL. `extraBytes` pads the payload so size limits can be tested.
  *
  * @param extraBytes - Extra bytes appended after the JPEG markers.
+ * @returns The value this function produces.
  */
 function jpegDataUrl(extraBytes = 0) {
     const bytes = [ 0xff, 0xd8, 0xff, 0xd9 ]

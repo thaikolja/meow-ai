@@ -36,6 +36,7 @@ const OPENROUTER_BASE_URL = 'https://openrouter.ai/api'
  * String content is returned as-is. Array content is joined from string parts and `text` fields.
  *
  * @param payload - JSON body from the slug model.
+ * @returns The string this function produces.
  */
 function readMessageContent(payload: unknown): string {
   const content = (payload as { choices?: Array<{ message?: { content?: unknown } }> })
@@ -57,6 +58,7 @@ function readMessageContent(payload: unknown): string {
  * Normalizes up to 20 slug strings from `{ avoid }` on the request body.
  *
  * @param body - Parsed request body.
+ * @returns The result (string[]).
  */
 function avoidList(body: unknown): string[] {
   const raw = (body as { avoid?: unknown })?.avoid
@@ -80,6 +82,7 @@ function avoidList(body: unknown): string[] {
  * Asks `google/gemini-3.5-flash-lite` on OpenRouter for one cat sentence. A missing key, transport failure, non-OK response, or unusable reply uses the local fallback instead of an error status.
  *
  * @returns `{ slug }` from the model reply, or from the local fallback.
+ * @param event - Request handled by this route.
  */
 export default defineEventHandler(async (event) => {
   validateCsrf(event)

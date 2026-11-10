@@ -52,6 +52,8 @@ export type UpstreamMessage = {
 /**
  * Accept only a JPEG data URL. Remote URLs are rejected so the proxy cannot be
  * pointed at another host. The returned URL is the canonical form that is forwarded.
+ * @param value - Untrusted value to check.
+ * @returns The string this function produces.
  */
 export function assertJpegDataUrl(value: unknown): string {
   if (typeof value !== 'string' || !value.toLowerCase().startsWith(JPEG_DATA_PREFIX)) {
@@ -84,6 +86,9 @@ export function assertJpegDataUrl(value: unknown): string {
 /**
  * Keep string transcripts as they are. A user message may also carry one JPEG
  * data URL. Non-vision models, assistant turns, and system turns cannot.
+ * @param messages - Transcript rows to check before they go upstream.
+ * @param model - Catalog id to store or send.
+ * @returns The result (UpstreamMessage[]).
  */
 export function sanitizeUpstreamMessages(messages: unknown, model: string): UpstreamMessage[] {
   if (!Array.isArray(messages)) {
@@ -206,6 +211,7 @@ function readUserParts(parts: unknown[]): ChatContentPart[] {
  * Decodes a base64 payload into bytes.
  *
  * @param payload - Base64 body of a data URL, without the prefix.
+ * @returns The result (Uint8Array).
  */
 function bytesFromBase64(payload: string): Uint8Array {
   const binary = atob(payload)

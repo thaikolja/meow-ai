@@ -35,6 +35,7 @@ import {
  * True when the server copy has anything the user saved.
  *
  * @param record - Account returned by `GET /api/account`.
+ * @returns `true` when the check passes.
  */
 function serverHasSavedData(record: AccountRecord): boolean {
   return record.chats.length > 0
@@ -72,6 +73,11 @@ export function useAccountSync() {
     syncedFor.value = username
   }
 
+  /**
+   * Loads the signed-in account, then opens writes when that load still applies.
+   *
+   * @param username - Username from the verified session.
+   */
   async function hydrate(username: string) {
     if (syncedFor.value === username) return
 

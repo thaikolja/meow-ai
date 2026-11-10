@@ -36,6 +36,13 @@ export const LOGIN_CHALLENGE_MAX_AGE_MS = 5 * 60 * 1000
 
 const loginChallenges = new Map<string, LoginChallengeEntry>()
 
+/**
+ * Compares two strings in constant time.
+ *
+ * @param left - Value passed as `left`.
+ * @param right - Value passed as `right`.
+ * @returns `true` when the check passes.
+ */
 function safeEqual(left: string, right: string): boolean {
   const leftBuffer  = Buffer.from(left)
   const rightBuffer = Buffer.from(right)

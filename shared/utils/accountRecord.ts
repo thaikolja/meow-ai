@@ -72,6 +72,7 @@ export type AccountRecord = {
 
 /**
  * Settings used when a username has no saved file yet.
+ * @returns The result (AccountSettings).
  */
 export function emptyAccountSettings(): AccountSettings {
   return {
@@ -83,6 +84,7 @@ export function emptyAccountSettings(): AccountSettings {
 
 /**
  * An account with default settings and no chats.
+ * @returns The result (AccountRecord).
  */
 export function emptyAccountRecord(): AccountRecord {
   return {
@@ -95,6 +97,7 @@ export function emptyAccountRecord(): AccountRecord {
  * Keeps a finite context window of at least zero. Anything else becomes 25.
  *
  * @param value - Candidate context size.
+ * @returns The number this function produces.
  */
 function normalizeMaxContext(value: unknown): number {
   const parsed = typeof value === 'number' ? value : Number(value)
@@ -109,6 +112,7 @@ function normalizeMaxContext(value: unknown): number {
  * Accepts a settings object from the client. A blank prompt is stored as null.
  *
  * @param value - Untrusted settings payload.
+ * @returns The result (AccountSettings).
  */
 export function normalizeAccountSettings(value: unknown): AccountSettings {
   const raw     = value && typeof value === 'object' ? value as Record<string, unknown> : {}
@@ -126,6 +130,7 @@ export function normalizeAccountSettings(value: unknown): AccountSettings {
  * Copies a message that has an id and a known role. Other values are dropped.
  *
  * @param value - Untrusted message.
+ * @returns The result (AccountMessage|null).
  */
 function normalizeMessage(value: unknown): AccountMessage | null {
   if (!value || typeof value !== 'object') return null
@@ -153,6 +158,7 @@ function normalizeMessage(value: unknown): AccountMessage | null {
  * Copies a chat that has an id. Slug and model id are kept when they are strings.
  *
  * @param value - Untrusted chat.
+ * @returns The result (AccountChat|null).
  */
 function normalizeChat(value: unknown): AccountChat | null {
   if (!value || typeof value !== 'object') return null
@@ -183,6 +189,7 @@ function normalizeChat(value: unknown): AccountChat | null {
  * Accepts a chat list from the client. Entries without an id are dropped.
  *
  * @param value - Untrusted chat list.
+ * @returns The result (AccountChat[]).
  */
 export function normalizeAccountChats(value: unknown): AccountChat[] {
   if (!Array.isArray(value)) {

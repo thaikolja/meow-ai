@@ -38,6 +38,8 @@ export const CHAT_SLUG_MAX_WORDS = 8
 /**
  * Turn a model reply into a URL segment of 4 to 8 lowercase words.
  * Returns null when the text is not a short letter-only sentence.
+ * @param raw - Model text that should become a slug.
+ * @returns The string this function produces.
  */
 export function normalizeChatSlug(raw: string): string | null {
   const firstLine = raw
@@ -112,10 +114,19 @@ const SLUG_ACTIONS  = [
 /**
  * A local 4- or 5-word cat sentence used when the model call fails or
  * returns something that is not a usable address.
+ * @param avoid - Slugs that are already taken.
+ * @param random - Source of a number from 0 inclusive to 1 exclusive.
+ * @returns The string this function produces.
  */
 export function fallbackChatSlug(avoid: string[] = [], random: () => number = Math.random): string {
   const banned = new Set(avoid)
-  const pick   = <T>(items: readonly T[]): T => items[Math.floor(random() * items.length) % items.length] as T
+  const pick = <T>(items: readonly T[]): T   /**
+   * Picks one entry from a list with the injected random source.
+   *
+   * @param items - List to pick from.
+   * @returns The result (T).
+   */
+      => items[Math.floor(random() * items.length) % items.length] as T
 
   for (let attempt = 0; attempt < 40; attempt++) {
     const [ verb, prep ] = pick(SLUG_ACTIONS)

@@ -30,6 +30,7 @@ import { AccountAuthError, accountDataDir, saveAccountForSession } from '../util
  * Accepts `{ settings }` and/or `{ chats }`. Responds 401 when the session is missing or invalid, and 400 when `chats` is not a list.
  *
  * @returns The stored `{ settings, chats }` for the session username.
+ * @param event - Request handled by this route.
  */
 export default defineEventHandler(async (event) => {
   validateCsrf(event)

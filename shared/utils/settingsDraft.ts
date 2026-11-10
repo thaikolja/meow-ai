@@ -53,6 +53,7 @@ export function restoreSystemPromptDraft(draft: SettingsDraft, defaultPrompt: st
  * @param currentModelId - Id currently chosen in the draft.
  * @param catalogIds - Active catalog ids.
  * @param configuredDefault - Runtime default model id.
+ * @returns The string this function produces.
  */
 export function visibleModelId(currentModelId: string, catalogIds: string[], configuredDefault: string): string {
   if (catalogIds.includes(currentModelId)) return currentModelId
@@ -83,6 +84,7 @@ export function resetSettingsDraft(defaultPrompt: string, defaultModelId: string
  * @param current - Draft on screen.
  * @param committed - Fields last stored for this username.
  * @param defaultPrompt - Shipped prompt, used when the stored prompt is null.
+ * @returns The result (SettingsDraft).
  */
 export function refillSettingsDraft(
     draftEdited: boolean,

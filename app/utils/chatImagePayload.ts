@@ -33,6 +33,9 @@ type TranscriptMessage = {
  * Turn saved messages into the provider payload. A vision model receives the
  * newest JPEG with the text of that turn. Older photos stay in the thread
  * and are not uploaded again.
+ * @param messages - Transcript rows to check before they go upstream.
+ * @param model - Catalog id to store or send.
+ * @returns The result (Promise<UpstreamMessage[]>).
  */
 export async function toUpstreamMessages(messages: TranscriptMessage[], model: string): Promise<UpstreamMessage[]> {
   const vision       = modelSupportsVision(model)

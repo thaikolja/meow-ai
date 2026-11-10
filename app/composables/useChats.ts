@@ -36,6 +36,7 @@ let accountAuthenticated = false
 /**
  * Generates a non-cryptographic short unique identifier.
  * Used for chat IDs and message IDs.
+ * @returns The string this function produces.
  */
 function generateId(): string {
   return Math.random().toString(36).substring(2, 11) + Math.random().toString(36).substring(2, 11)
@@ -43,6 +44,7 @@ function generateId(): string {
 
 /**
  * Reads the browser chat cache. The server record wins once a username has saved chats.
+ * @returns The result (Chat[]).
  */
 function readCachedChats(): Chat[] {
   if (import.meta.server) return []
@@ -57,6 +59,7 @@ function readCachedChats(): Chat[] {
 /**
  * Persists the current chat array in the browser cache and, when signed in, on the server.
  * Skips the server write during hydration and during SSR.
+ * @param chats - Chat list to persist.
  */
 function saveChats(chats: Chat[]) {
   if (import.meta.server) return
@@ -154,6 +157,7 @@ export function useChats() {
    * Initializes a new chat session.
    * @param providerId - Optional default provider for the new chat
    * @param model - Optional default model for the new chat
+   * @returns The result (Chat).
    */
   function createChat(providerId?: string, model?: string): Chat {
     const now        = Date.now()
@@ -171,18 +175,32 @@ export function useChats() {
     return chat
   }
 
-  /** Finds a chat by its stored id or its public slug. */
+  /**
+   * Finds a chat by its stored id or its public slug.
+   *
+   * @param key - Stored chat id or public slug.
+   * @returns The number this function produces.
+   */
   function findChatIndex(key: string): number {
     return chats.value.findIndex(chat => chat.id === key || chat.slug === key)
   }
 
-  /** Retrieves a chat thread by its ID or public slug */
+  /**
+   * Retrieves a chat thread by its ID or public slug
+   *
+   * @param key - Stored chat id or public slug.
+   * @returns The result (Chat|undefined).
+   */
   function getChat(key: string): Chat | undefined {
     const index = findChatIndex(key)
     return index === -1 ? undefined : chats.value[index]
   }
 
-  /** Removes a chat thread, its saved photos, and updates persistence. */
+  /**
+   * Removes a chat thread, its saved photos, and updates persistence.
+   *
+   * @param id - Stored id, or a public slug when this call accepts either.
+   */
   async function deleteChat(id: string) {
     const existing = chats.value.find(chat => chat.id === id || chat.slug === id)
     if (!existing) return
@@ -199,6 +217,8 @@ export function useChats() {
   /**
    * Remembers which model this chat should use from now on.
    * Does not touch the global default, and does not reorder the sidebar.
+   * @param id - Stored id, or a public slug when this call accepts either.
+   * @param model - Catalog id to store or send.
    */
   function setChatModel(id: string, model: string) {
     const nextModel = model.trim()
@@ -213,7 +233,12 @@ export function useChats() {
     flushSaveChats(chats.value)
   }
 
-  /** Updates the human-readable title of a specific chat thread */
+  /**
+   * Updates the human-readable title of a specific chat thread
+   *
+   * @param id - Stored id, or a public slug when this call accepts either.
+   * @param title - Replacement chat title.
+   */
   function renameChat(id: string, title: string) {
     const index = findChatIndex(id)
     if (index!== -1 && chats.value[index]) {
@@ -226,6 +251,9 @@ export function useChats() {
   /**
    * Adds a new message to an existing chat thread.
    * Automatically generates a title from the first user message if still using default.
+   * @param chatId - Stored id of the chat to change.
+   * @param message - Message fields, without an id or timestamp.
+   * @returns The result (ChatMessage).
    */
   function addMessage(chatId: string, message: Omit<ChatMessage, 'id' | 'timestamp'>): ChatMessage {
     const chatIndex = findChatIndex(chatId)
@@ -265,6 +293,10 @@ export function useChats() {
   /**
    * Updates the content or error status of an existing message.
    * Typically used during streaming to append raw text.
+   * @param chatId - Stored id of the chat to change.
+   * @param messageId - Stored id of the message to change.
+   * @param content - Replacement message text.
+   * @param isError - When set, replaces the message error flag.
    */
   function updateMessage(chatId: string, messageId: string, content: string, isError?: boolean) {
     const chatIndex = findChatIndex(chatId)
@@ -293,6 +325,7 @@ export function useChats() {
 
   /**
    * Specifically used to rollback the last response for regeneration.
+   * @param chatId - Stored id of the chat to change.
    */
   function removeLastMessage(chatId: string) {
     const chatIndex = findChatIndex(chatId)
@@ -327,6 +360,9 @@ export function useChats() {
   /**
    * Stores the public address for a chat. Rejects a slug another chat already uses.
    * Does not reorder the sidebar.
+   * @param id - Stored id, or a public slug when this call accepts either.
+   * @param slug - Public cat-sentence address.
+   * @returns `true` when the check passes.
    */
   function setChatSlug(id: string, slug: string): boolean {
     const nextSlug = slug.trim()

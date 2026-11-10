@@ -26,6 +26,7 @@ import { issueLoginChallenge } from '../../utils/authChallenge'
  * Binds a new challenge to the request IP (`x-forwarded-for` when present) and sets `Cache-Control: no-store`.
  *
  * @returns `{ challengeId, challenge, expiresAt }`.
+ * @param event - Request handled by this route.
  */
 export default defineEventHandler((event) => {
   const config = useRuntimeConfig(event)

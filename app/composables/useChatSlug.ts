@@ -35,6 +35,7 @@ export function useChatSlug() {
    *
    * @param slug - Candidate public address.
    * @param chatId - Chat that is allowed to keep the slug.
+   * @returns `true` when the check passes.
    */
   function taken(slug: string, chatId: string): boolean {
     return chats.value.some(chat => chat.id !== chatId && (chat.slug === slug || chat.id === slug))
@@ -44,6 +45,7 @@ export function useChatSlug() {
    * Slugs the model should not repeat, capped at 20.
    *
    * @param extra - Slugs rejected during this assignment.
+   * @returns The result (string[]).
    */
   function avoidList(extra: string[]): string[] {
     const existing = chats.value
@@ -57,6 +59,7 @@ export function useChatSlug() {
    * Asks `/api/chat-slug` for one sentence. Network and empty replies become `null`.
    *
    * @param avoid - Slugs already in use.
+   * @returns The result (Promise<string|null>).
    */
   async function requestSlug(avoid: string[]): Promise<string | null> {
     try {

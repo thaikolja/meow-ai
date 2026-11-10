@@ -30,6 +30,9 @@ test('confetti plays only after a successful login', async ({ page }) => {
     'This one-time paw-print expires quickly and is tied to this browser session.'
   )
 
+  /**
+   * Waits until the paw-print is visible and the cat flap can be clicked.
+   */
   async function waitForPawPrint() {
     await expect(challengeReady).toBeVisible()
     await expect(openFlap).toBeEnabled()

@@ -61,7 +61,12 @@ export function useModels() {
   /** Get only active models */
   const activeModels = computed(() => models.value.filter(m => m.isActive))
 
-  /** Get model by ID */
+  /**
+   * Get model by ID
+   *
+   * @param id - Stored id, or a public slug when this call accepts either.
+   * @returns The result (Model|undefined).
+   */
   function getModel(id: string): Model | undefined {
     return models.value.find(m => m.id===id)
   }
@@ -70,6 +75,7 @@ export function useModels() {
    * Catalog name for a model id. Unknown ids stay unnamed so the raw id is not shown.
    *
    * @param modelId - Catalog id stored on a chat or message.
+   * @returns The string this function produces.
    */
   function getModelName(modelId: string): string {
     return catalogModelName(models.value, modelId) || 'Meow'

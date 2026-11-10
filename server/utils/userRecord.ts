@@ -65,6 +65,7 @@ const writeChains = new Map<string, Promise<void>>()
  * Resolves the data directory at call time so tests can point `NUXT_DATA_DIR` at a temp folder.
  *
  * @param configuredDataDir - Explicit directory. When omitted, `NUXT_DATA_DIR` is used.
+ * @returns The string this function produces.
  */
 export function accountDataDir(configuredDataDir?: string): string {
   return ensureDataDir(configuredDataDir ?? process.env['NUXT_DATA_DIR'])
@@ -75,6 +76,7 @@ export function accountDataDir(configuredDataDir?: string): string {
  *
  * @param token - `chat_session` cookie value.
  * @param secret - Session signing secret.
+ * @returns The string this function produces.
  */
 export function requireRecordUsername(token: string | null | undefined, secret: string): string {
   const session = verifySessionToken(token, secret)
@@ -90,6 +92,7 @@ export function requireRecordUsername(token: string | null | undefined, secret: 
  *
  * @param dataDir - Data directory, already created.
  * @param username - Verified session username.
+ * @returns The string this function produces.
  */
 function accountFilePath(dataDir: string, username: string): string {
   const digest = createHash('sha256').update(username, 'utf8').digest('hex')
@@ -101,6 +104,7 @@ function accountFilePath(dataDir: string, username: string): string {
  *
  * @param dataDir - Data directory.
  * @param username - Verified session username.
+ * @returns The result (AccountRecord).
  */
 export function loadUserRecord(dataDir: string, username: string): AccountRecord {
   const filePath = accountFilePath(dataDir, username)
@@ -153,6 +157,7 @@ function writeUserRecord(dataDir: string, username: string, record: AccountRecor
  * @param dataDir - Data directory.
  * @param username - Verified session username.
  * @param patch - Settings, chats, or both.
+ * @returns The result (AccountRecord).
  */
 export function saveUserRecord(dataDir: string, username: string, patch: AccountPatch): AccountRecord {
   const current             = loadUserRecord(dataDir, username)
@@ -170,6 +175,7 @@ export function saveUserRecord(dataDir: string, username: string, patch: Account
  *
  * @param username - Verified session username.
  * @param write - Write to run after earlier writes for this username finish.
+ * @returns The result (Promise<AccountRecord>).
  */
 function enqueueWrite(username: string, write: () => AccountRecord): Promise<AccountRecord> {
   const previous = writeChains.get(username) ?? Promise.resolve()
@@ -185,6 +191,7 @@ function enqueueWrite(username: string, write: () => AccountRecord): Promise<Acc
  * @param dataDir - Data directory.
  * @param token - `chat_session` cookie value.
  * @param secret - Session signing secret.
+ * @returns The result (AccountRecord).
  */
 export function loadAccountForSession(dataDir: string, token: string | null | undefined, secret: string): AccountRecord {
   const username = requireRecordUsername(token, secret)
@@ -199,6 +206,7 @@ export function loadAccountForSession(dataDir: string, token: string | null | un
  * @param token - `chat_session` cookie value.
  * @param secret - Session signing secret.
  * @param patch - Settings, chats, or both. A username in the patch is ignored.
+ * @returns The result (Promise<AccountRecord>).
  */
 export function saveAccountForSession(dataDir: string, token: string | null | undefined, secret: string, patch: AccountPatch): Promise<AccountRecord> {
   const username = requireRecordUsername(token, secret)

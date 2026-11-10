@@ -27,6 +27,7 @@ import { isBareBuildAssetsPath }                                                
  * Those two paths get status 404, `Cache-Control: no-store`, `X-Robots-Tag: noindex`, and a plain-text body.
  *
  * @returns `'Not found'` for a bare asset path, and nothing otherwise.
+ * @param event - Request handled by this route.
  */
 export default defineEventHandler((event) => {
   const pathname = getRequestURL(event).pathname

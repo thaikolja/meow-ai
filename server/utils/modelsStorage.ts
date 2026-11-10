@@ -27,6 +27,7 @@ import type { Model }                                from '#shared/types/model'
 
 /**
  * Absolute path of `.data/models.json` under the configured data directory.
+ * @returns The string this function produces.
  */
 function getStoragePath(): string {
   const dataDir = ensureDataDir(useRuntimeConfig().dataDir || process.env['NUXT_DATA_DIR'])
@@ -35,6 +36,7 @@ function getStoragePath(): string {
 
 /**
  * Parses the catalog file. A missing file or invalid JSON becomes an empty list.
+ * @returns The result (Model[]).
  */
 function loadModelsFile(): Model[] {
   const filePath = getStoragePath()

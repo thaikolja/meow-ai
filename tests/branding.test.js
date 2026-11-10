@@ -37,6 +37,7 @@ const EXCLUDED_FILES = new Set([ join(ROOT, 'tests/branding.test.js') ])
  * Lists project files whose extension is scanned for retired brand names.
  *
  * @param dir - Directory to walk. Build output and dependencies are skipped.
+ * @returns The value this function produces.
  */
 async function collectFiles(dir) {
   const entries = await readdir(dir, { withFileTypes: true })

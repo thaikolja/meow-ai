@@ -27,6 +27,9 @@
 export function useCelebration() {
   const celebrationSequence = useState<number>('celebration-sequence', () => 0)
 
+  /**
+   * Raises the celebration counter so login confetti can play.
+   */
   function triggerCelebration() {
     celebrationSequence.value += 1
   }

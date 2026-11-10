@@ -27,6 +27,7 @@ import { clearAuthCookies, getAuthSecret, verifySessionToken } from '../../utils
  * Sets `Cache-Control: no-store`. An invalid token also clears the auth cookies.
  *
  * @returns `{ authenticated: false, username: null }` when the token is missing or invalid. When it is valid, `{ authenticated: true, username }` uses the username cookie if that cookie is set, otherwise the name inside the token.
+ * @param event - Request handled by this route.
  */
 export default defineEventHandler((event) => {
   setResponseHeaders(event, {

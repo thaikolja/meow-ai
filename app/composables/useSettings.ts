@@ -49,6 +49,7 @@ let settingsWatchBound = false
 /**
  * Composable for managing user-defined application settings.
  * Handles persistence of system prompts, token limitation logic, and model selection.
+ * @returns The value this function produces.
  */
 export function useSettings() {
   /** Immutable prompt shipped with the app and loaded from /public/system-prompt.md */
@@ -134,6 +135,7 @@ export function useSettings() {
 
   /**
    * Sets the user's preferred default model and persists it to localStorage.
+   * @param modelId - Catalog id from `.data/models.json`.
    */
   function setSelectedModel(modelId: string) {
     selectedModel.value = modelId?.trim() || ''
@@ -148,6 +150,7 @@ export function useSettings() {
 
   /**
    * Reads the browser cache. Used only when the server record for this username is still empty.
+   * @returns The result (AccountSettings).
    */
   function readCachedSettings(): AccountSettings {
     if (import.meta.server) {
@@ -211,6 +214,7 @@ export function useSettings() {
 
   /**
    * Committed fields, ready for the account store.
+   * @returns The result (AccountSettings).
    */
   function settingsSnapshot(): AccountSettings {
     return {

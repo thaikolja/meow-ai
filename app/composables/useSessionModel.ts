@@ -16,6 +16,7 @@
 
 /**
  * Model picked inside one open chat. New chats do not read this.
+ * @returns The value this function produces.
  */
 export function useSessionModel() {
   const picked = useState<Record<string, string>>('chat-session-models', () => ({}))
@@ -36,6 +37,7 @@ export function useSessionModel() {
    * Returns the model last picked for this chat, or an empty string.
    *
    * @param chatId - Internal chat id.
+   * @returns The string this function produces.
    */
   function recallSessionModel(chatId: string): string {
     return picked.value[chatId] || ''

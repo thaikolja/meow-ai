@@ -42,6 +42,7 @@ import { validateCsrf }                   from '../../utils/csrf'
  * Responds 400 when a field is missing, the cat name is invalid, or the challenge is unknown, expired, already used, or bound to another IP; 401 when the proof does not match; 503 when the house secret is empty.
  *
  * @returns `{ success: true, username }` after the cookies are set.
+ * @param event - Request handled by this route.
  */
 export default defineEventHandler(async (event) => {
   // CSRF protection

@@ -27,6 +27,7 @@ import { validateCsrf } from '../../utils/csrf'
  * Clears the session and username cookies and sets `Cache-Control: no-store`.
  *
  * @returns `{ success: true }`.
+ * @param event - Request handled by this route.
  */
 export default defineEventHandler((event) => {
   validateCsrf(event)

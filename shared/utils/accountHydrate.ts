@@ -26,6 +26,7 @@
  * @param accountSynced - Whether this username's server copy is now in memory.
  * @param chatKey - Route id or slug. Blank when the address has no chat.
  * @param chatFound - Whether `getChat` found that key.
+ * @returns `true` when the check passes.
  */
 export function missingChatRedirect(accountSynced: boolean, chatKey: string, chatFound: boolean): boolean {
   return accountSynced && chatKey.trim().length > 0 && !chatFound

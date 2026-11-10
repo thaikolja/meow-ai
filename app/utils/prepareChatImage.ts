@@ -37,6 +37,8 @@ const ATTEMPTS = [
 /**
  * Decode a picked photo and store a JPEG small enough to resend with a question.
  * 1600px on the long edge stays readable for a textbook page or a few handwritten words.
+ * @param file - Photo the browser picked.
+ * @returns The result (Promise<Blob>).
  */
 export async function prepareChatImage(file: File): Promise<Blob> {
   if (file.size > MAX_INPUT_BYTES) {
@@ -68,6 +70,7 @@ export async function prepareChatImage(file: File): Promise<Blob> {
  * An unreadable file throws the unsupported-photo error.
  *
  * @param file - Photo chosen in the composer.
+ * @returns The result (Promise<ImageBitmap>).
  */
 async function decodeImage(file: File): Promise<ImageBitmap> {
   try {
@@ -83,6 +86,7 @@ async function decodeImage(file: File): Promise<ImageBitmap> {
  * @param source - Decoded photo.
  * @param maxEdge - Longest allowed side in pixels.
  * @param quality - JPEG quality from 0 to 1.
+ * @returns The result (Promise<Blob>).
  */
 function renderJpeg(source: ImageBitmap, maxEdge: number, quality: number): Promise<Blob> {
   const fitted  = fitEdge(source.width, source.height, maxEdge)

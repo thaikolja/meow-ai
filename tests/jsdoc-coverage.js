@@ -422,6 +422,31 @@ function endOfNestedFunction(tokens, functionIndex) {
 }
 
 /**
+ * Index of the token after a TypeScript return type.
+ * An object type stays in the type. The function body `{` does not.
+ *
+ * @param tokens - Token list.
+ * @param colonIndex - Index of the `:` that starts the return type.
+ * @returns Index of the body, semicolon, or arrow.
+ */
+function indexAfterReturnType(tokens, colonIndex) {
+    let cursor  = colonIndex + 1
+    let depth   = 0
+    let sawType = false
+    let last    = ''
+    for (; cursor < tokens.length; cursor++) {
+        const text = tokens[cursor].text || ''
+        if (depth===0 && text==='{' && sawType && ![ '|', '&' ].includes(last)) return cursor
+        if (depth===0 && (text===';' || text==='=>' || text===',' || text===')')) return cursor
+        if ([ '{', '(', '<', '[' ].includes(text)) depth++
+        else if ([ '}', ')', '>', ']' ].includes(text) && depth > 0) depth--
+        if (text && depth===0) last = text
+        sawType = true
+    }
+    return cursor
+}
+
+/**
  * Whether the function after a parameter list produces a value.
  *
  * @param source - File text.
@@ -433,31 +458,20 @@ function functionReturns(source, tokens, closeParen) {
     let cursor   = closeParen + 1
     let typeText = ''
     if (tokens[cursor]?.text===':') {
-        cursor++
-        let depth   = 0
-        const parts = []
-        for (; cursor < tokens.length; cursor++) {
-            const token = tokens[cursor]
-            if ((token.text==='{' || token.text===';' || token.text==='=>') && depth===0) break
-            if ([ '{', '(', '<', '[' ].includes(token.text || '')) depth++
-            else if ([ '}', ')', '>', ']' ].includes(token.text || '') && depth > 0) depth--
-            else if (token.text) parts.push(token.text)
-        }
-        typeText = parts.join('')
+        const typeStart = tokens[cursor + 1]?.start ?? tokens[cursor].end
+        cursor          = indexAfterReturnType(tokens, cursor)
+        const typeEnd   = tokens[cursor]?.start ?? typeStart
+        typeText        = source.slice(typeStart, typeEnd).replace(/\s+/g, '')
     }
-    const compact = typeText.replace(/\s+/g, '')
-    const voidish = /^(void|undefined|never|Promise<void>|Promise<undefined>|Promise<never>)$/.test(compact)
-    if (compact && !voidish) return { returns: true, typeText: compact }
-    if (tokens[cursor]?.text==='{') return { returns: bodyReturns(source, tokens, cursor), typeText: compact }
-    if (tokens[cursor]?.text===';') return { returns: false, typeText: compact }
+    const voidish = /^(void|undefined|never|Promise<void>|Promise<undefined>|Promise<never>)$/.test(typeText)
+    if (typeText && !voidish) return { returns: true, typeText }
+    if (tokens[cursor]?.text==='{') return { returns: bodyReturns(source, tokens, cursor), typeText }
+    if (tokens[cursor]?.text===';') return { returns: false, typeText }
     if (tokens[cursor]?.text==='=>') {
-        if (tokens[cursor + 1]?.text==='{') return {
-            returns:  bodyReturns(source, tokens, cursor + 1),
-            typeText: compact
-        }
-        return { returns: true, typeText: compact }
+        if (tokens[cursor + 1]?.text==='{') return { returns: bodyReturns(source, tokens, cursor + 1), typeText }
+        return { returns: true, typeText }
     }
-    return { returns: false, typeText: compact }
+    return { returns: false, typeText }
 }
 
 /**
@@ -598,16 +612,7 @@ function gapsInFile(file, root) {
             if ([ 'if', 'for', 'while', 'switch', 'catch', 'function', 'return', 'throw', 'case', 'await' ].includes(previous?.text || '')) continue
             const close = skipBalanced(tokens, index + 1, '(', ')')
             let after   = close + 1
-            if (tokens[after]?.text===':') {
-                let depth = 0
-                after++
-                for (; after < tokens.length; after++) {
-                    const next = tokens[after]
-                    if ((next.text==='{' || next.text===';' || next.text==='=>') && depth===0) break
-                    if ([ '{', '(', '<', '[' ].includes(next.text || '')) depth++
-                    else if ([ '}', ')', '>', ']' ].includes(next.text || '') && depth > 0) depth--
-                }
-            }
+            if (tokens[after]?.text===':') after = indexAfterReturnType(tokens, after)
             const isBody      = tokens[after]?.text==='{'
             const modifier    = [ 'async', 'get', 'set', 'static', 'public', 'private', 'protected', 'readonly' ].includes(previous?.text || '')
             const atStatement = !previous || modifier || previous.text==='{' || previous.text===';' || previous.text==='}'
@@ -617,18 +622,36 @@ function gapsInFile(file, root) {
 
         if (token.text==='=>') {
             let cursor = index - 1
-            if (tokens[cursor]?.text===')') cursor = skipBalancedBack(tokens, cursor)
-            else if (tokens[cursor]?.kind==='ident') cursor--
-            else continue
-            if (tokens[cursor]?.text==='async') cursor--
-            if (tokens[cursor]?.text!=='=') continue
-            const name = tokens[cursor - 1]?.kind==='ident' ? tokens[cursor - 1].text: 'arrow'
-            let open   = index - 1
-            if (tokens[open]?.text!==')') {
-                continue
+            if (tokens[cursor]?.text!==')') {
+                let depth = 0
+                while (cursor >= 0 && !(tokens[cursor].text===')' && depth===0)) {
+                    const text = tokens[cursor].text || ''
+                    if ([ ')', '}', ']', '>' ].includes(text)) depth++
+                    else if ([ '(', '{', '[', '<' ].includes(text) && depth > 0) depth--
+                    cursor--
+                }
             }
-            open = skipBalancedBack(tokens, open)
-            if (tokens[open]?.text==='(') consider(index, name || 'arrow', open)
+            if (tokens[cursor]?.text!==')') continue
+            const open = skipBalancedBack(tokens, cursor)
+            let before = open - 1
+            if (tokens[before]?.text==='>') {
+                let depth = 0
+                while (before >= 0) {
+                    if (tokens[before].text==='>') depth++
+                    else if (tokens[before].text==='<') {
+                        depth--
+                        if (depth===0) {
+                            before--
+                            break
+                        }
+                    }
+                    before--
+                }
+            }
+            if (tokens[before]?.text==='async') before--
+            if (tokens[before]?.text!=='=') continue
+            const name = tokens[before - 1]?.kind==='ident' ? tokens[before - 1].text: 'arrow'
+            consider(index, name || 'arrow', open)
         }
     }
 

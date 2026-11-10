@@ -104,6 +104,8 @@ export async function deleteChatImage(id: string): Promise<void> {
  * Removes every photo that belongs to a chat. Matches the chat id stored on
  * the record and any image ids copied from the chat before it is discarded.
  * A full scan is used so a photo saved before it was tagged is still removed.
+ * @param chatId - Stored id of the chat to change.
+ * @param imageIds - Message photo ids that belong to that chat.
  */
 export async function deleteImagesForChat(chatId: string, imageIds: readonly string[] = []): Promise<void> {
   const wanted        = new Set(imageIds.filter(id => id.trim()))
@@ -113,8 +115,16 @@ export async function deleteImagesForChat(chatId: string, imageIds: readonly str
   const cursorRequest = transaction.objectStore(STORE_NAME).openCursor()
 
   await new Promise<void>((resolve, reject) => {
-    cursorRequest.onerror   = () => reject(cursorRequest.error || new Error('This browser could not store that photo.'))
-    cursorRequest.onsuccess = () => {
+    cursorRequest.onerror   = ()     /**
+     * Rejects the photo request when IndexedDB reports an error.
+     *
+     * @returns The value this function produces.
+     */
+        => reject(cursorRequest.error || new Error('This browser could not store that photo.'))
+    cursorRequest.onsuccess = ()     /**
+     * Resolves the photo request when IndexedDB finishes it.
+     */
+        => {
       const cursor = cursorRequest.result
       if (!cursor) {
         resolve()
@@ -172,15 +182,28 @@ function openDb(): Promise<IDBDatabase> {
 
   return new Promise((resolve, reject) => {
     const request           = indexedDB.open(DB_NAME, DB_VERSION)
-    request.onupgradeneeded = () => {
+    request.onupgradeneeded = ()     /**
+     * Creates the photo object store the first time the database opens.
+     */
+        => {
       const db = request.result
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' })
         store.createIndex('chatId', 'chatId', { unique: false })
       }
     }
-    request.onsuccess       = () => resolve(request.result)
-    request.onerror         = () => reject(request.error || new Error('This browser could not store that photo.'))
+    request.onsuccess       = ()     /**
+     * Resolves the photo request when IndexedDB finishes it.
+     *
+     * @returns The value this function produces.
+     */
+        => resolve(request.result)
+    request.onerror         = ()     /**
+     * Rejects the photo request when IndexedDB reports an error.
+     *
+     * @returns The value this function produces.
+     */
+        => reject(request.error || new Error('This browser could not store that photo.'))
   })
 }
 
@@ -192,8 +215,18 @@ function openDb(): Promise<IDBDatabase> {
  */
 function requestResult<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
-    request.onsuccess = () => resolve(request.result)
-    request.onerror   = () => reject(request.error || new Error('This browser could not store that photo.'))
+    request.onsuccess = ()     /**
+     * Resolves the photo request when IndexedDB finishes it.
+     *
+     * @returns The value this function produces.
+     */
+        => resolve(request.result)
+    request.onerror   = ()     /**
+     * Rejects the photo request when IndexedDB reports an error.
+     *
+     * @returns The value this function produces.
+     */
+        => reject(request.error || new Error('This browser could not store that photo.'))
   })
 }
 
@@ -202,14 +235,28 @@ function requestResult<T>(request: IDBRequest<T>): Promise<T> {
  *
  * @param transaction - Open read or write transaction.
  * @param db - Database to close after completion.
+ * @returns The result (Promise<void>).
  */
 function transactionDone(transaction: IDBTransaction, db: IDBDatabase): Promise<void> {
   return new Promise((resolve, reject) => {
-    transaction.oncomplete = () => {
+    transaction.oncomplete = ()     /**
+     * Resolves when the IndexedDB transaction commits.
+     */
+        => {
       db.close()
       resolve()
     }
-    transaction.onerror    = () => reject(transaction.error || new Error('This browser could not store that photo.'))
-    transaction.onabort    = () => reject(transaction.error || new Error('This browser could not store that photo.'))
+    transaction.onerror    = ()     /**
+     * Rejects the photo request when IndexedDB reports an error.
+     *
+     * @returns The value this function produces.
+     */
+        => reject(transaction.error || new Error('This browser could not store that photo.'))
+    transaction.onabort    = ()     /**
+     * Rejects when the IndexedDB transaction aborts.
+     *
+     * @returns The value this function produces.
+     */
+        => reject(transaction.error || new Error('This browser could not store that photo.'))
   })
 }

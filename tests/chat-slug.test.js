@@ -47,7 +47,12 @@ describe('chat slug', () => {
     })
 
     test('builds a fresh cat sentence when the model cannot', () => {
-        const random = () => 0
+        const random = ()         /**
+         * Returns a fixed sample so the slug test does not depend on Math.random.
+         *
+         * @returns The value this function produces.
+         */
+                => 0
         const slug   = fallbackChatSlug([ 'cat-sits-on-sofa' ], random)
         const words  = slug.split('-')
 
