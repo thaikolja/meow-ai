@@ -72,10 +72,21 @@ deploy:
     - |
       SSH_OPTS="-o PreferredAuthentications=password -o PubkeyAuthentication=no -o NumberOfPasswordPrompts=1 -o StrictHostKeyChecking=yes"
       USER_NAME="${SSH_DEPLOY_USER:-root}"
-      sshpass -e scp ${SSH_OPTS} -P "${SSH_DEPLOY_PORT:-22}" scripts/deploy.sh "${USER_NAME}@${SSH_DEPLOY_HOST}:/tmp/meow-deploy.sh"
+      sshpass -e scp ${SSH_OPTS} -P "${SSH_DEPLOY_PORT:-22}" scripts/deploy.sh "${USER_NAME}@${SSH_DEPLOY_HOST}:/tmp/meow-deploy.sh" || scp_status=$?
+      if [ "${scp_status:-0}" -ne 0 ]; then
+        echo "scp failed with exit ${scp_status}."
+        if [ "$scp_status" -eq 5 ]; then
+          echo "sshpass exit 5 means SSH_DEPLOY_PASSWORD was rejected for ${USER_NAME}@${SSH_DEPLOY_HOST}."
+        fi
+        exit "$scp_status"
+      fi
       sshpass -e ssh ${SSH_OPTS} -p "${SSH_DEPLOY_PORT:-22}" "${USER_NAME}@${SSH_DEPLOY_HOST}" \
-        "DEPLOY_BRANCH='${CI_COMMIT_BRANCH}' bash /tmp/meow-deploy.sh" \
-        || { echo "SSH failed. sshpass exit 5 means SSH_DEPLOY_PASSWORD was rejected for ${USER_NAME}@${SSH_DEPLOY_HOST}."; exit 5; }
+        "DEPLOY_BRANCH='${CI_COMMIT_BRANCH}' bash /tmp/meow-deploy.sh" || ssh_status=$?
+      if [ "${ssh_status:-0}" -ne 0 ]; then
+        echo "Remote deploy exited ${ssh_status}."
+        echo "sshpass uses 5 for a rejected password. deploy.sh uses 5 when docker compose build fails."
+        exit "$ssh_status"
+      fi
   environment:
     name: production
     url: https://meow.yanawa.io

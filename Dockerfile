@@ -2,7 +2,9 @@
 # deps installs with Bun, build runs `bun run build`, runtime serves the Nitro output on port 3000.
 # The image tag stays `meow-ai:latest`. The package version lives in package.json.
 
-ARG BUN_VERSION=1.2
+# oven/bun:1.2 is Bun 1.2.23. On the production host that build segfaults
+# with SIGILL while Nitro bundles. 1.4.4 is the Bun that built this app.
+ARG BUN_VERSION=1.4.4
 ARG NODE_VERSION=22-bookworm-slim
 
 # Stage 1: install all dependencies (needed for the build)
