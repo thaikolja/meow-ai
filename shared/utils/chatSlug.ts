@@ -120,13 +120,13 @@ const SLUG_ACTIONS  = [
  */
 export function fallbackChatSlug(avoid: string[] = [], random: () => number = Math.random): string {
   const banned = new Set(avoid)
-  const pick = <T>(items: readonly T[]): T   /**
+  /**
    * Picks one entry from a list with the injected random source.
    *
    * @param items - List to pick from.
    * @returns The result (T).
    */
-      => items[Math.floor(random() * items.length) % items.length] as T
+  const pick = <T>(items: readonly T[]): T => items[Math.floor(random() * items.length) % items.length] as T
 
   for (let attempt = 0; attempt < 40; attempt++) {
     const [ verb, prep ] = pick(SLUG_ACTIONS)

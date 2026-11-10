@@ -115,16 +115,16 @@ export async function deleteImagesForChat(chatId: string, imageIds: readonly str
   const cursorRequest = transaction.objectStore(STORE_NAME).openCursor()
 
   await new Promise<void>((resolve, reject) => {
-    cursorRequest.onerror   = ()     /**
+    /**
      * Rejects the photo request when IndexedDB reports an error.
      *
      * @returns The value this function produces.
      */
-        => reject(cursorRequest.error || new Error('This browser could not store that photo.'))
-    cursorRequest.onsuccess = ()     /**
+    cursorRequest.onerror   = () => reject(cursorRequest.error || new Error('This browser could not store that photo.'))
+    /**
      * Resolves the photo request when IndexedDB finishes it.
      */
-        => {
+    cursorRequest.onsuccess = () => {
       const cursor = cursorRequest.result
       if (!cursor) {
         resolve()
@@ -182,28 +182,28 @@ function openDb(): Promise<IDBDatabase> {
 
   return new Promise((resolve, reject) => {
     const request           = indexedDB.open(DB_NAME, DB_VERSION)
-    request.onupgradeneeded = ()     /**
+    /**
      * Creates the photo object store the first time the database opens.
      */
-        => {
+    request.onupgradeneeded = () => {
       const db = request.result
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' })
         store.createIndex('chatId', 'chatId', { unique: false })
       }
     }
-    request.onsuccess       = ()     /**
+    /**
      * Resolves the photo request when IndexedDB finishes it.
      *
      * @returns The value this function produces.
      */
-        => resolve(request.result)
-    request.onerror         = ()     /**
+    request.onsuccess       = () => resolve(request.result)
+    /**
      * Rejects the photo request when IndexedDB reports an error.
      *
      * @returns The value this function produces.
      */
-        => reject(request.error || new Error('This browser could not store that photo.'))
+    request.onerror         = () => reject(request.error || new Error('This browser could not store that photo.'))
   })
 }
 
@@ -215,18 +215,18 @@ function openDb(): Promise<IDBDatabase> {
  */
 function requestResult<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
-    request.onsuccess = ()     /**
+    /**
      * Resolves the photo request when IndexedDB finishes it.
      *
      * @returns The value this function produces.
      */
-        => resolve(request.result)
-    request.onerror   = ()     /**
+    request.onsuccess = () => resolve(request.result)
+    /**
      * Rejects the photo request when IndexedDB reports an error.
      *
      * @returns The value this function produces.
      */
-        => reject(request.error || new Error('This browser could not store that photo.'))
+    request.onerror   = () => reject(request.error || new Error('This browser could not store that photo.'))
   })
 }
 
@@ -239,24 +239,24 @@ function requestResult<T>(request: IDBRequest<T>): Promise<T> {
  */
 function transactionDone(transaction: IDBTransaction, db: IDBDatabase): Promise<void> {
   return new Promise((resolve, reject) => {
-    transaction.oncomplete = ()     /**
+    /**
      * Resolves when the IndexedDB transaction commits.
      */
-        => {
+    transaction.oncomplete = () => {
       db.close()
       resolve()
     }
-    transaction.onerror    = ()     /**
+    /**
      * Rejects the photo request when IndexedDB reports an error.
      *
      * @returns The value this function produces.
      */
-        => reject(transaction.error || new Error('This browser could not store that photo.'))
-    transaction.onabort    = ()     /**
+    transaction.onerror    = () => reject(transaction.error || new Error('This browser could not store that photo.'))
+    /**
      * Rejects when the IndexedDB transaction aborts.
      *
      * @returns The value this function produces.
      */
-        => reject(transaction.error || new Error('This browser could not store that photo.'))
+    transaction.onabort    = () => reject(transaction.error || new Error('This browser could not store that photo.'))
   })
 }

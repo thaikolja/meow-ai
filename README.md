@@ -22,8 +22,8 @@ Celebration confetti plays only after a successful login. A rejected house secre
 `ConfettiRain`. The sidebar shows the package version.
 
 Paw-ferences edits a draft. **Save the nest** stores the custom system prompt (or clears it when the draft matches
-`public/system-prompt.md`), the preferred catalog id, and max context for the signed-in username. **Change Meow's
-default prompt** is disabled when that draft already matches the shipped prompt. When the draft is customized, the
+`public/system-prompt.md`), the preferred catalog id, and max context for the signed-in username. **Change Meow's default prompt**
+is disabled when that draft already matches the shipped prompt. When the draft is customized, the
 button shows a browser alert, then puts the shipped prompt back in the draft only. The selected model and the chats
 stay. Nothing is written until Save the nest. There is no Sweep the nest, Danger Zone, or Empty Litter Box. Confetti
 inside the modal plays only after a successful save, not when the modal is opened again. The header X and Escape close

@@ -26,12 +26,12 @@ import {join}                                                             from '
 
 const tempDir = mkdtempSync(join(tmpdir(), 'meow-models-'))
 process.env['NUXT_DATA_DIR'] = tempDir
-globalThis.useRuntimeConfig = () /**
+/**
  * Supplies the runtime config the model-storage test reads.
  *
  * @returns The value this function produces.
  */
-        => ({ dataDir: tempDir })
+globalThis.useRuntimeConfig = () => ({ dataDir: tempDir })
 
 const {getAllModels, initializeDefaultModels} = await import('../server/utils/modelsStorage')
 const modelsFile                              = join(tempDir, 'models.json')
