@@ -52,7 +52,7 @@
           ]" type="button" @click.stop="selectModel(model.id)">
           <Icon
               :name="isSelected(model.id) ? 'lucide:check-circle-2' : 'lucide:circle'" class="w-4 h-4 shrink-0" />
-          <span class="truncate">{{ model.name }}</span>
+          <span class="truncate">{{ modelLabel(model.id) }}</span>
         </button>
       </div>
     </div>
@@ -67,12 +67,13 @@
    */
 
   import { onMounted, onUnmounted, ref, computed, watchEffect } from 'vue'
+  import { catalogModelName } from '#shared/utils/models'
   import { chatSessionKey, displayedModelId } from '#shared/utils/sessionModel'
 
   const route                     = useRoute()
   const { getChat, setChatModel } = useChats()
   const { rememberSessionModel, recallSessionModel } = useSessionModel()
-  const { activeModels, getModel, loadModels } = useModels()
+  const { activeModels, loadModels } = useModels()
   const { selectedModel: persistedModel, setSelectedModel } = useSettings()
   const defaultModel                           = useDefaultModel()
   const dropdownContainer                      = ref<HTMLElement | null>(null)
@@ -137,11 +138,19 @@
     }
   })
 
-  /** Trigger label: the catalog name, or the raw model id when the name is unknown. */
+  /**
+   * Catalog name for an id. The raw id stays off the button and the menu.
+   *
+   * @param modelId - Catalog id.
+   */
+  function modelLabel(modelId: string) {
+    return catalogModelName(activeModels.value, modelId) || 'Meow'
+  }
+
+  /** Trigger label: the catalog name for the model this route is using. */
   const displayLabel = computed(() => {
     if (!displayedModel.value) return 'Pick a Meow-del 🐾'
-    const model = getModel(displayedModel.value)
-    return model?.name || displayedModel.value
+    return modelLabel(displayedModel.value)
   })
 
   /** Active models whose name or id matches the search text. */
@@ -149,8 +158,7 @@
     const q = search.value.toLowerCase()
     if (!q) return activeModels.value
     return activeModels.value.filter(m =>
-        m.name.toLowerCase().includes(q)
-        || m.id.toLowerCase().includes(q)
+        (catalogModelName(activeModels.value, m.id) || '').toLowerCase().includes(q)
     )
   })
 

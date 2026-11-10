@@ -15,13 +15,14 @@
   -->
 
 <template>
-  <div class="relative flex h-full max-w-full flex-col overflow-hidden bg-transparent">
+  <div class="relative flex h-full min-h-0 max-w-full flex-col overflow-hidden bg-transparent">
     <ClientOnly>
       <!-- Main Centered Content (Hero and Suggested Actions) -->
-      <div class="z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center overflow-y-auto px-4 py-6 text-center sm:p-6 min-w-0">
+      <div class="z-10 mx-auto flex w-full max-w-6xl min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto px-4 py-6 text-center sm:p-6">
+        <div class="m-auto flex w-full min-w-0 flex-col items-center">
 
         <!-- Hero Mascot Section with Animations -->
-        <div class="mb-10 relative mt-10 sm:mt-0">
+          <div class="relative mb-10 mt-2 px-8 sm:mt-0">
           <div class="w-28 h-28 mx-auto bg-zinc-950 rounded-full flex items-center justify-center shadow-2xl border border-zinc-700/80 relative z-10 shadow-primary-900/20">
             <Icon class="w-16 h-16 text-white" name="mdi:cat" />
           </div>
@@ -53,7 +54,7 @@
               class="group text-left p-5 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 hover:bg-zinc-800 hover:border-primary-500/50 transition-all flex items-start gap-4 shadow-sm" @click="handleSend('Can you teach me how to introduce myself in German? Explain the grammar basics clearly.')">
             <span class="p-2.5 bg-primary-900/30 rounded-xl group-hover:scale-110 transition-transform shrink-0">
               <Icon class="w-5 h-5 text-primary-400" name="lucide:hand" />
-            </span> <span>
+            </span> <span class="min-w-0">
               <span class="block text-sm font-semibold text-zinc-200 mb-1.5">Introductions</span>
               <span class="block text-xs text-zinc-500 leading-relaxed">Learn how to say hello and introduce yourself correctly in German.</span>
             </span>
@@ -64,7 +65,7 @@
               class="group text-left p-5 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 hover:bg-zinc-800 hover:border-blue-500/50 transition-all flex items-start gap-4 shadow-sm" @click="handleSend('Let\'s do a simple roleplay! You are a barista at a coffee shop in Berlin, and I am a customer ordering coffee.')">
             <span class="p-2.5 bg-blue-900/30 rounded-xl group-hover:scale-110 transition-transform shrink-0">
               <Icon class="w-5 h-5 text-blue-400" name="lucide:coffee" />
-            </span> <span>
+            </span> <span class="min-w-0">
               <span class="block text-sm font-semibold text-zinc-200 mb-1.5">Roleplay: Café</span>
               <span class="block text-xs text-zinc-500 leading-relaxed">Practice ordering coffee in a realistic casual Berlin setting.</span>
             </span>
@@ -75,7 +76,7 @@
               class="group text-left p-5 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 hover:bg-zinc-800 hover:border-orange-500/50 transition-all flex items-start gap-4 shadow-sm" @click="handleSend('Please explain the difference between Der, Die, and Das using examples that a Thai speaker would understand.')">
             <span class="p-2.5 bg-orange-900/30 rounded-xl group-hover:scale-110 transition-transform shrink-0">
               <Icon class="w-5 h-5 text-orange-400" name="lucide:book-open" />
-            </span> <span>
+            </span> <span class="min-w-0">
               <span class="block text-sm font-semibold text-zinc-200 mb-1.5">Grammar: Articles</span>
               <span class="block text-xs text-zinc-500 leading-relaxed">Master the complexity of German articles (der, die, das) with local context.</span>
             </span>
@@ -86,11 +87,12 @@
               class="group text-left p-5 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 hover:bg-zinc-800 hover:border-emerald-500/50 transition-all flex items-start gap-4 shadow-sm" @click="handleSend('Give me 5 essential German phrases related to traveling, along with their Thai translations and pronunciation.')">
             <span class="p-2.5 bg-emerald-900/30 rounded-xl group-hover:scale-110 transition-transform shrink-0">
               <Icon class="w-5 h-5 text-emerald-400" name="lucide:plane" />
-            </span> <span>
+            </span> <span class="min-w-0">
               <span class="block text-sm font-semibold text-zinc-200 mb-1.5">Travel Vocabulary</span>
               <span class="block text-xs text-zinc-500 leading-relaxed">Prepare for your next trip with train and transport essentials.</span>
             </span>
           </button>
+        </div>
         </div>
       </div>
 

@@ -25,11 +25,19 @@
 import { shouldShowConfetti } from '#shared/utils/celebration'
 
 const { authState, verifySession } = useAuthSession()
-const { celebrationSequence }      = useCelebration()
-/** True once the session has been checked and the visitor is authenticated. */
-const appReady                     = computed(() => authState.value.checked && authState.value.authenticated)
+useAccountSync()
+const accountSyncedFor        = useState<string | null>('account-synced-for', () => null)
+const { celebrationSequence } = useCelebration()
+/** True once this username's settings and chats have replaced the empty in-memory copies. */
+const appReady                = computed(() => {
+  const username = authState.value.username
+  return authState.value.checked
+      && authState.value.authenticated
+      && Boolean(username)
+      && accountSyncedFor.value === username
+})
 /** True only after `triggerCelebration()` has run. Failed login does not raise the sequence. */
-const showConfetti                 = computed(() => shouldShowConfetti(celebrationSequence.value))
+const showConfetti            = computed(() => shouldShowConfetti(celebrationSequence.value))
 
 if (import.meta.server && !authState.value.checked) {
   await verifySession(true)
@@ -52,19 +60,23 @@ if (import.meta.client && !authState.value.checked) {
       </NuxtLayout>
     </div>
 
-    <div
-        v-if="!appReady"
-        class="fixed inset-0 z-100 bg-zinc-900"
-    >
-      <CatLoadingState
-          v-if="!authState.checked"
-          full-screen
-          subtitle="Meow is checking the cushions, polishing the cat flap, and waking up your session."
-          title="Waking up the cat lounge..."
-      />
+    <Transition name="nest-gate">
+      <div
+          v-if="!appReady"
+          class="nest-gate fixed inset-0 z-100 bg-zinc-900"
+      >
+        <CatLoadingState
+            v-if="!authState.checked || authState.authenticated"
+            full-screen
+            :subtitle="authState.authenticated
+              ? 'Meow is carrying your nest over from the other cushion.'
+              : 'Meow is checking the cushions, polishing the cat flap, and waking up your session.'"
+            :title="authState.authenticated ? 'Opening your nest...' : 'Waking up the cat lounge...'"
+        />
 
-      <AuthGate v-else />
-    </div>
+        <AuthGate v-else />
+      </div>
+    </Transition>
 
     <ConfettiRain
         v-if="showConfetti"
@@ -72,3 +84,63 @@ if (import.meta.client && !authState.value.checked) {
     />
   </UApp>
 </template>
+
+<style>
+.nest-gate,
+.nest-gate-enter-active {
+  animation: nest-gate-in 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.nest-gate .nest-card,
+.nest-gate-enter-active .nest-card {
+  animation: nest-card-in 680ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.nest-gate-leave-active {
+  animation: nest-gate-out 520ms ease both;
+}
+
+.nest-gate-leave-active .nest-card {
+  animation: nest-card-out 420ms ease both;
+}
+
+@keyframes nest-gate-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes nest-gate-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes nest-card-in {
+  from {
+    opacity:   0;
+    transform: translateY(18px) scale(0.97);
+  }
+  to {
+    opacity:   1;
+    transform: none;
+  }
+}
+
+@keyframes nest-card-out {
+  from {
+    opacity:   1;
+    transform: none;
+  }
+  to {
+    opacity:   0;
+    transform: translateY(10px) scale(0.98);
+  }
+}
+</style>

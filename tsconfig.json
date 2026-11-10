@@ -1,4 +1,4 @@
 {
-  // Meow 1.5.0. Nuxt writes the compiler options into .nuxt/tsconfig.json.
+  // Meow 1.6.0. Nuxt writes the compiler options into .nuxt/tsconfig.json.
   "extends": "./.nuxt/tsconfig.json"
 }

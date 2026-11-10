@@ -19,7 +19,7 @@
  * Models are stored in .data/models.json with human-readable names.
  */
 
-import { isThinkingModel } from '#shared/utils/models'
+import { catalogModelName, isThinkingModel } from '#shared/utils/models'
 import type { Model }        from '#shared/types/model'
 
 /**
@@ -66,10 +66,13 @@ export function useModels() {
     return models.value.find(m => m.id===id)
   }
 
-  /** Get human-readable name for a model ID */
+  /**
+   * Catalog name for a model id. Unknown ids stay unnamed so the raw id is not shown.
+   *
+   * @param modelId - Catalog id stored on a chat or message.
+   */
   function getModelName(modelId: string): string {
-    const model = getModel(modelId)
-    return model?.name || modelId
+    return catalogModelName(models.value, modelId) || 'Meow'
   }
 
   return {

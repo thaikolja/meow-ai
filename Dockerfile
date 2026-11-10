@@ -1,4 +1,4 @@
-# Meow 1.5.0 image.
+# Meow 1.6.0 image.
 # deps installs with Bun, build runs `bun run build`, runtime serves the Nitro output on port 3000.
 # The image tag stays `meow-ai:latest`. The package version lives in package.json.
 

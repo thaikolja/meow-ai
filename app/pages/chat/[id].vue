@@ -15,7 +15,7 @@
   -->
 
 <template>
-  <div class="flex flex-col h-full">
+  <div class="flex h-full min-h-0 flex-col">
     <ClientOnly>
       <!-- Messages Area: Scrollable feed of previous and current interactions -->
       <ChatMessages
@@ -45,6 +45,7 @@
    * Coordinates between UI components and multiple composables for state, settings, and streaming.
    */
 
+  import { missingChatRedirect } from '#shared/utils/accountHydrate'
   import { modelSupportsVision } from '#shared/utils/models'
   import { toUpstreamMessages }  from '~/utils/chatImagePayload'
   import { bindChatImage }       from '~/utils/chatImageStore'
@@ -53,7 +54,7 @@
   const router = useRouter()
 
   // Composable integrations for chat logic and global configurations
-  const { getChat, addMessage, updateMessage, persist, removeLastMessage }             = useChats()
+  const { chats, getChat, addMessage, updateMessage, persist, removeLastMessage } = useChats()
   const { isThinkingModel }                                                            = useModels()
   const { effectiveSystemPrompt, maxContextMessages, ensureDefaultSystemPromptLoaded } = useSettings()
   const { isStreaming, streamingContent, streamMessage, stopStreaming }                = useChatStream()
@@ -126,18 +127,6 @@
    */
   onMounted(() => {
     void ensureDefaultSystemPromptLoaded()
-
-    const openedChat = chatId.value ? getChat(chatId.value) : undefined
-    if (chatId.value && !openedChat) {
-      router.push('/')
-      return
-    }
-
-    // pending-stream stores the chat id, which stays put when the address becomes a slug.
-    if (openedChat && sessionStorage.getItem('pending-stream') === openedChat.id) {
-      sessionStorage.removeItem('pending-stream')
-      triggerCompletion()
-    }
   })
 
   onUnmounted(() => {
@@ -316,4 +305,35 @@
 
     await triggerCompletion()
   }
+
+  const { authState }    = useAuthSession()
+  const accountSyncedFor = useState<string | null>('account-synced-for', () => null)
+  /** True after this username's server chats are in memory. */
+  const accountSynced    = computed(() => {
+    const username = authState.value.username
+    return Boolean(username) && accountSyncedFor.value === username
+  })
+
+  /**
+   * Leaves only when the loaded account has no thread for this address.
+   * A reload stays on the page until that load finishes, then starts a pending reply.
+   */
+  function settleChatAddress() {
+    if (!import.meta.client) return
+
+    const key        = typeof chatId.value === 'string' ? chatId.value : ''
+    const openedChat = key ? getChat(key) : undefined
+    if (missingChatRedirect(accountSynced.value, key, Boolean(openedChat))) {
+      void router.push('/')
+      return
+    }
+
+    if (!accountSynced.value || !openedChat) return
+    if (sessionStorage.getItem('pending-stream') !== openedChat.id) return
+
+    sessionStorage.removeItem('pending-stream')
+    void triggerCompletion()
+  }
+
+  watch([ accountSynced, chatId, chats ], settleChatAddress, { immediate: true })
 </script>

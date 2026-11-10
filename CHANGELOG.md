@@ -2,6 +2,23 @@
 
 All notable changes to this project are documented here.
 
+## v1.6.0 — 2026-11-11
+
+### feat
+
+- feat (settings): save the system prompt, preferred model id, and max context for the signed-in username
+- feat (settings): restore the shipped system prompt, or reset the modal fields, without deleting chats
+- feat (chat): store threads, slugs, and each chat's model id for that username and load them on the next login
+- feat (models): show the `.data/models.json` name in settings, the header picker, and chat bubbles, and send the
+  catalog id upstream
+
+### fix
+
+- fix (ui): remove the Danger Zone label, the empty settings button, and Empty Litter Box from the modal footer
+- fix (settings): write the saved system prompt from the browser, and keep the selected model when the prompt is
+  restored or the fields are reset
+- fix (ui): fade the nest card on a hard refresh, and rain confetti inside the settings modal after Save
+
 ## v1.5.0 — 2026-10-08
 
 ### feat

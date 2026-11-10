@@ -2,12 +2,13 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/thaikolja/meow-ai?style=flat)](https://github.com/thaikolja/meow-ai/stargazers) [![GitHub forks](https://img.shields.io/github/forks/thaikolja/meow-ai?style=flat)](https://github.com/thaikolja/meow-ai/network/members) [![GitHub issues](https://img.shields.io/github/issues/thaikolja/meow-ai?style=flat)](https://github.com/thaikolja/meow-ai/issues) [![GitHub last commit](https://img.shields.io/github/last-commit/thaikolja/meow-ai?style=flat)](https://github.com/thaikolja/meow-ai/commits)
 
-**Version 1.5.0.** Do not bump past this until asked.
+**Version 1.6.0.**
 
 **Meow AI** is a flexible and cute cat-themed chat interface whose agents help you learn German. Originally programmed
 solely for my wife, I decided to open-source it – it's just so cute. *Meow AI* uses mostly **Gemini models**, but you
-can customize it and add new providers. API keys are stored in the `.env` file; every chat will be stored in your
-browser and not on another server. Based on **Nuxt 4**.
+can customize it and add new providers. API keys are stored in the `.env` file. Settings and chat history are stored
+for the signed-in username under `.data/accounts`, so the same name sees them on another device. Photo bytes stay in
+that browser. Based on **Nuxt 4**.
 
 <div align="center">
   <img src="./public/home.webp" alt="Front page" style="width:100%; height: auto;" />
@@ -32,26 +33,29 @@ Celebration confetti plays only after a successful login. A rejected house secre
 
 ## Architecture
 
-| Area | What it does |
-| --- | --- |
-| `app/` | Nuxt 4 shell, pages, auth gate, cat-themed UI |
-| `app/composables/useChats.ts` | Chat threads in `localStorage` |
-| `app/composables/useChatStream.ts` | SSE client for `/api/chat` |
-| `app/composables/useChatSlug.ts` | Background slug, then `router.replace` |
-| `app/composables/useSessionModel.ts` | In-memory model pick for the open chat |
-| `app/composables/useSettings.ts` | System prompt, max context, saved default model |
-| `app/composables/useModels.ts` | Catalog from `/api/models` |
-| `app/components/ChatInput.vue` | Composer. One photo when the model can read images |
-| `app/utils/prepareChatImage.ts` | Shrinks a picked photo to JPEG (long edge 1600px) |
-| `app/utils/chatImageStore.ts` | JPEG bytes in IndexedDB `meow-chat-images` |
-| `app/utils/chatImagePayload.ts` | Sends only the newest JPEG with the transcript |
-| `shared/utils/chatImage.ts` | JPEG checks. One image per request |
-| `shared/utils/models.ts` | `modelSupportsVision()` |
-| `server/api/chat.post.ts` | Auth + CSRF, then OpenRouter or DeepSeek SSE |
-| `server/api/chat-slug.post.ts` | One cat sentence from `google/gemini-3.5-flash-lite` |
-| `server/api/auth/*` | Challenge, login, logout, session |
-| `server/api/models/index.get.ts` | Reads `.data/models.json` |
-| `.data/models.json` | Live catalog. An empty or missing file seeds the same five models |
+| Area                                 | What it does                                                              |
+|--------------------------------------|---------------------------------------------------------------------------|
+| `app/`                               | Nuxt 4 shell, pages, auth gate, cat-themed UI                             |
+| `app/composables/useChats.ts`        | Chat threads for the signed-in username                                   |
+| `app/composables/useChatStream.ts`   | SSE client for `/api/chat`                                                |
+| `app/composables/useChatSlug.ts`     | Background slug, then `router.replace`                                    |
+| `app/composables/useSessionModel.ts` | In-memory model pick for the open chat                                    |
+| `app/composables/useSettings.ts`     | System prompt, max context, and saved default model. Save commits them    |
+| `app/composables/useModels.ts`       | Catalog from `/api/models`                                                |
+| `app/components/ChatInput.vue`       | Composer. One photo when the model can read images                        |
+| `app/utils/prepareChatImage.ts`      | Shrinks a picked photo to JPEG (long edge 1600px)                         |
+| `app/utils/chatImageStore.ts`        | JPEG bytes in IndexedDB `meow-chat-images`                                |
+| `app/utils/chatImagePayload.ts`      | Sends only the newest JPEG with the transcript                            |
+| `shared/utils/chatImage.ts`          | JPEG checks. One image per request                                        |
+| `shared/utils/models.ts`             | `modelSupportsVision()`                                                   |
+| `server/api/chat.post.ts`            | Auth + CSRF, then OpenRouter or DeepSeek SSE                              |
+| `server/api/chat-slug.post.ts`       | One cat sentence from `google/gemini-3.5-flash-lite`                      |
+| `server/api/auth/*`                  | Challenge, login, logout, session                                         |
+| `server/api/account.get.ts`          | Settings and chats for the session username                               |
+| `server/api/account.put.ts`          | Saves those fields. The body cannot pick the username                     |
+| `server/api/models/index.get.ts`     | Reads `.data/models.json`                                                 |
+| `.data/models.json`                  | Live catalog. Names are shown in the UI. Ids are stored and sent upstream |
+| `.data/accounts/`                    | One file per username. Not a copy of the catalog                          |
 
 ## Authentication
 

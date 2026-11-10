@@ -72,7 +72,18 @@ table td {
 
 .app-shell {
   height: var(--app-height, 100dvh);
-  min-height: var(--app-height, 100dvh);
+  max-height: var(--app-height, 100dvh);
+  min-height: 0;
+  width:      100%;
+}
+
+.chat-prose img,
+.chat-prose video,
+.chat-prose canvas,
+.chat-prose svg,
+.chat-prose table,
+.chat-prose pre {
+  max-width: 100%;
 }
 
 .no-scrollbar {

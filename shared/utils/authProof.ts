@@ -32,7 +32,7 @@ export const AUTH_DISPLAY_NAME_MAX_LENGTH = 32
 /**
  * First line of a login proof message. Identifies this proof format.
  */
-export const AUTH_PROOF_VERSION           = 'meow-auth-v1'
+export const AUTH_PROOF_VERSION = 'meow-auth-v1'
 
 /**
  * Collapses repeated whitespace and trims a display name.

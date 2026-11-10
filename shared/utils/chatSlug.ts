@@ -23,7 +23,7 @@
 /**
  * Model asked to invent a chat slug.
  */
-export const CHAT_SLUG_MODEL     = 'google/gemini-3.5-flash-lite'
+export const CHAT_SLUG_MODEL = 'google/gemini-3.5-flash-lite'
 
 /**
  * Fewest words a slug may contain.

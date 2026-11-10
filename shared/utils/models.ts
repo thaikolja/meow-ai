@@ -63,6 +63,26 @@ export function isThinkingModel(modelId: string): boolean {
 }
 
 /**
+ * User-facing catalog name for a model id.
+ * The id stays on stored chats and on upstream requests. Screens show `name`.
+ *
+ * @param catalog - Rows from `.data/models.json`. Each row needs `id` and `name`.
+ * @param modelId - Catalog id, such as `google/gemini-3.8-flash`.
+ * @returns The row's `name`, or `null` when the id is missing from the catalog.
+ */
+export function catalogModelName(
+    catalog: readonly { id: string, name: string }[],
+    modelId: string | null | undefined
+): string | null {
+  if (typeof modelId !== 'string') return null
+  const id = modelId.trim()
+  if (!id) return null
+
+  const name = catalog.find(model => model.id === id)?.name?.trim()
+  return name || null
+}
+
+/**
  * Gemini models on OpenRouter, and DeepSeek Flash, accept a page photo.
  * DeepSeek Pro stays closed. Unknown ids stay closed so a new text model
  * cannot send an image by accident.

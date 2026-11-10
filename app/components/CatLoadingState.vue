@@ -21,7 +21,7 @@
       <div class="absolute -bottom-16 right-0 h-56 w-56 rounded-full bg-blue-500/10 blur-3xl"></div>
     </div>
 
-    <div class="relative z-10 w-full max-w-md rounded-3xl border border-zinc-800/80 bg-zinc-950/80 p-8 text-center shadow-2xl shadow-primary-900/10 backdrop-blur-xl">
+    <div class="nest-card relative z-10 w-full max-w-md rounded-3xl border border-zinc-800/80 bg-zinc-950/80 p-8 text-center shadow-2xl shadow-primary-900/10 backdrop-blur-xl">
       <div class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-zinc-800 bg-zinc-900 shadow-inner">
         <Icon class="h-11 w-11 animate-pulse text-primary-400" name="mdi:cat" />
       </div>

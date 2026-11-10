@@ -1,4 +1,4 @@
-# Meow 1.5.0 CI
+# Meow 1.6.0 CI
 #
 # Pipeline:
 #   lint    - bun install + bun test + vitest + playwright + tsc typecheck

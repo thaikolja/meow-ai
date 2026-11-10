@@ -22,7 +22,7 @@
 /**
  * Cookie name for the signed session token.
  */
-export const AUTH_SESSION_COOKIE_NAME: string  = 'chat_session'
+export const AUTH_SESSION_COOKIE_NAME: string = 'chat_session'
 
 /**
  * Cookie name for the readable display name.
@@ -32,5 +32,5 @@ export const AUTH_USERNAME_COOKIE_NAME: string = 'chat_username'
 /**
  * Cookie lifetime in seconds (seven days).
  */
-export const AUTH_SESSION_MAX_AGE: number      = 60 * 60 * 24 * 7
+export const AUTH_SESSION_MAX_AGE: number = 60 * 60 * 24 * 7
 

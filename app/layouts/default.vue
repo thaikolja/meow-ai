@@ -153,7 +153,7 @@
     </Transition>
 
     <!-- Main Content -->
-    <main class="flex-1 flex max-w-full min-w-0 flex-col bg-zinc-900 border-l border-zinc-800/50 relative overflow-hidden">
+    <main class="flex min-h-0 min-w-0 max-w-full flex-1 flex-col relative overflow-hidden border-l border-zinc-800/50 bg-zinc-900">
       <!-- Background Accents -->
       <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div class="absolute -top-40 -right-40 w-96 h-96 bg-primary-600/10 rounded-full blur-3xl"></div>
@@ -161,7 +161,7 @@
       </div>
 
       <!-- Top Bar -->
-      <header class="relative z-40 flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 border-b border-zinc-800/50 bg-zinc-900/80 backdrop-blur-md">
+      <header class="relative z-40 flex min-w-0 flex-wrap items-center gap-2 border-b border-zinc-800/50 bg-zinc-900/80 px-3 py-3 backdrop-blur-md sm:gap-3 sm:px-4">
         <button
             v-if="!sidebarOpen"
             class="p-2 rounded-lg hover:bg-zinc-800 transition-colors text-zinc-400"
@@ -191,7 +191,7 @@
             Meow 🐾
           </div>
           <!-- Repository links: GitLab and GitHub (open in new tab) -->
-          <div class="hidden sm:flex items-center gap-8 ms-3">
+          <div class="ms-1 hidden items-center gap-3 sm:flex">
             <a
                 aria-label="View on GitLab"
                 class="text-zinc-400 hover:text-zinc-200 transition-colors"
@@ -247,7 +247,7 @@
       </header>
 
       <!-- Page Content -->
-      <div class="relative z-10 flex-1 min-w-0 overflow-hidden">
+      <div class="relative z-10 min-h-0 min-w-0 flex-1 overflow-hidden">
         <slot />
       </div>
     </main>
@@ -269,6 +269,8 @@
  * Handles mobile responsiveness and global UI states (sidebar/settings).
  */
 
+import packageJson from '../../package.json'
+
 const route                                                        = useRoute()
 const router                                                       = useRouter()
 const { assignChatSlug }                                           = useChatSlug()
@@ -287,7 +289,7 @@ const searchQuery      = ref('')
 const usernameCookie   = useCookie('chat_username')
 const selectedProvider = useState<string>('selected-provider', () => defaultProvider.value)
 const logoutPending    = ref(false)
-const version          = useRuntimeConfig().public.version || ''
+const version = packageJson.version || useRuntimeConfig().public.version || ''
 const displayName      = computed(() => authState.value.username || usernameCookie.value || '')
 
 /**

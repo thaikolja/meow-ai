@@ -33,7 +33,7 @@
     <div
         :class="[
         'flex items-center gap-0.5 shrink-0 transition-opacity',
-        active ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+        active ? 'opacity-100' : 'opacity-100 md:opacity-0 md:group-hover:opacity-100'
       ]">
       <button
           v-if="!isRenaming" class="p-1 rounded hover:bg-neutral-700 text-neutral-500 hover:text-neutral-300 transition-colors" title="Rename" @click.stop="startRename">

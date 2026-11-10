@@ -15,7 +15,11 @@
   -->
 
 <template>
-  <div ref="container" class="flex-1 w-full overflow-y-auto overflow-x-hidden" @scroll="handleScroll">
+  <div
+      ref="container"
+      class="min-h-0 w-full flex-1 overflow-y-auto overflow-x-hidden"
+      @scroll="handleScroll"
+  >
     <div ref="messageList" class="mx-auto w-full max-w-4xl min-w-0 px-3 py-4 sm:px-4 sm:py-6 space-y-5 sm:space-y-6">
       <ChatEmptyState v-if="messages.length === 0 && !isStreaming" @quick-prompt="handleQuickPrompt" />
 

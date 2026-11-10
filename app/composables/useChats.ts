@@ -15,11 +15,14 @@
  */
 
 /**
- * Chat threads kept in `localStorage` under `chat-yanawa-chats`.
+ * Chat threads for the signed-in username.
+ * Edits are written to the server account and cached in `localStorage` under `chat-yanawa-chats`.
  * Creates and edits threads and messages, stores a public slug, and deletes saved photos when a chat is removed.
  */
 
+import type { AccountChat }                                                                      from '#shared/utils/accountRecord'
 import type { Chat, ChatMessage } from '~/types'
+import { canPushAccountWrite, isAccountPushSuppressed, noteAccountMutation, withoutAccountPush } from '~/utils/accountSyncGate'
 import { deleteAllChatImages, deleteImagesForChat } from '~/utils/chatImageStore'
 
 /** Local storage key for chat persistence */
@@ -27,6 +30,8 @@ const STORAGE_KEY         = 'chat-yanawa-chats'
 const PERSIST_THROTTLE_MS = 250
 
 let persistTimer: ReturnType<typeof setTimeout> | null = null
+/** True after the signed session is known. Server writes wait for this. */
+let accountAuthenticated = false
 
 /**
  * Generates a non-cryptographic short unique identifier.
@@ -37,26 +42,32 @@ function generateId(): string {
 }
 
 /**
- * Retrieves the stored chat history from the browser's localStorage.
- * Returns an empty array if running on server or if storage is empty.
+ * Reads the browser chat cache. The server record wins once a username has saved chats.
  */
-function loadChats(): Chat[] {
+function readCachedChats(): Chat[] {
   if (import.meta.server) return []
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw): []
+    return raw ? JSON.parse(raw) as Chat[] : []
   } catch {
     return []
   }
 }
 
 /**
- * Persists the current chat array into the browser's localStorage.
- * Skips operations during SSR.
+ * Persists the current chat array in the browser cache and, when signed in, on the server.
+ * Skips the server write during hydration and during SSR.
  */
 function saveChats(chats: Chat[]) {
   if (import.meta.server) return
+  if (!canPushAccountWrite(accountAuthenticated, isAccountPushSuppressed())) return
+
   localStorage.setItem(STORAGE_KEY, JSON.stringify(chats))
+  noteAccountMutation()
+  void $fetch('/api/account', {
+    method: 'PUT',
+    body:   { chats }
+  }).catch(() => undefined)
 }
 
 /**
@@ -98,13 +109,40 @@ function flushSaveChats(chats: Chat[]) {
 export function useChats() {
   /** Reactive state holding all chat threads */
   const chats = useState<Chat[]>('chats', () => [])
-  /** Flag to track if initial load from storage has occurred */
+  /** Flag to track if the composable has been set up on this client */
   const isLoaded = useState('chats-loaded', () => false)
+  const { authState } = useAuthSession()
 
-  // Hydrate state from localStorage on the first client-side execution
+  watch(() => authState.value.authenticated, (authenticated) => {
+    accountAuthenticated = authenticated
+  }, { immediate: true })
+
+  // The server account replaces this list after login. Do not read another user's cache first.
   if (import.meta.client && !isLoaded.value) {
-    chats.value = loadChats()
     isLoaded.value = true
+  }
+
+  /**
+   * Replaces the thread list from the server. Does not write it back.
+   *
+   * @param next - Chats stored for the signed-in username.
+   */
+  function applyRemoteChats(next: AccountChat[]) {
+    withoutAccountPush(() => {
+      chats.value = next as Chat[]
+      if (import.meta.client) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(chats.value))
+      }
+    })
+  }
+
+  /**
+   * Drops the in-memory threads on logout without deleting the server copy.
+   */
+  function clearMemory() {
+    withoutAccountPush(() => {
+      chats.value = []
+    })
   }
 
   /** Gets all chats sorted by their most recent activity timestamp */
@@ -323,6 +361,9 @@ export function useChats() {
     updateMessage,
     removeLastMessage,
     clearAllChats,
-    persist
+    persist,
+    applyRemoteChats,
+    readCachedChats,
+    clearMemory
   }
 }

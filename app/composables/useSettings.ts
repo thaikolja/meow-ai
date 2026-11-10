@@ -15,9 +15,13 @@
  */
 
 /**
- * Browser settings for the tutor prompt, how many prior messages are sent, and the default model id.
- * On the client, loads `/system-prompt.md`, migrates the legacy prompt key once, and writes changes to `localStorage`.
+ * Tutor prompt, context window, and default model id for the signed-in username.
+ * The modal edits a draft. Save writes the committed fields here, then to the server account.
+ * This browser also keeps a cache in `localStorage` so a later visit can migrate an empty server record.
  */
+
+import type { AccountSettings }                                                                  from '#shared/utils/accountRecord'
+import { canPushAccountWrite, isAccountPushSuppressed, noteAccountMutation, withoutAccountPush } from '~/utils/accountSyncGate'
 
 const SYSTEM_PROMPT_OVERRIDE_STORAGE_KEY = 'chat-yanawa-system-prompt-override'
 const LEGACY_SYSTEM_PROMPT_STORAGE_KEY = 'chat-yanawa-system-prompt'
@@ -39,6 +43,8 @@ Follow these rules:
 - If the student attaches a photo, read it as their page and answer their question about it.`
 
 let defaultPromptLoadPromise: Promise<string> | null = null
+/** Client-only. A useState flag was set during SSR and then skipped the browser watch. */
+let settingsWatchBound = false
 
 /**
  * Composable for managing user-defined application settings.
@@ -55,8 +61,6 @@ export function useSettings() {
   const selectedModel       = useState<string>('settings-selected-model', () => '')
   /** Tracks if settings have been successfully re-hydrated from browser storage */
   const isLoaded            = useState('settings-loaded', () => false)
-  /** Prevent duplicate persistence watchers across multiple composable consumers */
-  const persistenceBound    = useState('settings-persistence-bound', () => false)
 
   const effectiveSystemPrompt = computed(() => {
     const override = systemPromptOverride.value?.trim()
@@ -135,69 +139,137 @@ export function useSettings() {
     selectedModel.value = modelId?.trim() || ''
   }
 
-  // Initialize and load persistent configurations on the client-side
-  if (import.meta.client && !isLoaded.value) {
-    const storedOverride = localStorage.getItem(SYSTEM_PROMPT_OVERRIDE_STORAGE_KEY)
-    const legacyPrompt = localStorage.getItem(LEGACY_SYSTEM_PROMPT_STORAGE_KEY)
+  const { authState } = useAuthSession()
 
-    if (storedOverride!==null) {
-      setSystemPromptOverride(storedOverride)
-    } else if (legacyPrompt!==null) {
-      setSystemPromptOverride(legacyPrompt)
-      localStorage.removeItem(LEGACY_SYSTEM_PROMPT_STORAGE_KEY)
+  if (import.meta.client && !isLoaded.value) {
+    isLoaded.value = true
+    void ensureDefaultSystemPromptLoaded()
+  }
+
+  /**
+   * Reads the browser cache. Used only when the server record for this username is still empty.
+   */
+  function readCachedSettings(): AccountSettings {
+    if (import.meta.server) {
+      return {
+        systemPrompt: null,
+        modelId:      '',
+        maxContext:   maxContextMessages.value
+      }
     }
 
-    // Convert stored string value back to a number for calculation
-    const storedMax = localStorage.getItem(MAX_CONTEXT_STORAGE_KEY)
+    const storedOverride = localStorage.getItem(SYSTEM_PROMPT_OVERRIDE_STORAGE_KEY)
+    const legacyPrompt = localStorage.getItem(LEGACY_SYSTEM_PROMPT_STORAGE_KEY)
+    const storedMax    = localStorage.getItem(MAX_CONTEXT_STORAGE_KEY)
+    const storedModel  = localStorage.getItem(SELECTED_MODEL_STORAGE_KEY)
+    let maxContext     = 25
+
     if (storedMax) {
       const parsedMax = parseInt(storedMax, 10)
       if (Number.isFinite(parsedMax) && parsedMax >= 0) {
-        maxContextMessages.value = parsedMax
+        maxContext = parsedMax
       }
     }
 
-    // Load persisted model selection
-    const storedModel = localStorage.getItem(SELECTED_MODEL_STORAGE_KEY)
-    if (storedModel) {
-      selectedModel.value = storedModel
-    }
-
-    isLoaded.value = true
-    void ensureDefaultSystemPromptLoaded().then(() => {
-      systemPromptOverride.value = normalizeOverride(systemPromptOverride.value)
-    })
-  }
-
-  /** Persists current settings to browser localStorage */
-  function saveSettings() {
-    if (import.meta.client) {
-      if (systemPromptOverride.value) {
-        localStorage.setItem(SYSTEM_PROMPT_OVERRIDE_STORAGE_KEY, systemPromptOverride.value)
-      } else {
-        localStorage.removeItem(SYSTEM_PROMPT_OVERRIDE_STORAGE_KEY)
-      }
-
-      localStorage.removeItem(LEGACY_SYSTEM_PROMPT_STORAGE_KEY)
-      localStorage.setItem(MAX_CONTEXT_STORAGE_KEY, Math.max(0, maxContextMessages.value).toString())
-
-      if (selectedModel.value) {
-        localStorage.setItem(SELECTED_MODEL_STORAGE_KEY, selectedModel.value)
-      } else {
-        localStorage.removeItem(SELECTED_MODEL_STORAGE_KEY)
-      }
+    return {
+      systemPrompt: normalizeOverride(storedOverride ?? legacyPrompt),
+      modelId:      storedModel?.trim() || '',
+      maxContext
     }
   }
 
   /**
-   * Automatic observer that triggers a save whenever configuration state changes.
-   * Ensures settings are always synced without manual 'Save' button.
+   * Replaces the committed fields from the server. Does not write them back.
+   *
+   * @param settings - Settings for the signed-in username.
    */
-  if (!persistenceBound.value) {
+  function applyRemoteSettings(settings: AccountSettings) {
+    withoutAccountPush(() => {
+      systemPromptOverride.value = normalizeOverride(settings.systemPrompt)
+      maxContextMessages.value   = settings.maxContext
+      selectedModel.value        = settings.modelId || ''
+
+      if (settings.modelId) {
+        useState<string>('selected-model', () => '').value = settings.modelId
+      }
+
+      writeLocalCache()
+    })
+  }
+
+  /**
+   * Forgets the in-memory fields on logout. The server copy stays.
+   */
+  function clearSettingsMemory() {
+    withoutAccountPush(() => {
+      systemPromptOverride.value                         = null
+      maxContextMessages.value                           = 25
+      selectedModel.value                                = ''
+      useState<string>('selected-model', () => '').value = ''
+    })
+  }
+
+  /**
+   * Committed fields, ready for the account store.
+   */
+  function settingsSnapshot(): AccountSettings {
+    return {
+      systemPrompt: systemPromptOverride.value,
+      modelId:      selectedModel.value.trim(),
+      maxContext:   Math.max(0, maxContextMessages.value)
+    }
+  }
+
+  /** Writes the committed fields into this browser's cache. */
+  function writeLocalCache() {
+    if (!import.meta.client) return
+
+    if (systemPromptOverride.value) {
+      localStorage.setItem(SYSTEM_PROMPT_OVERRIDE_STORAGE_KEY, systemPromptOverride.value)
+    } else {
+      localStorage.removeItem(SYSTEM_PROMPT_OVERRIDE_STORAGE_KEY)
+    }
+
+    localStorage.removeItem(LEGACY_SYSTEM_PROMPT_STORAGE_KEY)
+    localStorage.setItem(MAX_CONTEXT_STORAGE_KEY, Math.max(0, maxContextMessages.value).toString())
+
+    if (selectedModel.value) {
+      localStorage.setItem(SELECTED_MODEL_STORAGE_KEY, selectedModel.value)
+    } else {
+      localStorage.removeItem(SELECTED_MODEL_STORAGE_KEY)
+    }
+  }
+
+  /**
+   * Persists committed settings in this browser and, when signed in, on the server.
+   *
+   * @returns Whether the account request was sent.
+   */
+  function saveSettings(): Promise<boolean> {
+    if (!import.meta.client) return Promise.resolve(false)
+    if (!canPushAccountWrite(authState.value.authenticated, isAccountPushSuppressed())) {
+      return Promise.resolve(false)
+    }
+
+    writeLocalCache()
+    noteAccountMutation()
+    return $fetch('/api/account', {
+      method: 'PUT',
+      body:   { settings: settingsSnapshot() }
+    }).then(() => true).catch(() => false)
+  }
+
+  /**
+   * Writes committed settings after Save or a header model pick.
+   * Bound on the client only. An SSR flag would skip the browser watch,
+   * and Save would update memory without writing the account.
+   */
+  if (import.meta.client && !settingsWatchBound) {
     watch([ systemPromptOverride, maxContextMessages, selectedModel ], () => {
-      saveSettings()
+      void saveSettings()
     })
 
-    persistenceBound.value = true
+    settingsWatchBound = true
   }
 
   return {
@@ -211,6 +283,10 @@ export function useSettings() {
     ensureDefaultSystemPromptLoaded,
     setSystemPromptOverride,
     resetSystemPromptOverride,
-    saveSettings
+    saveSettings,
+    applyRemoteSettings,
+    readCachedSettings,
+    settingsSnapshot,
+    clearSettingsMemory
   }
 }

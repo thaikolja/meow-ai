@@ -1,5 +1,5 @@
-# Meow 1.5.0 production stack.
-# The image tag stays `meow-ai:latest`. Package version is `1.5.0` in package.json.
+# Meow 1.6.0 production stack.
+# The image tag stays `meow-ai:latest`. Package version is `1.6.0` in package.json.
 # Secrets come from the server `.env`. The catalog file is mounted read-only.
 
 services:
